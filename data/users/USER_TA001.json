@@ -1,0 +1,15 @@
+{
+  "userId": "TA001",
+  "password": "password123",
+  "role": "TA",
+  "name": "Alice Wang",
+  "major": "Computer Science",
+  "grade": "Year 2",
+  "completedModules": [
+    "EBU6304"
+  ],
+  "gpa": "3.8",
+  "experience": "TA for Java Programming",
+  "cvFilePath": "uploads/cv_TA001.pdf",
+  "activeJobsCount": 1
+}
