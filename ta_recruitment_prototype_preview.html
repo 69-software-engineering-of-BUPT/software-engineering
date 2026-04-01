@@ -1,0 +1,4350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TA Recruitment Portal Prototype</title>
+  <style>
+
+:root {
+  --bg: #f5f1ea;
+  --surface: rgba(255, 255, 255, 0.82);
+  --surface-strong: rgba(255, 253, 249, 0.96);
+  --surface-muted: #f7f3ec;
+  --line: #ddd3c4;
+  --line-strong: #c9bda9;
+  --text: #29313b;
+  --muted: #6f7885;
+  --shadow: 0 18px 46px rgba(63, 72, 88, 0.08);
+  --shadow-soft: 0 8px 24px rgba(63, 72, 88, 0.05);
+  --radius-xl: 32px;
+  --radius-lg: 24px;
+  --radius-md: 18px;
+  --radius-sm: 14px;
+  --accent: #dbe6ee;
+  --accent-strong: #c8d7e3;
+  --accent-soft: #eef4f7;
+  --accent-text: #3e5b6f;
+  --success: #e5efe6;
+  --success-text: #537157;
+  --warning: #f3ebdc;
+  --warning-text: #7a6342;
+  --danger: #f4e4e1;
+  --danger-text: #8b5e58;
+  --purple: #ece8f8;
+  --purple-text: #66598a;
+  --gold: #fff3d8;
+  --gold-text: #8c6b20;
+  --focus: 0 0 0 4px rgba(198, 214, 226, 0.42);
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, "Segoe UI", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(220, 232, 239, 0.7), transparent 22%),
+    radial-gradient(circle at bottom right, rgba(239, 229, 216, 0.8), transparent 20%),
+    linear-gradient(180deg, #f8f5ef 0%, #efe8de 100%);
+}
+
+body[data-role="TA"] {
+  --accent: #dbe6ee;
+  --accent-strong: #c8d7e3;
+  --accent-soft: #eef4f7;
+  --accent-text: #3e5b6f;
+}
+
+body[data-role="MO"] {
+  --accent: #dfe9df;
+  --accent-strong: #cfe0cf;
+  --accent-soft: #eef5ee;
+  --accent-text: #537057;
+}
+
+body[data-role="AD"] {
+  --accent: #ede4db;
+  --accent-strong: #decfbe;
+  --accent-soft: #f5efe8;
+  --accent-text: #725d4b;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  appearance: none;
+}
+
+img {
+  max-width: 100%;
+}
+
+#app {
+  min-height: 100%;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.auth-shell {
+  min-height: 100vh;
+  padding: 24px;
+  display: grid;
+  place-items: center;
+}
+
+.auth-frame {
+  width: min(1160px, 100%);
+  min-height: 720px;
+  display: grid;
+  grid-template-columns: 1.08fr 0.92fr;
+  border: 1px solid var(--line);
+  border-radius: 34px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+}
+
+.brand-side,
+.auth-side {
+  padding: 42px;
+}
+
+.brand-side {
+  border-right: 1px solid var(--line);
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.65), transparent 30%),
+    linear-gradient(180deg, rgba(239, 244, 247, 0.82), rgba(248, 245, 239, 0.98));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.auth-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+}
+
+.logo-badge {
+  width: 70px;
+  height: 70px;
+  display: grid;
+  place-items: center;
+  border-radius: 24px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--accent-soft), #ffffff);
+  color: var(--accent-text);
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  box-shadow: var(--shadow-soft);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.64);
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.hero-title,
+.auth-title {
+  margin: 0;
+  font-size: 52px;
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+}
+
+.hero-copy,
+.auth-copy {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+  font-size: 17px;
+}
+
+.brand-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.feature-card,
+.role-card,
+.stat-card,
+.card,
+.toolbar,
+.data-callout,
+.auth-card,
+.glass-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(8px);
+}
+
+.feature-card {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 132px;
+}
+
+.feature-kicker {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.feature-value {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.auth-card,
+.glass-card {
+  padding: 28px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.row.space {
+  justify-content: space-between;
+}
+
+.button-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 11px 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(246, 242, 235, 0.96));
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  color: var(--text);
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.btn:hover,
+.nav-item:hover,
+.table-row-clickable:hover,
+.list-item:hover,
+.chip:hover,
+.tab:hover,
+.selectable:hover,
+.icon-btn:hover,
+.file-box:hover {
+  transform: translateY(-1px);
+  border-color: var(--line-strong);
+  box-shadow: 0 12px 28px rgba(63, 72, 88, 0.08);
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, var(--accent), var(--accent-soft));
+  color: var(--accent-text);
+  border-color: var(--accent-strong);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.btn-danger {
+  background: linear-gradient(180deg, rgba(244, 228, 225, 0.84), rgba(255, 255, 255, 0.94));
+  color: var(--danger-text);
+  border-color: rgba(201, 154, 148, 0.55);
+}
+
+.btn-quiet {
+  padding: 9px 12px;
+  border-radius: 14px;
+  min-height: auto;
+  font-size: 13px;
+}
+
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.76);
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.form-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form-grid.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field.compact {
+  gap: 6px;
+}
+
+.field.full {
+  grid-column: 1 / -1;
+}
+
+.label {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.input,
+.select,
+.textarea,
+.input-like {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.84);
+  min-height: 48px;
+  padding: 12px 14px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  outline: none;
+}
+
+.textarea {
+  min-height: 128px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: var(--accent-strong);
+  box-shadow: var(--focus);
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 6px;
+  color: var(--muted);
+}
+
+.check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-text);
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.role-card {
+  padding: 24px;
+  min-height: 230px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.role-card::after,
+.card-glow::after {
+  content: "";
+  position: absolute;
+  right: -38px;
+  bottom: -52px;
+  width: 160px;
+  height: 160px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(218, 229, 236, 0.7), transparent 62%);
+  pointer-events: none;
+}
+
+.role-icon,
+.mini-icon,
+.avatar,
+.nav-key,
+.metric-icon,
+.status-dot {
+  display: inline-grid;
+  place-items: center;
+}
+
+.role-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  border: 1px solid var(--accent-strong);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+}
+
+.role-name {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.role-copy {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.shell {
+  padding: 18px;
+  min-height: 100vh;
+}
+
+.app-frame {
+  width: min(1480px, 100%);
+  min-height: calc(100vh - 36px);
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 34px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow);
+}
+
+.topbar {
+  min-height: 78px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(252, 249, 244, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 22px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.brand-title {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.brand-subtitle {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.user-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px 8px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  min-width: 0;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-soft));
+  border: 1px solid var(--accent-strong);
+  color: var(--accent-text);
+  font-weight: 800;
+  font-size: 13px;
+  flex: 0 0 36px;
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.user-meta strong {
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.user-meta span {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.2;
+}
+
+.app-layout {
+  display: grid;
+  grid-template-columns: 258px 1fr;
+  min-height: calc(100vh - 78px);
+}
+
+.sidebar {
+  border-right: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(245, 242, 236, 0.9), rgba(250, 248, 244, 0.96));
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.side-card {
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 18px;
+  box-shadow: var(--shadow-soft);
+}
+
+.side-card strong {
+  display: block;
+  font-size: 24px;
+  letter-spacing: -0.03em;
+}
+
+.side-meta {
+  color: var(--muted);
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-label {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0 4px;
+}
+
+.nav-item {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.nav-item.active {
+  background: linear-gradient(180deg, var(--accent), var(--accent-soft));
+  color: var(--accent-text);
+  border-color: var(--accent-strong);
+}
+
+.nav-key {
+  width: 32px;
+  height: 32px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-strong);
+  color: var(--accent-text);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  flex: 0 0 32px;
+}
+
+.nav-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-text strong {
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.nav-text span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.side-metrics {
+  display: grid;
+  gap: 10px;
+}
+
+.metric-tile {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(246, 242, 235, 0.94));
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.metric-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metric-copy span {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.metric-copy strong {
+  font-size: 26px;
+  letter-spacing: -0.03em;
+  color: var(--accent-text);
+}
+
+.metric-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  border: 1px solid var(--accent-strong);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.sidebar-note {
+  margin-top: auto;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--line);
+}
+
+.page-head h1 {
+  margin: 0;
+  font-size: 34px;
+  letter-spacing: -0.04em;
+}
+
+.page-meta,
+.helper-text,
+.muted {
+  color: var(--muted);
+}
+
+.page-meta {
+  margin-top: 8px;
+  line-height: 1.55;
+}
+
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.badge,
+.pill,
+.chip,
+.tab,
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.badge {
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.badge::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.72;
+}
+
+.badge-open {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  border-color: rgba(102, 133, 157, 0.18);
+}
+
+.badge-under-review {
+  background: var(--warning);
+  color: var(--warning-text);
+}
+
+.badge-approved {
+  background: var(--success);
+  color: var(--success-text);
+}
+
+.badge-rejected,
+.badge-frozen,
+.badge-closed {
+  background: var(--danger);
+  color: var(--danger-text);
+}
+
+.badge-pending-interview,
+.badge-draft {
+  background: var(--purple);
+  color: var(--purple-text);
+}
+
+.badge-supplement-requested,
+.badge-warning,
+.badge-action-needed {
+  background: var(--gold);
+  color: var(--gold-text);
+}
+
+.badge-active {
+  background: var(--success);
+  color: var(--success-text);
+}
+
+.badge-default {
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--muted);
+  border-color: var(--line);
+}
+
+.toolbar {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.toolbar-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 0.95fr 0.95fr auto;
+  gap: 14px;
+}
+
+.toolbar-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.grid {
+  display: grid;
+  gap: 18px;
+}
+
+.grid.metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grid.split {
+  grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
+}
+
+.grid.even {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.card {
+  overflow: hidden;
+}
+
+.card-head {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: linear-gradient(180deg, rgba(247, 243, 237, 0.88), rgba(255, 255, 255, 0.96));
+}
+
+.card-title {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.card-body {
+  padding: 18px;
+}
+
+.card-body.compact {
+  padding: 14px 18px 18px;
+}
+
+.count-badge {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.summary-item {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.66);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-item span {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.summary-item strong {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.tag-row,
+.tab-row,
+.pill-row,
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip,
+.pill,
+.tab {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.72);
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.chip,
+.pill {
+  color: var(--text);
+}
+
+.tab {
+  min-height: 42px;
+}
+
+.pill.active,
+.tab.active {
+  background: linear-gradient(180deg, var(--accent), var(--accent-soft));
+  color: var(--accent-text);
+  border-color: var(--accent-strong);
+}
+
+.card-stack,
+.list-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.list-item,
+.file-box,
+.selectable {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.76);
+  padding: 14px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.selectable.active,
+.list-item.active {
+  border-color: var(--accent-strong);
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(247, 244, 238, 0.96));
+  box-shadow: 0 14px 28px rgba(63, 72, 88, 0.08);
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.list-main {
+  min-width: 0;
+}
+
+.list-title {
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.list-subtitle {
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.5;
+  font-size: 13px;
+}
+
+.banner {
+  border: 1px solid var(--accent-strong);
+  border-radius: 22px;
+  background: linear-gradient(180deg, var(--accent-soft), rgba(255, 255, 255, 0.92));
+  padding: 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.banner-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.banner-copy {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+.data-table thead th {
+  padding: 0 12px 4px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.data-table tbody td {
+  padding: 14px 12px;
+  background: rgba(255, 255, 255, 0.88);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+  line-height: 1.5;
+}
+
+.data-table tbody tr td:first-child {
+  border-left: 1px solid var(--line);
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+}
+
+.data-table tbody tr td:last-child {
+  border-right: 1px solid var(--line);
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+.data-table td.center,
+.data-table th.center {
+  text-align: center;
+}
+
+.data-table tr.table-row-clickable {
+  cursor: pointer;
+}
+
+.data-table tr.is-selected td {
+  border-color: var(--accent-strong);
+  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(242,246,248,0.96));
+}
+
+.data-table tr.is-alert td {
+  background: linear-gradient(180deg, rgba(255, 243, 216, 0.86), rgba(255, 255, 255, 0.96));
+}
+
+.data-table tr.is-warning td {
+  background: linear-gradient(180deg, rgba(244, 228, 225, 0.7), rgba(255, 255, 255, 0.96));
+}
+
+.detail-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-section {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.68);
+  padding: 16px;
+}
+
+.detail-section h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+}
+
+.detail-section p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.kv-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.kv-item {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.64);
+  padding: 14px;
+}
+
+.kv-item span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.kv-item strong {
+  line-height: 1.45;
+}
+
+.file-box {
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  border-style: dashed;
+}
+
+.file-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  border: 1px solid var(--accent-strong);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.file-copy {
+  min-width: 0;
+}
+
+.file-copy strong,
+.file-copy span {
+  display: block;
+}
+
+.file-copy span {
+  color: var(--muted);
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.pdf-preview {
+  min-height: 200px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(243, 239, 232, 0.88), rgba(255, 255, 255, 0.96));
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 20px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.pdf-preview .file-icon {
+  margin: 0 auto 12px;
+}
+
+.word-counter {
+  color: var(--muted);
+  font-size: 12px;
+  text-align: right;
+}
+
+.note-box,
+.empty-state {
+  border: 1px dashed var(--line-strong);
+  border-radius: 20px;
+  background: rgba(247, 244, 238, 0.8);
+  padding: 18px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 30px 18px;
+}
+
+.notice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notice-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.notice-dot {
+  width: 10px;
+  height: 10px;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: var(--accent-text);
+  flex: 0 0 10px;
+}
+
+.notice-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.notice-title {
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.notice-copy {
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.6;
+}
+
+.notice-time {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.keyline {
+  height: 1px;
+  background: linear-gradient(90deg, var(--line), transparent);
+  margin: 8px 0;
+}
+
+.profile-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.small-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.small-table th,
+.small-table td {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(221, 211, 196, 0.75);
+  line-height: 1.55;
+}
+
+.small-table th {
+  text-align: left;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.small-table tr:last-child td,
+.small-table tr:last-child th {
+  border-bottom: none;
+}
+
+.toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  max-width: 320px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(54, 80, 100, 0.96), rgba(67, 95, 116, 0.96));
+  color: #fff;
+  padding: 14px 16px;
+  box-shadow: 0 18px 36px rgba(46, 56, 72, 0.28);
+  opacity: 0;
+  transform: translateY(16px);
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  z-index: 60;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.link-button {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.link-button:hover {
+  text-decoration: underline;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  border: 1px solid var(--line);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.62);
+}
+
+@media (max-width: 1220px) {
+  .auth-frame,
+  .app-layout,
+  .grid.split,
+  .grid.even,
+  .grid.metrics,
+  .role-grid,
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-side {
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .toolbar-grid,
+  .form-grid.three,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .file-box {
+    grid-template-columns: 1fr;
+  }
+
+  .file-icon {
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .auth-shell,
+  .shell {
+    padding: 12px;
+  }
+
+  .brand-side,
+  .auth-side,
+  .sidebar,
+  .content {
+    padding: 18px;
+  }
+
+  .topbar {
+    padding: 14px 16px;
+  }
+
+  .hero-title,
+  .auth-title,
+  .page-head h1 {
+    font-size: 32px;
+  }
+
+  .summary-grid,
+  .kv-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .user-pill {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .topbar-actions,
+  .page-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+  </style>
+</head>
+<body data-role="guest">
+  <div id="app"></div>
+  <div id="toast" class="toast" aria-live="polite"></div>
+  <script>
+
+const STORAGE_KEY = 'ta-recruitment-medium-fi-prototype-v3';
+
+const USERS = {
+  TA: {
+    id: 'ACC-TA-1001',
+    name: 'Mia Wang',
+    email: 'mia.wang@campus.edu',
+    roleLabel: 'Teaching Assistant'
+  },
+  MO: {
+    id: 'ACC-MO-2001',
+    name: 'Dr. Chen',
+    email: 'chen@campus.edu',
+    roleLabel: 'Module Organiser'
+  },
+  AD: {
+    id: 'ACC-AD-9001',
+    name: 'System Admin',
+    email: 'admin@campus.edu',
+    roleLabel: 'Administrator'
+  }
+};
+
+const ROLE_HOME = {
+  TA: 'ta/project-schedule',
+  MO: 'mo/launch',
+  AD: 'ad/accounts'
+};
+
+const DEFAULT_STATE = {
+  currentRole: null,
+  ta: {
+    selectedJobId: 'JOB-2101',
+    search: '',
+    moFilter: 'All',
+    sort: 'Soonest',
+    openOnly: true,
+    myTab: 'profile',
+    historyFilter: 'All',
+    applyStatement: '',
+    uploadName: ''
+  },
+  mo: {
+    selectedJobId: 'JOB-2101',
+    selectedAppId: 'APP-5001',
+    statusFilter: 'All',
+    historyTab: 'published',
+    editing: null,
+    launchForm: {
+      module: '',
+      code: '',
+      startDate: '2026-04-22',
+      deadline: '2026-04-10',
+      seats: '2',
+      weeklyWorkload: '5 hrs / week',
+      schedule: 'Wed 13:00-15:00',
+      requirements: 'Machine learning background\nPython\nClear written communication',
+      details: 'Support lab preparation, attendance checks and experiment record reviews.',
+      restrictionMajor: 'AI / CS',
+      restrictionLanguage: 'CET-6 500+',
+      restrictionOther: 'Prior lab experience preferred'
+    }
+  },
+  ad: {
+    selectedAccountId: 'ACC-TA-1002',
+    accountSearch: '',
+    accountRole: 'All',
+    accountStatus: 'All',
+    projectsTab: 'all',
+    logRole: 'All',
+    logAction: 'All'
+  },
+  profile: {
+    name: 'Mia Wang',
+    gender: 'Female',
+    age: '23',
+    major: 'Data Science',
+    year: 'Postgraduate',
+    cet6: '578',
+    phone: '+44 7300 110245',
+    about: 'Available for Monday and Thursday teaching support.',
+    cvName: 'Mia_Wang_CV.pdf'
+  },
+  courseRecords: [
+    { id: 'CR-1', module: 'Data Mining', grade: '84' },
+    { id: 'CR-2', module: 'Statistics for AI', grade: '88' },
+    { id: 'CR-3', module: 'Research Methods', grade: '86' }
+  ],
+  languageScores: [
+    { id: 'LS-1', name: 'CET-6', score: '578' },
+    { id: 'LS-2', name: 'IELTS', score: '7.0' }
+  ],
+  jobs: [
+    {
+      id: 'JOB-2101',
+      module: 'Advanced Data Analytics TA',
+      code: 'DATA6021',
+      ownerId: 'ACC-MO-2001',
+      moName: 'Dr. Chen',
+      school: 'School of Computing',
+      startDate: '2026-04-08',
+      deadline: '2026-03-28',
+      postedAt: '2026-03-12',
+      weeklyWorkload: '6 hrs / week',
+      seats: 2,
+      filledSeats: 1,
+      status: 'Open',
+      schedule: 'Mon 14:00-16:00',
+      summary: 'Lab support, attendance checks and weekly office-hour coordination.',
+      details: 'Support teaching materials, weekly lab check-in and basic data reporting for the module.',
+      requirements: ['CS / DS major', 'CET-6 520+', 'Python basics']
+    },
+    {
+      id: 'JOB-2102',
+      module: 'Human Computer Interaction Studio TA',
+      code: 'DES5032',
+      ownerId: 'ACC-MO-2002',
+      moName: 'Prof. Morgan',
+      school: 'School of Design',
+      startDate: '2026-04-15',
+      deadline: '2026-04-02',
+      postedAt: '2026-03-10',
+      weeklyWorkload: '4 hrs / week',
+      seats: 1,
+      filledSeats: 0,
+      status: 'Open',
+      schedule: 'Thu 10:00-12:00',
+      summary: 'Studio feedback support, prototype review and presentation coordination.',
+      details: 'Support workshop preparation, prototype critique sessions and submission tracking.',
+      requirements: ['Design or HCI background', 'Figma experience', 'Presentation skills']
+    },
+    {
+      id: 'JOB-2103',
+      module: 'Academic Writing Workshop TA',
+      code: 'LAN4005',
+      ownerId: 'ACC-MO-2003',
+      moName: 'Dr. Zhao',
+      school: 'Language Centre',
+      startDate: '2026-04-18',
+      deadline: '2026-04-04',
+      postedAt: '2026-03-14',
+      weeklyWorkload: '3 hrs / week',
+      seats: 2,
+      filledSeats: 2,
+      status: 'Filled',
+      schedule: 'Tue 15:00-17:00',
+      summary: 'Writing clinic support and formatting guidance for module assessments.',
+      details: 'Support writing feedback sessions, formatting review and submission organisation.',
+      requirements: ['Excellent English writing', 'Formatting experience', 'Reliable response time']
+    },
+    {
+      id: 'JOB-2104',
+      module: 'Foundation Economics TA',
+      code: 'ECO1010',
+      ownerId: 'ACC-MO-2001',
+      moName: 'Dr. Chen',
+      school: 'Business School',
+      startDate: '2026-04-12',
+      deadline: '2026-03-25',
+      postedAt: '2026-03-05',
+      weeklyWorkload: '5 hrs / week',
+      seats: 3,
+      filledSeats: 1,
+      status: 'Open',
+      schedule: 'Wed 09:00-11:00',
+      summary: 'Tutorial support, attendance tracking and worksheet preparation.',
+      details: 'Assist weekly tutorials, spreadsheet marking checks and Q&A session preparation.',
+      requirements: ['Comfortable with Excel', 'Good communication', 'Available Wednesday morning']
+    }
+  ],
+  drafts: [
+    {
+      id: 'DRF-3101',
+      ownerId: 'ACC-MO-2001',
+      module: 'Machine Learning Lab TA',
+      code: 'ML7004',
+      startDate: '2026-04-22',
+      deadline: '2026-04-10',
+      seats: 2,
+      weeklyWorkload: '5 hrs / week',
+      schedule: 'Wed 13:00-15:00',
+      requirements: 'Machine learning background\nPython\nClear written communication',
+      details: 'Support lab preparation, attendance checks and experiment record reviews.',
+      restrictionMajor: 'AI / CS',
+      restrictionLanguage: 'CET-6 500+',
+      restrictionOther: 'Prior lab experience preferred',
+      updatedAt: '2026-03-19 14:40'
+    }
+  ],
+  applications: [
+    {
+      id: 'APP-5001',
+      jobId: 'JOB-2101',
+      applicantId: 'ACC-TA-1001',
+      applicantName: 'Mia Wang',
+      applicantEmail: 'mia.wang@campus.edu',
+      applicantMajor: 'Data Science',
+      applicantYear: 'Postgraduate',
+      applicantLanguage: 'CET-6 578',
+      skills: ['Python', 'Excel', 'Attendance tracking'],
+      statement: 'I have completed the prerequisite modules and can support Python lab sessions each week.',
+      cvName: 'Mia_Wang_CV.pdf',
+      status: 'Under Review',
+      submittedAt: '2026-03-18 10:20',
+      updatedAt: '2026-03-18 10:20'
+    },
+    {
+      id: 'APP-5002',
+      jobId: 'JOB-2103',
+      applicantId: 'ACC-TA-1001',
+      applicantName: 'Mia Wang',
+      applicantEmail: 'mia.wang@campus.edu',
+      applicantMajor: 'Data Science',
+      applicantYear: 'Postgraduate',
+      applicantLanguage: 'CET-6 578',
+      skills: ['Academic writing', 'Proofreading', 'Formatting'],
+      statement: 'I regularly support peer writing review and I am confident with formatting feedback.',
+      cvName: 'Mia_Wang_CV.pdf',
+      status: 'Approved',
+      submittedAt: '2026-03-14 15:12',
+      updatedAt: '2026-03-18 12:10'
+    },
+    {
+      id: 'APP-5003',
+      jobId: 'JOB-2101',
+      applicantId: 'ACC-TA-1002',
+      applicantName: 'Leo Li',
+      applicantEmail: 'leo.li@campus.edu',
+      applicantMajor: 'Computer Science',
+      applicantYear: 'Postgraduate',
+      applicantLanguage: 'CET-6 562',
+      skills: ['SQL', 'Python', 'Data cleaning'],
+      statement: 'I can support the weekly lab and already know the module workflow.',
+      cvName: 'Leo_Li_CV.pdf',
+      status: 'Pending Interview',
+      submittedAt: '2026-03-17 09:45',
+      updatedAt: '2026-03-18 09:50'
+    },
+    {
+      id: 'APP-5004',
+      jobId: 'JOB-2104',
+      applicantId: 'ACC-TA-1003',
+      applicantName: 'Sara Xu',
+      applicantEmail: 'sara.xu@campus.edu',
+      applicantMajor: 'Economics',
+      applicantYear: 'Postgraduate',
+      applicantLanguage: 'IELTS 6.5',
+      skills: ['Tutorial support', 'Spreadsheets', 'Classroom support'],
+      statement: 'I can support tutorial exercises and weekday morning sessions.',
+      cvName: 'Sara_Xu_CV.pdf',
+      status: 'Rejected',
+      submittedAt: '2026-03-16 13:30',
+      updatedAt: '2026-03-18 08:10'
+    },
+    {
+      id: 'APP-5005',
+      jobId: 'JOB-2102',
+      applicantId: 'ACC-TA-1001',
+      applicantName: 'Mia Wang',
+      applicantEmail: 'mia.wang@campus.edu',
+      applicantMajor: 'Data Science',
+      applicantYear: 'Postgraduate',
+      applicantLanguage: 'CET-6 578',
+      skills: ['Figma', 'Prototype critique', 'Presentation support'],
+      statement: 'I can support prototype review, design documentation and studio presentation check-ins.',
+      cvName: 'Mia_Wang_CV_v2.pdf',
+      status: 'Supplement Requested',
+      submittedAt: '2026-03-16 16:05',
+      updatedAt: '2026-03-19 09:20'
+    },
+    {
+      id: 'APP-5006',
+      jobId: 'JOB-2104',
+      applicantId: 'ACC-TA-1004',
+      applicantName: 'Daniel Gu',
+      applicantEmail: 'daniel.gu@campus.edu',
+      applicantMajor: 'Business Analytics',
+      applicantYear: 'Postgraduate',
+      applicantLanguage: 'CET-6 541',
+      skills: ['Excel', 'Tutoring', 'Attendance support'],
+      statement: 'I have prior classroom support experience and can help with tutorial preparation.',
+      cvName: 'Daniel_Gu_CV.pdf',
+      status: 'Under Review',
+      submittedAt: '2026-03-19 11:06',
+      updatedAt: '2026-03-19 11:06'
+    }
+  ],
+  accounts: [
+    {
+      id: 'ACC-TA-1001',
+      name: 'Mia Wang',
+      email: 'mia.wang@campus.edu',
+      role: 'TA',
+      department: 'School of Computing',
+      status: 'Active',
+      courseLoad: 1,
+      abnormalFlag: '',
+      note: 'Current user',
+      activeCourses: [
+        { module: 'Academic Writing Workshop', mo: 'Dr. Zhao', startDate: '2026-04-18' }
+      ]
+    },
+    {
+      id: 'ACC-TA-1002',
+      name: 'Leo Li',
+      email: 'leo.li@campus.edu',
+      role: 'TA',
+      department: 'School of Computing',
+      status: 'Active',
+      courseLoad: 3,
+      abnormalFlag: 'Reached Upper Limit',
+      note: 'Cannot register for new positions',
+      activeCourses: [
+        { module: 'Data Mining', mo: 'Dr. Chen', startDate: '2026-04-05' },
+        { module: 'Database Systems', mo: 'Prof. Allen', startDate: '2026-04-08' },
+        { module: 'Visual Analytics', mo: 'Dr. Stone', startDate: '2026-04-10' }
+      ]
+    },
+    {
+      id: 'ACC-TA-1003',
+      name: 'Sara Xu',
+      email: 'sara.xu@campus.edu',
+      role: 'TA',
+      department: 'Business School',
+      status: 'Warning',
+      courseLoad: 0,
+      abnormalFlag: '5 failed logins',
+      note: 'Monitor abnormal access attempts',
+      activeCourses: []
+    },
+    {
+      id: 'ACC-TA-1004',
+      name: 'Daniel Gu',
+      email: 'daniel.gu@campus.edu',
+      role: 'TA',
+      department: 'Business School',
+      status: 'Active',
+      courseLoad: 2,
+      abnormalFlag: '',
+      note: '',
+      activeCourses: [
+        { module: 'Accounting Basics', mo: 'Prof. Hart', startDate: '2026-04-07' },
+        { module: 'Business Statistics', mo: 'Dr. Chen', startDate: '2026-04-11' }
+      ]
+    },
+    {
+      id: 'ACC-MO-2001',
+      name: 'Dr. Chen',
+      email: 'chen@campus.edu',
+      role: 'MO',
+      department: 'School of Computing',
+      status: 'Active',
+      courseLoad: 0,
+      abnormalFlag: '',
+      note: 'Owns 2 published positions',
+      activeCourses: []
+    },
+    {
+      id: 'ACC-MO-2002',
+      name: 'Prof. Morgan',
+      email: 'morgan@campus.edu',
+      role: 'MO',
+      department: 'School of Design',
+      status: 'Active',
+      courseLoad: 0,
+      abnormalFlag: '',
+      note: '',
+      activeCourses: []
+    },
+    {
+      id: 'ACC-AD-9001',
+      name: 'System Admin',
+      email: 'admin@campus.edu',
+      role: 'AD',
+      department: 'Registry Office',
+      status: 'Active',
+      courseLoad: 0,
+      abnormalFlag: '',
+      note: 'Admin account',
+      activeCourses: []
+    }
+  ],
+  notifications: [
+    {
+      id: 'NT-9001',
+      role: 'TA',
+      type: 'Approved',
+      title: 'Academic Writing Workshop approved',
+      body: 'Your application has been approved by Dr. Zhao.',
+      time: '2026-03-18 12:10',
+      link: 'ta/my'
+    },
+    {
+      id: 'NT-9002',
+      role: 'TA',
+      type: 'Supplement Requested',
+      title: 'More information requested',
+      body: 'Please update your CV for Human Computer Interaction Studio.',
+      time: '2026-03-19 09:20',
+      link: 'ta/project-schedule'
+    },
+    {
+      id: 'NT-9003',
+      role: 'TA',
+      type: 'Under Review',
+      title: 'Advanced Data Analytics under review',
+      body: 'Your application is currently being reviewed by Dr. Chen.',
+      time: '2026-03-18 10:21',
+      link: 'ta/my'
+    },
+    {
+      id: 'NT-9101',
+      role: 'MO',
+      type: 'New Application',
+      title: 'New application for Advanced Data Analytics',
+      body: 'Mia Wang submitted a new CV and statement.',
+      time: '2026-03-18 10:21',
+      link: 'mo/applications'
+    },
+    {
+      id: 'NT-9102',
+      role: 'MO',
+      type: 'Reminder',
+      title: 'Admin reminder for Foundation Economics',
+      body: 'This position has been open for more than 7 days and still has vacancies.',
+      time: '2026-03-19 09:00',
+      link: 'mo/history'
+    },
+    {
+      id: 'NT-9103',
+      role: 'MO',
+      type: 'Interview',
+      title: 'Interview pipeline updated',
+      body: 'Leo Li is currently marked as pending interview.',
+      time: '2026-03-18 09:50',
+      link: 'mo/applications'
+    }
+  ],
+  logs: [
+    {
+      id: 'LOG-1',
+      time: '2026-03-19 11:06',
+      actor: 'Daniel Gu',
+      role: 'TA',
+      action: 'Application Submitted',
+      target: 'Foundation Economics TA',
+      result: 'Open'
+    },
+    {
+      id: 'LOG-2',
+      time: '2026-03-19 09:20',
+      actor: 'Prof. Morgan',
+      role: 'MO',
+      action: 'Supplement Requested',
+      target: 'Human Computer Interaction Studio TA',
+      result: 'Done'
+    },
+    {
+      id: 'LOG-3',
+      time: '2026-03-19 09:00',
+      actor: 'System Admin',
+      role: 'AD',
+      action: 'Reminder Sent',
+      target: 'Foundation Economics TA',
+      result: 'Done'
+    },
+    {
+      id: 'LOG-4',
+      time: '2026-03-18 12:10',
+      actor: 'Dr. Zhao',
+      role: 'MO',
+      action: 'Application Approved',
+      target: 'Academic Writing Workshop TA',
+      result: 'Done'
+    },
+    {
+      id: 'LOG-5',
+      time: '2026-03-18 10:20',
+      actor: 'Mia Wang',
+      role: 'TA',
+      action: 'Application Submitted',
+      target: 'Advanced Data Analytics TA',
+      result: 'Open'
+    },
+    {
+      id: 'LOG-6',
+      time: '2026-03-17 16:30',
+      actor: 'System Admin',
+      role: 'AD',
+      action: 'CSV Export',
+      target: 'Account Management',
+      result: 'Done'
+    }
+  ]
+};
+
+let state = loadState();
+
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return clone(DEFAULT_STATE);
+    return { ...clone(DEFAULT_STATE), ...JSON.parse(raw) };
+  } catch (error) {
+    return clone(DEFAULT_STATE);
+  }
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function resetDemo() {
+  state = clone(DEFAULT_STATE);
+  saveState();
+  showToast('Demo data has been reset.');
+  go('welcome');
+}
+
+function route() {
+  return location.hash.replace(/^#\/?/, '') || 'welcome';
+}
+
+function go(nextRoute) {
+  location.hash = '#/' + nextRoute;
+}
+
+function initials(name = '') {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase();
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function setPath(obj, path, value) {
+  const keys = path.split('.');
+  let target = obj;
+  while (keys.length > 1) {
+    const key = keys.shift();
+    if (!Object.prototype.hasOwnProperty.call(target, key) || typeof target[key] !== 'object') {
+      target[key] = {};
+    }
+    target = target[key];
+  }
+  target[keys[0]] = value;
+}
+
+function getPath(obj, path) {
+  return path.split('.').reduce((acc, key) => acc?.[key], obj);
+}
+
+function nowStamp() {
+  const now = new Date();
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
+
+function pad(number) {
+  return String(number).padStart(2, '0');
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '-';
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return dateStr;
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  });
+}
+
+function statusBadge(status) {
+  const map = {
+    'Open': 'badge badge-open',
+    'Filled': 'badge badge-approved',
+    'Closed': 'badge badge-closed',
+    'Draft': 'badge badge-draft',
+    'Under Review': 'badge badge-under-review',
+    'Approved': 'badge badge-approved',
+    'Rejected': 'badge badge-rejected',
+    'Supplement Requested': 'badge badge-supplement-requested',
+    'Pending Interview': 'badge badge-pending-interview',
+    'Active': 'badge badge-active',
+    'Warning': 'badge badge-warning',
+    'Frozen': 'badge badge-frozen',
+    'Reached Upper Limit': 'badge badge-warning',
+    'Action Needed': 'badge badge-action-needed'
+  };
+  return `<span class="${map[status] || 'badge badge-default'}">${escapeHtml(status)}</span>`;
+}
+
+function getUser(role) {
+  return USERS[role];
+}
+
+function jobsForCurrentMO() {
+  return state.jobs.filter((job) => job.ownerId === USERS.MO.id);
+}
+
+function allMoNames() {
+  return ['All', ...Array.from(new Set(state.jobs.map((job) => job.moName)))];
+}
+
+function getJob(jobId) {
+  return state.jobs.find((job) => job.id === jobId);
+}
+
+function getDraft(draftId) {
+  return state.drafts.find((draft) => draft.id === draftId);
+}
+
+function getApplication(appId) {
+  return state.applications.find((app) => app.id === appId);
+}
+
+function getAccount(accountId) {
+  return state.accounts.find((account) => account.id === accountId);
+}
+
+function applicationsForCurrentTA() {
+  return state.applications.filter((app) => app.applicantId === USERS.TA.id);
+}
+
+function currentTAApplicationForJob(jobId) {
+  return state.applications.find((app) => app.applicantId === USERS.TA.id && app.jobId === jobId);
+}
+
+function notificationsByRole(role) {
+  return state.notifications
+    .filter((item) => item.role === role)
+    .sort((a, b) => (a.time < b.time ? 1 : -1));
+}
+
+function pushNotification(role, type, title, body, link) {
+  state.notifications.unshift({
+    id: `NT-${Date.now()}`,
+    role,
+    type,
+    title,
+    body,
+    time: nowStamp(),
+    link
+  });
+}
+
+function pushLog(action, role, actor, target, result) {
+  state.logs.unshift({
+    id: `LOG-${Date.now()}`,
+    time: nowStamp(),
+    actor,
+    role,
+    action,
+    target,
+    result
+  });
+}
+
+function importantTaUpdates() {
+  return notificationsByRole('TA').slice(0, 2);
+}
+
+function daysOpen(job) {
+  const from = new Date(job.postedAt);
+  const to = new Date('2026-03-20');
+  const diff = Math.max(0, to.getTime() - from.getTime());
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+}
+
+function vacancies(job) {
+  return Math.max(0, Number(job.seats) - Number(job.filledSeats));
+}
+
+function isStaleUnfilled(job) {
+  return vacancies(job) > 0 && daysOpen(job) > 7 && job.status === 'Open';
+}
+
+function taVisibleJobs() {
+  let items = [...state.jobs];
+  if (state.ta.openOnly) {
+    items = items.filter((job) => job.status === 'Open');
+  }
+  const search = state.ta.search.trim().toLowerCase();
+  if (search) {
+    items = items.filter((job) =>
+      [job.module, job.code, job.school].some((field) => field.toLowerCase().includes(search))
+    );
+  }
+  if (state.ta.moFilter !== 'All') {
+    items = items.filter((job) => job.moName === state.ta.moFilter);
+  }
+  items.sort((a, b) => {
+    if (state.ta.sort === 'Latest') return a.startDate < b.startDate ? 1 : -1;
+    return a.startDate > b.startDate ? 1 : -1;
+  });
+  return items;
+}
+
+function filteredTaHistory() {
+  const items = applicationsForCurrentTA().sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+  if (state.ta.historyFilter === 'All') return items;
+  return items.filter((app) => app.status === state.ta.historyFilter);
+}
+
+function currentMoApplications() {
+  const ownedJobIds = new Set(jobsForCurrentMO().map((job) => job.id));
+  let items = state.applications.filter((app) => ownedJobIds.has(app.jobId));
+  if (state.mo.selectedJobId) {
+    items = items.filter((app) => app.jobId === state.mo.selectedJobId);
+  }
+  if (state.mo.statusFilter !== 'All') {
+    items = items.filter((app) => app.status === state.mo.statusFilter);
+  }
+  items.sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+  return items;
+}
+
+function filteredAccounts() {
+  let items = [...state.accounts];
+  const search = state.ad.accountSearch.trim().toLowerCase();
+  if (search) {
+    items = items.filter((account) =>
+      [account.name, account.email, account.department].some((field) => field.toLowerCase().includes(search))
+    );
+  }
+  if (state.ad.accountRole !== 'All') {
+    items = items.filter((account) => account.role === state.ad.accountRole);
+  }
+  if (state.ad.accountStatus !== 'All') {
+    items = items.filter((account) => account.status === state.ad.accountStatus);
+  }
+  return items;
+}
+
+function filteredLogs() {
+  let items = [...state.logs];
+  if (state.ad.logRole !== 'All') {
+    items = items.filter((log) => log.role === state.ad.logRole);
+  }
+  if (state.ad.logAction !== 'All') {
+    items = items.filter((log) => log.action === state.ad.logAction);
+  }
+  return items;
+}
+
+function ensureSelections() {
+  const visibleTaJobs = taVisibleJobs();
+  if (visibleTaJobs.length && !visibleTaJobs.some((job) => job.id === state.ta.selectedJobId)) {
+    state.ta.selectedJobId = visibleTaJobs[0].id;
+  }
+
+  const ownedJobs = jobsForCurrentMO();
+  if (ownedJobs.length && !ownedJobs.some((job) => job.id === state.mo.selectedJobId)) {
+    state.mo.selectedJobId = ownedJobs[0].id;
+  }
+
+  const moApps = currentMoApplications();
+  if (moApps.length && !moApps.some((app) => app.id === state.mo.selectedAppId)) {
+    state.mo.selectedAppId = moApps[0].id;
+  }
+
+  const accounts = filteredAccounts();
+  if (accounts.length && !accounts.some((account) => account.id === state.ad.selectedAccountId)) {
+    state.ad.selectedAccountId = accounts[0].id;
+  }
+}
+
+function pageTitleMeta(role) {
+  const names = {
+    TA: 'Teaching Assistant',
+    MO: 'Module Organiser',
+    AD: 'Administrator'
+  };
+  return names[role];
+}
+
+function sidebarMenu(role) {
+  const items = {
+    TA: [
+      ['ta/project-schedule', 'PS', 'Project Schedule', 'Open positions'],
+      ['ta/notifications', 'NT', 'Notifications', 'Status updates'],
+      ['ta/my', 'MY', 'My', 'Profile and history']
+    ],
+    MO: [
+      ['mo/launch', 'LA', 'Launch', 'Create a position'],
+      ['mo/history', 'HR', 'Historical Records', 'Published and drafts'],
+      ['mo/applications', 'AP', 'Received Applications', 'Review applicants'],
+      ['mo/notifications', 'NT', 'Notifications', 'Incoming updates']
+    ],
+    AD: [
+      ['ad/accounts', 'AC', 'Account Management', 'TA and MO accounts'],
+      ['ad/projects', 'PM', 'Project Management', 'Vacancy monitoring'],
+      ['ad/logs', 'LG', 'Operation Log', 'Audit trail']
+    ]
+  };
+  return items[role] || [];
+}
+
+function sidebarMetrics(role) {
+  if (role === 'TA') {
+    return [
+      ['Open', taVisibleJobs().filter((job) => job.status === 'Open').length, 'OP'],
+      ['Applied', applicationsForCurrentTA().length, 'AP'],
+      ['Approved', applicationsForCurrentTA().filter((app) => app.status === 'Approved').length, 'OK']
+    ];
+  }
+  if (role === 'MO') {
+    return [
+      ['Live Jobs', jobsForCurrentMO().filter((job) => job.status === 'Open').length, 'JB'],
+      ['Applicants', state.applications.filter((app) => jobsForCurrentMO().some((job) => job.id === app.jobId)).length, 'TA'],
+      ['Drafts', state.drafts.filter((draft) => draft.ownerId === USERS.MO.id).length, 'DF']
+    ];
+  }
+  return [
+    ['Accounts', state.accounts.length, 'AC'],
+    ['Vacancies', state.jobs.filter((job) => vacancies(job) > 0 && job.status === 'Open').length, 'VC'],
+    ['Logs', state.logs.length, 'LG']
+  ];
+}
+
+function renderLayout(role, title, meta, actionsHtml, contentHtml) {
+  state.currentRole = role;
+  saveState();
+  const user = getUser(role);
+  document.body.dataset.role = role;
+  return `
+    <div class="shell">
+      <div class="app-frame">
+        <div class="topbar">
+          <div class="brand">
+            <div class="logo-badge">TR</div>
+            <div>
+              <div class="brand-title">TA Recruitment Portal</div>
+              <div class="brand-subtitle">Spring 2026 · Role based prototype</div>
+            </div>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-secondary btn-quiet" data-go="select-role">Switch role</button>
+            <button class="btn btn-secondary btn-quiet" data-action="reset-demo">Reset demo</button>
+            <div class="user-pill">
+              <div class="avatar">${initials(user.name)}</div>
+              <div class="user-meta">
+                <strong>${escapeHtml(user.name)}</strong>
+                <span>${escapeHtml(pageTitleMeta(role))}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="app-layout">
+          <aside class="sidebar">
+            <div class="side-card">
+              <div class="eyebrow">${escapeHtml(role)}</div>
+              <strong>${escapeHtml(pageTitleMeta(role))}</strong>
+              <div class="side-meta">${escapeHtml(user.email)}</div>
+            </div>
+
+            <div class="nav-group">
+              <div class="nav-label">Navigation</div>
+              ${sidebarMenu(role).map(([routeValue, key, label, sub]) => `
+                <button class="nav-item ${route() === routeValue ? 'active' : ''}" data-go="${routeValue}">
+                  <span class="nav-key">${key}</span>
+                  <span class="nav-text">
+                    <strong>${escapeHtml(label)}</strong>
+                    <span>${escapeHtml(sub)}</span>
+                  </span>
+                </button>
+              `).join('')}
+            </div>
+
+            <div class="nav-group">
+              <div class="nav-label">Summary</div>
+              <div class="side-metrics">
+                ${sidebarMetrics(role).map(([label, value, key]) => `
+                  <div class="metric-tile">
+                    <div class="metric-copy">
+                      <span>${escapeHtml(label)}</span>
+                      <strong>${escapeHtml(value)}</strong>
+                    </div>
+                    <div class="metric-icon">${key}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="sidebar-note">
+              Clickable navigation only. Data stays in local storage for this prototype session.
+            </div>
+          </aside>
+
+          <main class="content">
+            <div class="page-head">
+              <div>
+                <h1>${escapeHtml(title)}</h1>
+                <div class="page-meta">${meta}</div>
+              </div>
+              <div class="page-actions">${actionsHtml || ''}</div>
+            </div>
+            ${contentHtml}
+          </main>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function welcomeView() {
+  document.body.dataset.role = 'guest';
+  return `
+    <div class="auth-shell">
+      <div class="auth-frame">
+        <section class="brand-side">
+          <div class="brand-panel">
+            <div class="logo-badge">TR</div>
+            <div class="eyebrow">Medium-fidelity prototype</div>
+            <h1 class="hero-title">TA Recruitment Portal</h1>
+            <p class="hero-copy">A role-based application flow for teaching assistants, module organisers and administrators.</p>
+          </div>
+
+          <div class="feature-grid">
+            <div class="feature-card">
+              <div class="feature-kicker">TA</div>
+              <div class="feature-value">Apply</div>
+              <div class="muted">Browse positions, upload a CV and track application status.</div>
+            </div>
+            <div class="feature-card">
+              <div class="feature-kicker">MO</div>
+              <div class="feature-value">Review</div>
+              <div class="muted">Publish positions, manage applicants and request follow-up material.</div>
+            </div>
+            <div class="feature-card">
+              <div class="feature-kicker">AD</div>
+              <div class="feature-value">Audit</div>
+              <div class="muted">Monitor vacancies, manage accounts and review operation logs.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="auth-side">
+          <div class="stack">
+            <div class="eyebrow">Welcome</div>
+            <h2 class="auth-title">Choose how you want to enter</h2>
+            <p class="auth-copy">Start from a clean welcome screen, then move into sign in, sign up and role selection.</p>
+          </div>
+
+          <div class="glass-card stack">
+            <div class="button-row">
+              <button class="btn btn-primary" data-go="signin">Sign in</button>
+              <button class="btn btn-secondary" data-go="signup">Sign up</button>
+              <button class="btn btn-secondary" data-go="select-role">Skip to role selection</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  `;
+}
+
+function authView(mode) {
+  document.body.dataset.role = 'guest';
+  const isSignIn = mode === 'signin';
+  return `
+    <div class="auth-shell">
+      <div class="auth-frame">
+        <section class="brand-side">
+          <div class="brand-panel">
+            <div class="logo-badge">TR</div>
+            <div class="eyebrow">${isSignIn ? 'Sign in' : 'Sign up'}</div>
+            <h1 class="hero-title">${isSignIn ? 'Access the portal' : 'Create an account shell'}</h1>
+            <p class="hero-copy">${isSignIn ? 'Use a simple sign in step before selecting a role.' : 'Use a lightweight sign up step before selecting a role.'}</p>
+          </div>
+          <div class="feature-grid">
+            <div class="feature-card">
+              <div class="feature-kicker">Flow</div>
+              <div class="feature-value">Welcome</div>
+              <div class="muted">Landing screen with sign in and sign up entry points.</div>
+            </div>
+            <div class="feature-card">
+              <div class="feature-kicker">Step</div>
+              <div class="feature-value">Identity</div>
+              <div class="muted">Choose TA, MO or AD after the basic auth shell.</div>
+            </div>
+            <div class="feature-card">
+              <div class="feature-kicker">Result</div>
+              <div class="feature-value">Navigate</div>
+              <div class="muted">Move into the role specific information architecture.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="auth-side">
+          <div class="auth-card stack">
+            <div class="stack">
+              <div class="eyebrow">${isSignIn ? 'Sign in' : 'Sign up'}</div>
+              <h2 class="auth-title">${isSignIn ? 'Continue to role selection' : 'Create and continue'}</h2>
+            </div>
+
+            <div class="form-grid">
+              <div class="field full">
+                <label class="label">Email</label>
+                <input class="input" value="mia.wang@campus.edu" />
+              </div>
+              <div class="field full">
+                <label class="label">Password</label>
+                <input class="input" type="password" value="Campus123" />
+              </div>
+              ${isSignIn ? '' : `
+                <div class="field">
+                  <label class="label">Name</label>
+                  <input class="input" value="Mia Wang" />
+                </div>
+                <div class="field">
+                  <label class="label">Student ID</label>
+                  <input class="input" value="202610024" />
+                </div>
+              `}
+            </div>
+
+            <div class="button-row">
+              <button class="btn btn-primary" data-go="select-role">${isSignIn ? 'Continue' : 'Create account'}</button>
+              <button class="btn btn-secondary" data-go="welcome">Back</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  `;
+}
+
+function roleSelectionView() {
+  document.body.dataset.role = 'guest';
+  return `
+    <div class="auth-shell">
+      <div class="auth-frame">
+        <section class="brand-side">
+          <div class="brand-panel">
+            <div class="logo-badge">TR</div>
+            <div class="eyebrow">Select identity</div>
+            <h1 class="hero-title">Choose a role</h1>
+            <p class="hero-copy">Each role enters a different navigation structure while sharing the same product language.</p>
+          </div>
+        </section>
+
+        <section class="auth-side">
+          <div class="role-grid">
+            <article class="role-card">
+              <div class="stack">
+                <div class="role-icon">TA</div>
+                <div class="role-name">TA</div>
+                <div class="role-copy">Browse open positions, upload a PDF CV, write a statement and follow status updates.</div>
+              </div>
+              <button class="btn btn-primary" data-set-role="TA">Enter as TA</button>
+            </article>
+
+            <article class="role-card">
+              <div class="stack">
+                <div class="role-icon">MO</div>
+                <div class="role-name">MO</div>
+                <div class="role-copy">Launch positions, review applicants, approve, reject or request more information.</div>
+              </div>
+              <button class="btn btn-primary" data-set-role="MO">Enter as MO</button>
+            </article>
+
+            <article class="role-card">
+              <div class="stack">
+                <div class="role-icon">AD</div>
+                <div class="role-name">AD</div>
+                <div class="role-copy">Manage accounts, monitor vacancies, trigger reminders and inspect operation logs.</div>
+              </div>
+              <button class="btn btn-primary" data-set-role="AD">Enter as AD</button>
+            </article>
+          </div>
+
+          <div class="button-row">
+            <button class="btn btn-secondary" data-go="welcome">Back to welcome</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  `;
+}
+
+function taProjectScheduleView() {
+  ensureSelections();
+  const jobs = taVisibleJobs();
+  const selectedJob = jobs.find((job) => job.id === state.ta.selectedJobId) || jobs[0];
+  const activeApplication = selectedJob ? currentTAApplicationForJob(selectedJob.id) : null;
+  const latest = importantTaUpdates();
+  const actions = `
+    <button class="btn btn-secondary" data-go="ta/my">My profile</button>
+    <button class="btn btn-primary" data-go="ta/notifications">Open notifications</button>
+  `;
+
+  return renderLayout(
+    'TA',
+    'Project Schedule',
+    `${jobs.filter((job) => job.status === 'Open').length} open positions · ${applicationsForCurrentTA().length} total applications`,
+    actions,
+    `
+      ${latest.length ? `
+        <div class="banner">
+          <div>
+            <div class="banner-title">${escapeHtml(latest[0].title)}</div>
+            <div class="banner-copy">${escapeHtml(latest[0].body)}</div>
+          </div>
+          <button class="btn btn-secondary btn-quiet" data-go="${escapeHtml(latest[0].link)}">Open</button>
+        </div>
+      ` : ''}
+
+      <div class="toolbar">
+        <div class="toolbar-grid">
+          <div class="field compact">
+            <label class="label">Module</label>
+            <input class="input" data-bind="ta.search" value="${escapeHtml(state.ta.search)}" placeholder="Search by module or code" />
+          </div>
+          <div class="field compact">
+            <label class="label">MO</label>
+            <select class="select" data-bind="ta.moFilter">
+              ${allMoNames().map((name) => `
+                <option value="${escapeHtml(name)}" ${state.ta.moFilter === name ? 'selected' : ''}>${escapeHtml(name)}</option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="field compact">
+            <label class="label">Sort by start date</label>
+            <select class="select" data-bind="ta.sort">
+              <option value="Soonest" ${state.ta.sort === 'Soonest' ? 'selected' : ''}>Soonest first</option>
+              <option value="Latest" ${state.ta.sort === 'Latest' ? 'selected' : ''}>Latest first</option>
+            </select>
+          </div>
+          <label class="check">
+            <input type="checkbox" data-bind="ta.openOnly" ${state.ta.openOnly ? 'checked' : ''} />
+            Open positions only
+          </label>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-secondary" data-action="clear-ta-filters">Clear</button>
+          <button class="btn btn-primary" data-action="apply-ta-filters">Apply filters</button>
+        </div>
+      </div>
+
+      <div class="grid metrics">
+        <div class="feature-card">
+          <div class="feature-kicker">Open positions</div>
+          <div class="feature-value">${state.jobs.filter((job) => job.status === 'Open').length}</div>
+          <div class="muted">Current semester opportunities.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-kicker">My applications</div>
+          <div class="feature-value">${applicationsForCurrentTA().length}</div>
+          <div class="muted">Across all modules.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-kicker">Approved</div>
+          <div class="feature-value">${applicationsForCurrentTA().filter((app) => app.status === 'Approved').length}</div>
+          <div class="muted">Accepted positions so far.</div>
+        </div>
+      </div>
+
+      <div class="grid split">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Open positions</div>
+            <div class="count-badge">${jobs.length} result(s)</div>
+          </div>
+          <div class="card-body compact">
+            ${jobs.length ? `
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Module</th>
+                    <th>Start date</th>
+                    <th>MO</th>
+                    <th class="center">Seats</th>
+                    <th class="center">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${jobs.map((job) => `
+                    <tr class="table-row-clickable ${selectedJob && selectedJob.id === job.id ? 'is-selected' : ''}" data-select-job="${job.id}">
+                      <td>
+                        <strong>${escapeHtml(job.module)}</strong>
+                        <div class="list-subtitle">${escapeHtml(job.code)} · ${escapeHtml(job.school)}</div>
+                      </td>
+                      <td>${formatDate(job.startDate)}</td>
+                      <td>${escapeHtml(job.moName)}</td>
+                      <td class="center">${vacancies(job)}/${job.seats}</td>
+                      <td class="center">${statusBadge(job.status)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            ` : `
+              <div class="empty-state">No positions match the current filters.</div>
+            `}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">${selectedJob ? escapeHtml(selectedJob.module) : 'No position selected'}</div>
+            <div>${selectedJob ? statusBadge(selectedJob.status) : ''}</div>
+          </div>
+          <div class="card-body">
+            ${selectedJob ? `
+              <div class="detail-card">
+                <div class="detail-section">
+                  <h3>Position overview</h3>
+                  <p>${escapeHtml(selectedJob.summary)}</p>
+                </div>
+
+                <div class="kv-grid">
+                  <div class="kv-item">
+                    <span>Module code</span>
+                    <strong>${escapeHtml(selectedJob.code)}</strong>
+                  </div>
+                  <div class="kv-item">
+                    <span>Module organiser</span>
+                    <strong>${escapeHtml(selectedJob.moName)}</strong>
+                  </div>
+                  <div class="kv-item">
+                    <span>Start date</span>
+                    <strong>${formatDate(selectedJob.startDate)}</strong>
+                  </div>
+                  <div class="kv-item">
+                    <span>Deadline</span>
+                    <strong>${formatDate(selectedJob.deadline)}</strong>
+                  </div>
+                  <div class="kv-item">
+                    <span>Weekly workload</span>
+                    <strong>${escapeHtml(selectedJob.weeklyWorkload)}</strong>
+                  </div>
+                  <div class="kv-item">
+                    <span>Optional timetable</span>
+                    <strong>${escapeHtml(selectedJob.schedule)}</strong>
+                  </div>
+                </div>
+
+                <div class="detail-section">
+                  <h3>Requirements</h3>
+                  <div class="tag-row">
+                    ${selectedJob.requirements.map((item) => `<span class="chip">${escapeHtml(item)}</span>`).join('')}
+                  </div>
+                </div>
+
+                ${activeApplication && activeApplication.status !== 'Supplement Requested' ? `
+                  <div class="detail-section">
+                    <h3>Application status</h3>
+                    <div class="row space">
+                      <div>
+                        ${statusBadge(activeApplication.status)}
+                        <div class="list-subtitle">Submitted ${escapeHtml(activeApplication.submittedAt)}</div>
+                      </div>
+                      <button class="btn btn-secondary btn-quiet" data-go="ta/my">View history</button>
+                    </div>
+                  </div>
+                ` : `
+                  <div class="detail-section">
+                    <h3>${activeApplication ? 'Resubmit application' : 'Apply to this position'}</h3>
+                    ${activeApplication ? `
+                      <div class="note-box">This position needs an updated CV or statement before the review continues.</div>
+                    ` : ''}
+                    <div class="stack">
+                      <div class="file-box">
+                        <div class="file-icon">PDF</div>
+                        <div class="file-copy">
+                          <strong>${escapeHtml(state.ta.uploadName || state.profile.cvName || 'No PDF selected')}</strong>
+                          <span>PDF CV upload is required for submission.</span>
+                        </div>
+                        <button class="btn btn-secondary btn-quiet" data-action="choose-apply-cv">Choose file</button>
+                      </div>
+                      <input id="apply-cv-input" class="visually-hidden" type="file" accept=".pdf,application/pdf" />
+
+                      <div class="field">
+                        <label class="label">Application statement (optional)</label>
+                        <textarea class="textarea" data-bind="ta.applyStatement" maxlength="400" placeholder="Write a short statement for the MO.">${escapeHtml(state.ta.applyStatement)}</textarea>
+                        <div class="word-counter">${state.ta.applyStatement.length}/400</div>
+                      </div>
+
+                      <div class="button-row">
+                        <button class="btn btn-secondary" data-action="choose-apply-cv">Modify PDF</button>
+                        <button class="btn btn-primary" data-action="submit-application">${activeApplication ? 'Resubmit' : 'Submit application'}</button>
+                      </div>
+                    </div>
+                  </div>
+                `}
+              </div>
+            ` : `
+              <div class="empty-state">Select a position to inspect the details and apply.</div>
+            `}
+          </div>
+        </div>
+      </div>
+    `
+  );
+}
+
+function taNotificationsView() {
+  const items = notificationsByRole('TA');
+  return renderLayout(
+    'TA',
+    'Notifications',
+    `${items.length} update(s) in the TA inbox`,
+    `<button class="btn btn-secondary" data-go="ta/project-schedule">Back to schedule</button>`,
+    `
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Latest updates</div>
+          <div class="count-badge">${items.length} item(s)</div>
+        </div>
+        <div class="card-body">
+          ${items.length ? `
+            <div class="notice-list">
+              ${items.map((item) => `
+                <div class="notice-item">
+                  <div class="notice-dot"></div>
+                  <div class="notice-body">
+                    <div class="row space">
+                      <div class="notice-title">${escapeHtml(item.title)}</div>
+                      <div>${statusBadge(item.type)}</div>
+                    </div>
+                    <div class="notice-copy">${escapeHtml(item.body)}</div>
+                    <div class="footer-row">
+                      <div class="notice-time">${escapeHtml(item.time)}</div>
+                      <button class="btn btn-secondary btn-quiet" data-go="${escapeHtml(item.link)}">Open</button>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          ` : `
+            <div class="empty-state">No notifications yet.</div>
+          `}
+        </div>
+      </div>
+    `
+  );
+}
+
+function taMyView() {
+  const tab = state.ta.myTab;
+  const historyItems = filteredTaHistory();
+  return renderLayout(
+    'TA',
+    'My',
+    tab === 'profile' ? 'Personal information and stored CV' : 'Historical records and live status',
+    `
+      <div class="tab-row">
+        <button class="tab ${tab === 'profile' ? 'active' : ''}" data-ta-tab="profile">Personal Information</button>
+        <button class="tab ${tab === 'history' ? 'active' : ''}" data-ta-tab="history">Historical Records</button>
+      </div>
+    `,
+    `
+      ${tab === 'profile' ? `
+        <div class="grid even">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Basic profile</div>
+              <button class="btn btn-primary btn-quiet" data-action="save-profile">Save</button>
+            </div>
+            <div class="card-body">
+              <div class="form-grid">
+                <div class="field">
+                  <label class="label">Name</label>
+                  <input class="input" data-bind="profile.name" value="${escapeHtml(state.profile.name)}" />
+                </div>
+                <div class="field">
+                  <label class="label">Gender</label>
+                  <input class="input" data-bind="profile.gender" value="${escapeHtml(state.profile.gender)}" />
+                </div>
+                <div class="field">
+                  <label class="label">Age</label>
+                  <input class="input" data-bind="profile.age" value="${escapeHtml(state.profile.age)}" />
+                </div>
+                <div class="field">
+                  <label class="label">Year</label>
+                  <input class="input" data-bind="profile.year" value="${escapeHtml(state.profile.year)}" />
+                </div>
+                <div class="field">
+                  <label class="label">Major</label>
+                  <input class="input" data-bind="profile.major" value="${escapeHtml(state.profile.major)}" />
+                </div>
+                <div class="field">
+                  <label class="label">CET-6</label>
+                  <input class="input" data-bind="profile.cet6" value="${escapeHtml(state.profile.cet6)}" />
+                </div>
+                <div class="field full">
+                  <label class="label">Phone</label>
+                  <input class="input" data-bind="profile.phone" value="${escapeHtml(state.profile.phone)}" />
+                </div>
+                <div class="field full">
+                  <label class="label">Short note</label>
+                  <textarea class="textarea" data-bind="profile.about">${escapeHtml(state.profile.about)}</textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-shell">
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title">Stored CV</div>
+                <button class="btn btn-secondary btn-quiet" data-action="choose-profile-cv">Upload replacement</button>
+              </div>
+              <div class="card-body">
+                <div class="file-box">
+                  <div class="file-icon">PDF</div>
+                  <div class="file-copy">
+                    <strong>${escapeHtml(state.profile.cvName || 'No PDF stored')}</strong>
+                    <span>This file will be used as the default CV during applications.</span>
+                  </div>
+                  <button class="btn btn-secondary btn-quiet" data-action="choose-profile-cv">Choose file</button>
+                </div>
+                <input id="profile-cv-input" class="visually-hidden" type="file" accept=".pdf,application/pdf" />
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title">Course records</div>
+                <button class="btn btn-secondary btn-quiet" data-action="add-course-record">Add record</button>
+              </div>
+              <div class="card-body">
+                <table class="small-table">
+                  <tbody>
+                    ${state.courseRecords.map((item) => `
+                      <tr>
+                        <th>${escapeHtml(item.module)}</th>
+                        <td>${escapeHtml(item.grade)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title">Language scores</div>
+                <button class="btn btn-secondary btn-quiet" data-action="add-language-score">Add score</button>
+              </div>
+              <div class="card-body">
+                <table class="small-table">
+                  <tbody>
+                    ${state.languageScores.map((item) => `
+                      <tr>
+                        <th>${escapeHtml(item.name)}</th>
+                        <td>${escapeHtml(item.score)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      ` : `
+        <div class="stack">
+          <div class="tab-row">
+            ${['All', 'Under Review', 'Approved', 'Rejected', 'Pending Interview', 'Supplement Requested'].map((label) => `
+              <button class="pill ${state.ta.historyFilter === label ? 'active' : ''}" data-ta-history-filter="${escapeHtml(label)}">${escapeHtml(label)}</button>
+            `).join('')}
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Application history</div>
+              <div class="count-badge">${historyItems.length} item(s)</div>
+            </div>
+            <div class="card-body">
+              ${historyItems.length ? `
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Module</th>
+                      <th>Submitted</th>
+                      <th>Status</th>
+                      <th>CV file</th>
+                      <th class="center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${historyItems.map((item) => {
+                      const job = getJob(item.jobId);
+                      return `
+                        <tr>
+                          <td>
+                            <strong>${escapeHtml(job?.module || item.jobId)}</strong>
+                            <div class="list-subtitle">${escapeHtml(job?.moName || '-')}</div>
+                          </td>
+                          <td>${escapeHtml(item.submittedAt)}</td>
+                          <td>${statusBadge(item.status)}</td>
+                          <td>${escapeHtml(item.cvName)}</td>
+                          <td class="center">
+                            <button class="btn btn-secondary btn-quiet" data-select-job="${escapeHtml(item.jobId)}" data-go="ta/project-schedule">Open</button>
+                          </td>
+                        </tr>
+                      `;
+                    }).join('')}
+                  </tbody>
+                </table>
+              ` : `
+                <div class="empty-state">No applications match the selected status.</div>
+              `}
+            </div>
+          </div>
+        </div>
+      `}
+    `
+  );
+}
+
+function moLaunchView() {
+  const recentJobs = jobsForCurrentMO().sort((a, b) => (a.postedAt < b.postedAt ? 1 : -1));
+  const recentDrafts = state.drafts.filter((draft) => draft.ownerId === USERS.MO.id).sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+  const editing = state.mo.editing;
+  return renderLayout(
+    'MO',
+    'Launch',
+    editing ? `Editing ${editing.type === 'draft' ? 'draft' : 'published position'}` : 'Create a new teaching assistant position',
+    `
+      <button class="btn btn-secondary" data-action="save-draft">Save draft</button>
+      <button class="btn btn-primary" data-action="post-job">Post position</button>
+    `,
+    `
+      <div class="grid split">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Launch form</div>
+            <div class="count-badge">${editing ? `${editing.type} ${editing.id}` : 'New position'}</div>
+          </div>
+          <div class="card-body">
+            <div class="form-grid three">
+              <div class="field full">
+                <label class="label">Module title</label>
+                <input class="input" data-bind="mo.launchForm.module" value="${escapeHtml(state.mo.launchForm.module)}" placeholder="Module title" />
+              </div>
+              <div class="field">
+                <label class="label">Module code</label>
+                <input class="input" data-bind="mo.launchForm.code" value="${escapeHtml(state.mo.launchForm.code)}" placeholder="Code" />
+              </div>
+              <div class="field">
+                <label class="label">Start date</label>
+                <input class="input" data-bind="mo.launchForm.startDate" value="${escapeHtml(state.mo.launchForm.startDate)}" placeholder="YYYY-MM-DD" />
+              </div>
+              <div class="field">
+                <label class="label">Application deadline</label>
+                <input class="input" data-bind="mo.launchForm.deadline" value="${escapeHtml(state.mo.launchForm.deadline)}" placeholder="YYYY-MM-DD" />
+              </div>
+              <div class="field">
+                <label class="label">Required TAs</label>
+                <input class="input" data-bind="mo.launchForm.seats" value="${escapeHtml(state.mo.launchForm.seats)}" />
+              </div>
+              <div class="field">
+                <label class="label">Weekly workload</label>
+                <input class="input" data-bind="mo.launchForm.weeklyWorkload" value="${escapeHtml(state.mo.launchForm.weeklyWorkload)}" />
+              </div>
+              <div class="field full">
+                <label class="label">Optional timetable</label>
+                <input class="input" data-bind="mo.launchForm.schedule" value="${escapeHtml(state.mo.launchForm.schedule)}" />
+              </div>
+              <div class="field full">
+                <label class="label">Requirements</label>
+                <textarea class="textarea" data-bind="mo.launchForm.requirements">${escapeHtml(state.mo.launchForm.requirements)}</textarea>
+              </div>
+              <div class="field full">
+                <label class="label">Position details</label>
+                <textarea class="textarea" data-bind="mo.launchForm.details">${escapeHtml(state.mo.launchForm.details)}</textarea>
+              </div>
+              <div class="field">
+                <label class="label">Restriction: major</label>
+                <input class="input" data-bind="mo.launchForm.restrictionMajor" value="${escapeHtml(state.mo.launchForm.restrictionMajor)}" />
+              </div>
+              <div class="field">
+                <label class="label">Restriction: language</label>
+                <input class="input" data-bind="mo.launchForm.restrictionLanguage" value="${escapeHtml(state.mo.launchForm.restrictionLanguage)}" />
+              </div>
+              <div class="field">
+                <label class="label">Other rules</label>
+                <input class="input" data-bind="mo.launchForm.restrictionOther" value="${escapeHtml(state.mo.launchForm.restrictionOther)}" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-shell">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Published by me</div>
+              <div class="count-badge">${recentJobs.length} item(s)</div>
+            </div>
+            <div class="card-body">
+              <div class="list-stack">
+                ${recentJobs.map((job) => `
+                  <div class="list-item">
+                    <div class="list-main">
+                      <div class="list-title">${escapeHtml(job.module)}</div>
+                      <div class="list-subtitle">${escapeHtml(job.code)} · ${formatDate(job.startDate)}</div>
+                    </div>
+                    <div class="inline-actions">
+                      <button class="btn btn-secondary btn-quiet" data-load-job="${escapeHtml(job.id)}">Edit</button>
+                      <button class="btn btn-primary btn-quiet" data-go="mo/history">Open</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Saved drafts</div>
+              <div class="count-badge">${recentDrafts.length} item(s)</div>
+            </div>
+            <div class="card-body">
+              ${recentDrafts.length ? `
+                <div class="list-stack">
+                  ${recentDrafts.map((draft) => `
+                    <div class="list-item">
+                      <div class="list-main">
+                        <div class="list-title">${escapeHtml(draft.module || 'Untitled draft')}</div>
+                        <div class="list-subtitle">Updated ${escapeHtml(draft.updatedAt)}</div>
+                      </div>
+                      <div class="inline-actions">
+                        <button class="btn btn-secondary btn-quiet" data-load-draft="${escapeHtml(draft.id)}">Edit</button>
+                        <button class="btn btn-danger btn-quiet" data-delete-draft="${escapeHtml(draft.id)}">Delete</button>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : `
+                <div class="empty-state">No drafts saved yet.</div>
+              `}
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+  );
+}
+
+function moHistoryView() {
+  const tab = state.mo.historyTab;
+  const myJobs = jobsForCurrentMO().sort((a, b) => (a.postedAt < b.postedAt ? 1 : -1));
+  const myDrafts = state.drafts.filter((draft) => draft.ownerId === USERS.MO.id).sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+  return renderLayout(
+    'MO',
+    'Historical Records',
+    tab === 'published' ? 'Published positions and applicant volume' : 'Saved drafts waiting to be posted',
+    `
+      <div class="tab-row">
+        <button class="tab ${tab === 'published' ? 'active' : ''}" data-mo-history-tab="published">Published</button>
+        <button class="tab ${tab === 'drafts' ? 'active' : ''}" data-mo-history-tab="drafts">Drafts</button>
+      </div>
+    `,
+    `
+      ${tab === 'published' ? `
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Published positions</div>
+            <div class="count-badge">${myJobs.length} item(s)</div>
+          </div>
+          <div class="card-body">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Module</th>
+                  <th>Start date</th>
+                  <th>Deadline</th>
+                  <th class="center">Applicants</th>
+                  <th class="center">Seats</th>
+                  <th>Status</th>
+                  <th class="center">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${myJobs.map((job) => `
+                  <tr class="${isStaleUnfilled(job) ? 'is-alert' : ''}">
+                    <td>
+                      <strong>${escapeHtml(job.module)}</strong>
+                      <div class="list-subtitle">${escapeHtml(job.code)}</div>
+                    </td>
+                    <td>${formatDate(job.startDate)}</td>
+                    <td>${formatDate(job.deadline)}</td>
+                    <td class="center">${state.applications.filter((app) => app.jobId === job.id).length}</td>
+                    <td class="center">${job.filledSeats}/${job.seats}</td>
+                    <td>${statusBadge(vacancies(job) > 0 && isStaleUnfilled(job) ? 'Action Needed' : job.status)}</td>
+                    <td class="center">
+                      <div class="inline-actions">
+                        <button class="btn btn-secondary btn-quiet" data-select-job="${escapeHtml(job.id)}" data-go="mo/applications">Applicants</button>
+                        <button class="btn btn-secondary btn-quiet" data-load-job="${escapeHtml(job.id)}" data-go="mo/launch">Edit</button>
+                        <button class="btn btn-danger btn-quiet" data-action="close-job" data-job-id="${escapeHtml(job.id)}">Close</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ` : `
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Saved drafts</div>
+            <div class="count-badge">${myDrafts.length} item(s)</div>
+          </div>
+          <div class="card-body">
+            ${myDrafts.length ? `
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Draft</th>
+                    <th>Updated</th>
+                    <th class="center">Seats</th>
+                    <th class="center">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${myDrafts.map((draft) => `
+                    <tr>
+                      <td>
+                        <strong>${escapeHtml(draft.module || 'Untitled draft')}</strong>
+                        <div class="list-subtitle">${escapeHtml(draft.code || 'No module code')}</div>
+                      </td>
+                      <td>${escapeHtml(draft.updatedAt)}</td>
+                      <td class="center">${escapeHtml(draft.seats)}</td>
+                      <td class="center">
+                        <div class="inline-actions">
+                          <button class="btn btn-secondary btn-quiet" data-load-draft="${escapeHtml(draft.id)}" data-go="mo/launch">Edit</button>
+                          <button class="btn btn-primary btn-quiet" data-post-draft="${escapeHtml(draft.id)}">Post</button>
+                          <button class="btn btn-danger btn-quiet" data-delete-draft="${escapeHtml(draft.id)}">Delete</button>
+                        </div>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            ` : `
+              <div class="empty-state">No drafts available.</div>
+            `}
+          </div>
+        </div>
+      `}
+    `
+  );
+}
+
+function moApplicationsView() {
+  ensureSelections();
+  const myJobs = jobsForCurrentMO();
+  const selectedJob = myJobs.find((job) => job.id === state.mo.selectedJobId) || myJobs[0];
+  const apps = currentMoApplications();
+  const selectedApp = apps.find((app) => app.id === state.mo.selectedAppId) || apps[0];
+  return renderLayout(
+    'MO',
+    'Received Applications',
+    `${selectedJob ? escapeHtml(selectedJob.module) : 'No published position'} · ${apps.length} filtered applicant(s)`,
+    `
+      <button class="btn btn-secondary" data-go="mo/history">Open history</button>
+      <button class="btn btn-primary" data-go="mo/launch">New position</button>
+    `,
+    `
+      <div class="toolbar">
+        <div class="toolbar-grid">
+          <div class="field compact">
+            <label class="label">Position</label>
+            <select class="select" data-bind="mo.selectedJobId">
+              ${myJobs.map((job) => `
+                <option value="${escapeHtml(job.id)}" ${state.mo.selectedJobId === job.id ? 'selected' : ''}>${escapeHtml(job.module)}</option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="field compact">
+            <label class="label">Status</label>
+            <select class="select" data-bind="mo.statusFilter">
+              ${['All', 'Under Review', 'Approved', 'Rejected', 'Pending Interview', 'Supplement Requested'].map((value) => `
+                <option value="${escapeHtml(value)}" ${state.mo.statusFilter === value ? 'selected' : ''}>${escapeHtml(value)}</option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="field compact">
+            <label class="label">Seats filled</label>
+            <div class="input-like">${selectedJob ? `${selectedJob.filledSeats}/${selectedJob.seats}` : '-'}</div>
+          </div>
+          <div class="field compact">
+            <label class="label">Vacancies</label>
+            <div class="input-like">${selectedJob ? vacancies(selectedJob) : '-'}</div>
+          </div>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-primary" data-action="refresh-mo-apps">Refresh list</button>
+        </div>
+      </div>
+
+      <div class="grid split">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Applicants</div>
+            <div class="count-badge">${apps.length} item(s)</div>
+          </div>
+          <div class="card-body">
+            ${apps.length ? `
+              <div class="list-stack">
+                ${apps.map((app) => `
+                  <button class="list-item ${selectedApp && selectedApp.id === app.id ? 'active' : ''}" data-select-app="${escapeHtml(app.id)}">
+                    <div class="list-main">
+                      <div class="list-title">${escapeHtml(app.applicantName)}</div>
+                      <div class="list-subtitle">${escapeHtml(app.submittedAt)} · ${escapeHtml(app.applicantMajor)}</div>
+                    </div>
+                    <div>${statusBadge(app.status)}</div>
+                  </button>
+                `).join('')}
+              </div>
+            ` : `
+              <div class="empty-state">No applicants match the current filters.</div>
+            `}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">${selectedApp ? escapeHtml(selectedApp.applicantName) : 'Applicant details'}</div>
+            <div>${selectedApp ? statusBadge(selectedApp.status) : ''}</div>
+          </div>
+          <div class="card-body">
+            ${selectedApp ? `
+              <div class="detail-card">
+                <div class="kv-grid">
+                  <div class="kv-item">
+                    <span>Applicant ID</span>
+                    <strong>${escapeHtml(selectedApp.applicantId)}</strong>
+                  </div>
+                  <div class="kv-item">
+                    <span>Submitted</span>
+                    <strong>${escapeHtml(selectedApp.submittedAt)}</strong>
+                  </div>
+                  <div class="kv-item">
+                    <span>Major</span>
+                    <strong>${escapeHtml(selectedApp.applicantMajor)}</strong>
+                  </div>
+                  <div class="kv-item">
+                    <span>Language</span>
+                    <strong>${escapeHtml(selectedApp.applicantLanguage)}</strong>
+                  </div>
+                </div>
+
+                <div class="detail-section">
+                  <h3>Application statement</h3>
+                  <p>${escapeHtml(selectedApp.statement || 'No statement provided.')}</p>
+                </div>
+
+                <div class="detail-section">
+                  <h3>Skill tags</h3>
+                  <div class="tag-row">
+                    ${selectedApp.skills.map((skill) => `<span class="chip">${escapeHtml(skill)}</span>`).join('')}
+                  </div>
+                </div>
+
+                <div class="pdf-preview">
+                  <div>
+                    <div class="file-icon">PDF</div>
+                    <div><strong>${escapeHtml(selectedApp.cvName)}</strong></div>
+                    <div class="muted">Preview area for the uploaded CV file.</div>
+                  </div>
+                </div>
+
+                <div class="button-row">
+                  <button class="btn btn-primary" data-review-status="Approved">Approve</button>
+                  <button class="btn btn-secondary" data-review-status="Pending Interview">Pending interview</button>
+                  <button class="btn btn-danger" data-review-status="Rejected">Reject</button>
+                </div>
+                <div class="button-row">
+                  <button class="btn btn-secondary" data-action="request-supplement">Request supplement</button>
+                </div>
+              </div>
+            ` : `
+              <div class="empty-state">Select an applicant to view the full review panel.</div>
+            `}
+          </div>
+        </div>
+      </div>
+    `
+  );
+}
+
+function moNotificationsView() {
+  const items = notificationsByRole('MO');
+  return renderLayout(
+    'MO',
+    'Notifications',
+    `${items.length} update(s) for the module organiser`,
+    `<button class="btn btn-secondary" data-go="mo/applications">Open applications</button>`,
+    `
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">MO inbox</div>
+          <div class="count-badge">${items.length} item(s)</div>
+        </div>
+        <div class="card-body">
+          ${items.length ? `
+            <div class="notice-list">
+              ${items.map((item) => `
+                <div class="notice-item">
+                  <div class="notice-dot"></div>
+                  <div class="notice-body">
+                    <div class="row space">
+                      <div class="notice-title">${escapeHtml(item.title)}</div>
+                      <div>${statusBadge(item.type)}</div>
+                    </div>
+                    <div class="notice-copy">${escapeHtml(item.body)}</div>
+                    <div class="footer-row">
+                      <div class="notice-time">${escapeHtml(item.time)}</div>
+                      <button class="btn btn-secondary btn-quiet" data-go="${escapeHtml(item.link)}">Open</button>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          ` : `
+            <div class="empty-state">No notifications yet.</div>
+          `}
+        </div>
+      </div>
+    `
+  );
+}
+
+function adAccountsView() {
+  ensureSelections();
+  const accounts = filteredAccounts();
+  const selected = accounts.find((account) => account.id === state.ad.selectedAccountId) || accounts[0];
+  return renderLayout(
+    'AD',
+    'Account Management',
+    `${accounts.length} account(s) match the current filters`,
+    `
+      <button class="btn btn-secondary" data-action="import-accounts">Import CSV</button>
+      <button class="btn btn-primary" data-action="export-accounts">Export CSV</button>
+    `,
+    `
+      <div class="toolbar">
+        <div class="toolbar-grid">
+          <div class="field compact">
+            <label class="label">Search</label>
+            <input class="input" data-bind="ad.accountSearch" value="${escapeHtml(state.ad.accountSearch)}" placeholder="Name, email or department" />
+          </div>
+          <div class="field compact">
+            <label class="label">Role</label>
+            <select class="select" data-bind="ad.accountRole">
+              ${['All', 'TA', 'MO', 'AD'].map((value) => `
+                <option value="${escapeHtml(value)}" ${state.ad.accountRole === value ? 'selected' : ''}>${escapeHtml(value)}</option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="field compact">
+            <label class="label">Status</label>
+            <select class="select" data-bind="ad.accountStatus">
+              ${['All', 'Active', 'Warning', 'Frozen'].map((value) => `
+                <option value="${escapeHtml(value)}" ${state.ad.accountStatus === value ? 'selected' : ''}>${escapeHtml(value)}</option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="field compact">
+            <label class="label">Upper limit reached</label>
+            <div class="input-like">${state.accounts.filter((account) => account.courseLoad >= 3).length} TA account(s)</div>
+          </div>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-secondary" data-action="clear-ad-account-filters">Clear</button>
+          <button class="btn btn-primary" data-action="apply-ad-account-filters">Apply filters</button>
+        </div>
+      </div>
+
+      <div class="grid split">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Accounts</div>
+            <div class="count-badge">${accounts.length} item(s)</div>
+          </div>
+          <div class="card-body">
+            ${accounts.length ? `
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th class="center">Role</th>
+                    <th>Status</th>
+                    <th class="center">Load</th>
+                    <th>Flag</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${accounts.map((account) => `
+                    <tr class="table-row-clickable ${selected && selected.id === account.id ? 'is-selected' : ''} ${account.status === 'Warning' || account.status === 'Frozen' ? 'is-warning' : account.courseLoad >= 3 ? 'is-alert' : ''}" data-select-account="${escapeHtml(account.id)}">
+                      <td>
+                        <strong>${escapeHtml(account.name)}</strong>
+                        <div class="list-subtitle">${escapeHtml(account.email)}</div>
+                      </td>
+                      <td class="center">${statusBadge(account.role)}</td>
+                      <td>${statusBadge(account.courseLoad >= 3 ? 'Reached Upper Limit' : account.status)}</td>
+                      <td class="center">${account.courseLoad}/3</td>
+                      <td>${escapeHtml(account.abnormalFlag || account.note || '-')}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            ` : `
+              <div class="empty-state">No accounts match the current filters.</div>
+            `}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">${selected ? escapeHtml(selected.name) : 'Account details'}</div>
+            <div>${selected ? statusBadge(selected.courseLoad >= 3 ? 'Reached Upper Limit' : selected.status) : ''}</div>
+          </div>
+          <div class="card-body">
+            ${selected ? `
+              <div class="detail-card">
+                <div class="kv-grid">
+                  <div class="kv-item">
+                    <span>Account type</span>
+                    <strong>${escapeHtml(selected.role)}</strong>
+                  </div>
+                  <div class="kv-item">
+                    <span>Department</span>
+                    <strong>${escapeHtml(selected.department)}</strong>
+                  </div>
+                  <div class="kv-item">
+                    <span>Course load</span>
+                    <strong>${selected.courseLoad}/3</strong>
+                  </div>
+                  <div class="kv-item">
+                    <span>Flag</span>
+                    <strong>${escapeHtml(selected.abnormalFlag || selected.note || '-')}</strong>
+                  </div>
+                </div>
+
+                <div class="detail-section">
+                  <h3>Active assignments</h3>
+                  ${selected.activeCourses.length ? `
+                    <table class="small-table">
+                      <tbody>
+                        ${selected.activeCourses.map((course) => `
+                          <tr>
+                            <th>${escapeHtml(course.module)}</th>
+                            <td>${escapeHtml(course.mo)} · ${formatDate(course.startDate)}</td>
+                          </tr>
+                        `).join('')}
+                      </tbody>
+                    </table>
+                  ` : `
+                    <div class="muted">No active assignments recorded.</div>
+                  `}
+                </div>
+
+                <div class="button-row">
+                  <button class="btn btn-secondary" data-action="freeze-account" data-account-id="${escapeHtml(selected.id)}">Freeze account</button>
+                  <button class="btn btn-danger" data-action="delete-account" data-account-id="${escapeHtml(selected.id)}">Delete account</button>
+                </div>
+              </div>
+            ` : `
+              <div class="empty-state">Select an account to view more details.</div>
+            `}
+          </div>
+        </div>
+      </div>
+    `
+  );
+}
+
+function adProjectsView() {
+  const tab = state.ad.projectsTab;
+  const allJobs = [...state.jobs].sort((a, b) => (a.postedAt < b.postedAt ? 1 : -1));
+  const jobs = tab === 'unfilled' ? allJobs.filter((job) => job.status === 'Open' && vacancies(job) > 0) : allJobs;
+  return renderLayout(
+    'AD',
+    'Project Management',
+    tab === 'unfilled' ? 'Positions with remaining vacancies' : 'All published positions',
+    `
+      <div class="tab-row">
+        <button class="tab ${tab === 'all' ? 'active' : ''}" data-ad-project-tab="all">All positions</button>
+        <button class="tab ${tab === 'unfilled' ? 'active' : ''}" data-ad-project-tab="unfilled">Unfilled positions</button>
+      </div>
+      <button class="btn btn-primary" data-action="export-projects">Export CSV</button>
+    `,
+    `
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">${tab === 'unfilled' ? 'Unfilled positions' : 'Project list'}</div>
+          <div class="count-badge">${jobs.length} item(s)</div>
+        </div>
+        <div class="card-body">
+          ${jobs.length ? `
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Module</th>
+                  <th>MO</th>
+                  <th>Posted</th>
+                  <th class="center">Seats</th>
+                  <th class="center">Filled</th>
+                  <th class="center">Vacancies</th>
+                  <th>Status</th>
+                  <th class="center">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${jobs.map((job) => `
+                  <tr class="${isStaleUnfilled(job) ? 'is-alert' : ''}">
+                    <td>
+                      <strong>${escapeHtml(job.module)}</strong>
+                      <div class="list-subtitle">${escapeHtml(job.code)} · ${daysOpen(job)} day(s) live</div>
+                    </td>
+                    <td>${escapeHtml(job.moName)}</td>
+                    <td>${formatDate(job.postedAt)}</td>
+                    <td class="center">${job.seats}</td>
+                    <td class="center">${job.filledSeats}</td>
+                    <td class="center">${vacancies(job)}</td>
+                    <td>${statusBadge(isStaleUnfilled(job) ? 'Action Needed' : job.status)}</td>
+                    <td class="center">
+                      <div class="inline-actions">
+                        <button class="btn btn-secondary btn-quiet" data-action="remind-mo" data-job-id="${escapeHtml(job.id)}">Remind MO</button>
+                        <button class="btn btn-secondary btn-quiet" data-select-job="${escapeHtml(job.id)}" data-go="mo/applications">View</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          ` : `
+            <div class="empty-state">No positions in this view.</div>
+          `}
+        </div>
+      </div>
+    `
+  );
+}
+
+function adLogsView() {
+  const logs = filteredLogs();
+  const actionOptions = ['All', ...Array.from(new Set(state.logs.map((log) => log.action)))];
+  return renderLayout(
+    'AD',
+    'Operation Log',
+    `${logs.length} log entry or entries match the current filters`,
+    `<button class="btn btn-primary" data-action="export-logs">Export CSV</button>`,
+    `
+      <div class="toolbar">
+        <div class="toolbar-grid">
+          <div class="field compact">
+            <label class="label">Account type</label>
+            <select class="select" data-bind="ad.logRole">
+              ${['All', 'TA', 'MO', 'AD'].map((value) => `
+                <option value="${escapeHtml(value)}" ${state.ad.logRole === value ? 'selected' : ''}>${escapeHtml(value)}</option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="field compact">
+            <label class="label">Action</label>
+            <select class="select" data-bind="ad.logAction">
+              ${actionOptions.map((value) => `
+                <option value="${escapeHtml(value)}" ${state.ad.logAction === value ? 'selected' : ''}>${escapeHtml(value)}</option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="field compact">
+            <label class="label">Range</label>
+            <div class="input-like">Current sprint</div>
+          </div>
+          <div class="field compact">
+            <label class="label">Entries</label>
+            <div class="input-like">${logs.length}</div>
+          </div>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-secondary" data-action="clear-ad-log-filters">Clear</button>
+          <button class="btn btn-primary" data-action="apply-ad-log-filters">Apply filters</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Audit trail</div>
+          <div class="count-badge">${logs.length} item(s)</div>
+        </div>
+        <div class="card-body">
+          ${logs.length ? `
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Actor</th>
+                  <th class="center">Role</th>
+                  <th>Action</th>
+                  <th>Target</th>
+                  <th class="center">Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${logs.map((log) => `
+                  <tr>
+                    <td>${escapeHtml(log.time)}</td>
+                    <td>${escapeHtml(log.actor)}</td>
+                    <td class="center">${statusBadge(log.role)}</td>
+                    <td>${escapeHtml(log.action)}</td>
+                    <td>${escapeHtml(log.target)}</td>
+                    <td class="center">${statusBadge(log.result)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          ` : `
+            <div class="empty-state">No logs match the current filters.</div>
+          `}
+        </div>
+      </div>
+    `
+  );
+}
+
+function render() {
+  ensureSelections();
+  const current = route();
+  const app = document.getElementById('app');
+  const views = {
+    'welcome': welcomeView,
+    'signin': () => authView('signin'),
+    'signup': () => authView('signup'),
+    'select-role': roleSelectionView,
+    'ta/project-schedule': taProjectScheduleView,
+    'ta/notifications': taNotificationsView,
+    'ta/my': taMyView,
+    'mo/launch': moLaunchView,
+    'mo/history': moHistoryView,
+    'mo/applications': moApplicationsView,
+    'mo/notifications': moNotificationsView,
+    'ad/accounts': adAccountsView,
+    'ad/projects': adProjectsView,
+    'ad/logs': adLogsView
+  };
+  const view = views[current] || welcomeView;
+  app.innerHTML = view();
+}
+
+function selectRole(role) {
+  state.currentRole = role;
+  saveState();
+  go(ROLE_HOME[role]);
+}
+
+function clearTaFilters() {
+  state.ta.search = '';
+  state.ta.moFilter = 'All';
+  state.ta.sort = 'Soonest';
+  state.ta.openOnly = true;
+  saveState();
+  render();
+}
+
+function clearAdAccountFilters() {
+  state.ad.accountSearch = '';
+  state.ad.accountRole = 'All';
+  state.ad.accountStatus = 'All';
+  saveState();
+  render();
+}
+
+function clearAdLogFilters() {
+  state.ad.logRole = 'All';
+  state.ad.logAction = 'All';
+  saveState();
+  render();
+}
+
+function updateSeatCount(jobId, previousStatus, nextStatus) {
+  const job = getJob(jobId);
+  if (!job) return;
+  if (previousStatus === 'Approved' && nextStatus !== 'Approved') {
+    job.filledSeats = Math.max(0, job.filledSeats - 1);
+  }
+  if (previousStatus !== 'Approved' && nextStatus === 'Approved') {
+    job.filledSeats = Math.min(job.seats, job.filledSeats + 1);
+  }
+  if (job.filledSeats >= job.seats) {
+    job.status = 'Filled';
+  } else if (job.status === 'Filled' || job.status === 'Closed') {
+    // keep closed if explicitly closed
+    if (job.status !== 'Closed') {
+      job.status = 'Open';
+    }
+  }
+}
+
+function submitApplication() {
+  const job = getJob(state.ta.selectedJobId);
+  if (!job) return;
+  const uploadName = state.ta.uploadName || state.profile.cvName;
+  if (!uploadName) {
+    showToast('A PDF CV is required before submission.');
+    return;
+  }
+
+  const existing = currentTAApplicationForJob(job.id);
+  if (existing && existing.status !== 'Supplement Requested') {
+    showToast('An application already exists for this position.');
+    return;
+  }
+
+  if (existing && existing.status === 'Supplement Requested') {
+    existing.cvName = uploadName;
+    existing.statement = state.ta.applyStatement.trim() || existing.statement;
+    existing.status = 'Under Review';
+    existing.updatedAt = nowStamp();
+    existing.submittedAt = nowStamp();
+    pushNotification('TA', 'Under Review', `${job.module} resubmitted`, 'Your updated material was submitted successfully.', 'ta/my');
+    pushNotification('MO', 'New Application', `Updated material received for ${job.module}`, `${USERS.TA.name} submitted revised application material.`, 'mo/applications');
+    pushLog('Supplement Submitted', 'TA', USERS.TA.name, job.module, 'Open');
+    state.ta.applyStatement = '';
+    state.ta.uploadName = '';
+    saveState();
+    showToast('Updated application submitted.');
+    go('ta/my');
+    return;
+  }
+
+  const newApp = {
+    id: `APP-${Date.now()}`,
+    jobId: job.id,
+    applicantId: USERS.TA.id,
+    applicantName: USERS.TA.name,
+    applicantEmail: USERS.TA.email,
+    applicantMajor: state.profile.major,
+    applicantYear: state.profile.year,
+    applicantLanguage: `CET-6 ${state.profile.cet6}`,
+    skills: ['Profile based', 'CV uploaded', 'Statement included'],
+    statement: state.ta.applyStatement.trim(),
+    cvName: uploadName,
+    status: 'Under Review',
+    submittedAt: nowStamp(),
+    updatedAt: nowStamp()
+  };
+  state.applications.unshift(newApp);
+  state.mo.selectedJobId = job.ownerId === USERS.MO.id ? job.id : state.mo.selectedJobId;
+  state.mo.selectedAppId = newApp.id;
+  pushNotification('TA', 'Under Review', `${job.module} submitted`, 'Your application has been submitted successfully.', 'ta/my');
+  pushNotification('MO', 'New Application', `New application for ${job.module}`, `${USERS.TA.name} submitted a new CV and statement.`, 'mo/applications');
+  pushLog('Application Submitted', 'TA', USERS.TA.name, job.module, 'Open');
+  state.ta.applyStatement = '';
+  state.ta.uploadName = '';
+  saveState();
+  showToast('Application submitted.');
+  go('ta/my');
+}
+
+function reviewApplication(nextStatus) {
+  const app = getApplication(state.mo.selectedAppId);
+  if (!app) return;
+  const previousStatus = app.status;
+  app.status = nextStatus;
+  app.updatedAt = nowStamp();
+  updateSeatCount(app.jobId, previousStatus, nextStatus);
+  const job = getJob(app.jobId);
+  pushLog(`Application ${nextStatus}`, 'MO', USERS.MO.name, job?.module || app.jobId, 'Done');
+  if (app.applicantId === USERS.TA.id) {
+    pushNotification('TA', nextStatus, `${job?.module || 'Application'} updated`, `Status changed to ${nextStatus}.`, 'ta/my');
+  }
+  saveState();
+  showToast(`Applicant marked as ${nextStatus}.`);
+  render();
+}
+
+function requestSupplement() {
+  const app = getApplication(state.mo.selectedAppId);
+  if (!app) return;
+  const previousStatus = app.status;
+  app.status = 'Supplement Requested';
+  app.updatedAt = nowStamp();
+  updateSeatCount(app.jobId, previousStatus, app.status);
+  const job = getJob(app.jobId);
+  pushLog('Supplement Requested', 'MO', USERS.MO.name, job?.module || app.jobId, 'Done');
+  if (app.applicantId === USERS.TA.id) {
+    pushNotification('TA', 'Supplement Requested', `${job?.module || 'Application'} needs an update`, 'Please upload a revised CV or add more detail in the application statement.', 'ta/project-schedule');
+  }
+  saveState();
+  showToast('Supplement request sent.');
+  render();
+}
+
+function serialId(prefix) {
+  return `${prefix}-${String(Date.now()).slice(-6)}`;
+}
+
+function normaliseLaunchForm(source) {
+  return {
+    module: (source.module || '').trim(),
+    code: (source.code || '').trim(),
+    startDate: (source.startDate || '').trim(),
+    deadline: (source.deadline || '').trim(),
+    seats: Number(source.seats || 1),
+    weeklyWorkload: (source.weeklyWorkload || '').trim(),
+    schedule: (source.schedule || '').trim(),
+    requirements: (source.requirements || '').trim(),
+    details: (source.details || '').trim(),
+    restrictionMajor: (source.restrictionMajor || '').trim(),
+    restrictionLanguage: (source.restrictionLanguage || '').trim(),
+    restrictionOther: (source.restrictionOther || '').trim()
+  };
+}
+
+function fillFormFromSource(source, type) {
+  state.mo.launchForm = {
+    module: source.module || '',
+    code: source.code || '',
+    startDate: source.startDate || '',
+    deadline: source.deadline || '',
+    seats: String(source.seats || ''),
+    weeklyWorkload: source.weeklyWorkload || '',
+    schedule: source.schedule || '',
+    requirements: source.requirements || '',
+    details: source.details || '',
+    restrictionMajor: source.restrictionMajor || '',
+    restrictionLanguage: source.restrictionLanguage || '',
+    restrictionOther: source.restrictionOther || ''
+  };
+  state.mo.editing = { type, id: source.id };
+  saveState();
+}
+
+function saveDraft() {
+  const form = normaliseLaunchForm(state.mo.launchForm);
+  if (!form.module) {
+    showToast('Add a module title before saving a draft.');
+    return;
+  }
+
+  if (state.mo.editing?.type === 'draft') {
+    const existing = getDraft(state.mo.editing.id);
+    if (existing) {
+      Object.assign(existing, form, { updatedAt: nowStamp() });
+      pushLog('Draft Updated', 'MO', USERS.MO.name, form.module, 'Draft');
+      saveState();
+      showToast('Draft updated.');
+      render();
+      return;
+    }
+  }
+
+  const draft = {
+    id: serialId('DRF'),
+    ownerId: USERS.MO.id,
+    ...form,
+    updatedAt: nowStamp()
+  };
+  state.drafts.unshift(draft);
+  state.mo.editing = { type: 'draft', id: draft.id };
+  pushLog('Draft Saved', 'MO', USERS.MO.name, form.module, 'Draft');
+  saveState();
+  showToast('Draft saved.');
+  render();
+}
+
+function postJobFromDraft(draftId) {
+  const draft = getDraft(draftId);
+  if (!draft) return;
+  fillFormFromSource(draft, 'draft');
+  postJob();
+}
+
+function postJob() {
+  const form = normaliseLaunchForm(state.mo.launchForm);
+  if (!form.module || !form.code || !form.startDate || !form.deadline) {
+    showToast('Module title, code, start date and deadline are required.');
+    return;
+  }
+
+  const jobPayload = {
+    module: form.module,
+    code: form.code,
+    ownerId: USERS.MO.id,
+    moName: USERS.MO.name,
+    school: 'School of Computing',
+    startDate: form.startDate,
+    deadline: form.deadline,
+    postedAt: nowStamp().slice(0, 10),
+    weeklyWorkload: form.weeklyWorkload || 'TBC',
+    seats: Number(form.seats || 1),
+    filledSeats: 0,
+    status: 'Open',
+    schedule: form.schedule || 'Optional timetable',
+    summary: form.details || 'Newly posted teaching assistant position.',
+    details: form.details || 'Newly posted teaching assistant position.',
+    requirements: [
+      form.restrictionMajor || null,
+      form.restrictionLanguage || null,
+      ...form.requirements.split(/\n+/).map((item) => item.trim()).filter(Boolean),
+      form.restrictionOther || null
+    ].filter(Boolean)
+  };
+
+  if (state.mo.editing?.type === 'job') {
+    const existing = getJob(state.mo.editing.id);
+    if (existing) {
+      Object.assign(existing, jobPayload, { filledSeats: existing.filledSeats });
+      pushLog('Position Updated', 'MO', USERS.MO.name, existing.module, 'Done');
+      saveState();
+      showToast('Position updated.');
+      render();
+      return;
+    }
+  }
+
+  if (state.mo.editing?.type === 'draft') {
+    state.drafts = state.drafts.filter((draft) => draft.id !== state.mo.editing.id);
+  }
+
+  const newJob = {
+    id: serialId('JOB'),
+    ...jobPayload
+  };
+  state.jobs.unshift(newJob);
+  state.mo.selectedJobId = newJob.id;
+  state.mo.editing = null;
+  state.mo.launchForm = clone(DEFAULT_STATE.mo.launchForm);
+  pushNotification('MO', 'Published', `${newJob.module} posted`, 'The position is now visible in the TA schedule.', 'mo/history');
+  pushLog('Position Posted', 'MO', USERS.MO.name, newJob.module, 'Done');
+  saveState();
+  showToast('Position posted.');
+  go('mo/history');
+}
+
+function closeJob(jobId) {
+  const job = getJob(jobId);
+  if (!job) return;
+  job.status = 'Closed';
+  pushLog('Position Closed', 'MO', USERS.MO.name, job.module, 'Done');
+  saveState();
+  showToast('Position closed.');
+  render();
+}
+
+function remindMo(jobId) {
+  const job = getJob(jobId);
+  if (!job) return;
+  pushNotification('MO', 'Reminder', `Reminder for ${job.module}`, `Please review vacancies for ${job.module}.`, 'mo/history');
+  pushLog('Reminder Sent', 'AD', USERS.AD.name, job.module, 'Done');
+  saveState();
+  showToast('Reminder sent to the MO.');
+  render();
+}
+
+function exportAction(target) {
+  pushLog('CSV Export', 'AD', USERS.AD.name, target, 'Done');
+  saveState();
+  showToast(`${target} export prepared.`);
+}
+
+function importAccounts() {
+  pushLog('CSV Import', 'AD', USERS.AD.name, 'Account Management', 'Done');
+  saveState();
+  showToast('CSV import simulated.');
+}
+
+function freezeAccount(accountId) {
+  const account = getAccount(accountId);
+  if (!account) return;
+  account.status = 'Frozen';
+  pushLog('Account Frozen', 'AD', USERS.AD.name, account.name, 'Done');
+  saveState();
+  showToast('Account frozen.');
+  render();
+}
+
+function deleteAccount(accountId) {
+  const account = getAccount(accountId);
+  state.accounts = state.accounts.filter((item) => item.id !== accountId);
+  pushLog('Account Deleted', 'AD', USERS.AD.name, account?.name || accountId, 'Done');
+  saveState();
+  showToast('Account deleted.');
+  render();
+}
+
+function deleteDraft(draftId) {
+  const draft = getDraft(draftId);
+  state.drafts = state.drafts.filter((item) => item.id !== draftId);
+  pushLog('Draft Deleted', 'MO', USERS.MO.name, draft?.module || draftId, 'Done');
+  if (state.mo.editing?.type === 'draft' && state.mo.editing.id === draftId) {
+    state.mo.editing = null;
+    state.mo.launchForm = clone(DEFAULT_STATE.mo.launchForm);
+  }
+  saveState();
+  showToast('Draft deleted.');
+  render();
+}
+
+function addCourseRecord() {
+  state.courseRecords.push({
+    id: serialId('CR'),
+    module: 'New module',
+    grade: 'Pending'
+  });
+  saveState();
+  showToast('Course record added.');
+  render();
+}
+
+function addLanguageScore() {
+  state.languageScores.push({
+    id: serialId('LS'),
+    name: 'New score',
+    score: 'Pending'
+  });
+  saveState();
+  showToast('Language score added.');
+  render();
+}
+
+function saveProfile() {
+  pushLog('Profile Saved', 'TA', USERS.TA.name, 'My Profile', 'Done');
+  saveState();
+  showToast('Profile saved.');
+}
+
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+document.addEventListener('input', (event) => {
+  const target = event.target;
+  if (!target.matches('[data-bind]')) return;
+  const path = target.dataset.bind;
+  const value = target.type === 'checkbox' ? target.checked : target.value;
+  setPath(state, path, value);
+  saveState();
+});
+
+document.addEventListener('change', (event) => {
+  const target = event.target;
+  if (target.matches('[data-bind]') && target.type !== 'file') {
+    if (target.dataset.bind === 'mo.selectedJobId' || target.dataset.bind === 'mo.statusFilter') {
+      saveState();
+      render();
+      return;
+    }
+    saveState();
+  }
+
+  if (target.id === 'apply-cv-input') {
+    const file = target.files?.[0];
+    state.ta.uploadName = file ? file.name : '';
+    saveState();
+    render();
+  }
+
+  if (target.id === 'profile-cv-input') {
+    const file = target.files?.[0];
+    if (!file) return;
+    state.profile.cvName = file.name;
+    if (!state.ta.uploadName) {
+      state.ta.uploadName = file.name;
+    }
+    saveState();
+    render();
+  }
+});
+
+document.addEventListener('click', (event) => {
+  const target = event.target.closest(
+    '[data-go], [data-set-role], [data-select-job], [data-select-app], [data-select-account], [data-ta-tab], [data-ta-history-filter], [data-mo-history-tab], [data-ad-project-tab], [data-action], [data-review-status], [data-load-draft], [data-load-job], [data-delete-draft], [data-post-draft]'
+  );
+  if (!target) return;
+
+  if (target.dataset.go) {
+    go(target.dataset.go);
+    return;
+  }
+
+  if (target.dataset.setRole) {
+    selectRole(target.dataset.setRole);
+    return;
+  }
+
+  if (target.dataset.selectJob) {
+    state.ta.selectedJobId = target.dataset.selectJob;
+    state.mo.selectedJobId = target.dataset.selectJob;
+    saveState();
+    if (!target.dataset.go) render();
+    return;
+  }
+
+  if (target.dataset.selectApp) {
+    state.mo.selectedAppId = target.dataset.selectApp;
+    saveState();
+    render();
+    return;
+  }
+
+  if (target.dataset.selectAccount) {
+    state.ad.selectedAccountId = target.dataset.selectAccount;
+    saveState();
+    render();
+    return;
+  }
+
+  if (target.dataset.taTab) {
+    state.ta.myTab = target.dataset.taTab;
+    saveState();
+    render();
+    return;
+  }
+
+  if (target.dataset.taHistoryFilter) {
+    state.ta.historyFilter = target.dataset.taHistoryFilter;
+    saveState();
+    render();
+    return;
+  }
+
+  if (target.dataset.moHistoryTab) {
+    state.mo.historyTab = target.dataset.moHistoryTab;
+    saveState();
+    render();
+    return;
+  }
+
+  if (target.dataset.adProjectTab) {
+    state.ad.projectsTab = target.dataset.adProjectTab;
+    saveState();
+    render();
+    return;
+  }
+
+  if (target.dataset.loadDraft) {
+    const draft = getDraft(target.dataset.loadDraft);
+    if (draft) {
+      fillFormFromSource(draft, 'draft');
+      showToast('Draft loaded into the form.');
+      render();
+    }
+    return;
+  }
+
+  if (target.dataset.loadJob) {
+    const job = getJob(target.dataset.loadJob);
+    if (job) {
+      fillFormFromSource({
+        ...job,
+        requirements: job.requirements.join('\n'),
+        restrictionMajor: job.requirements[0] || '',
+        restrictionLanguage: job.requirements[1] || '',
+        restrictionOther: ''
+      }, 'job');
+      showToast('Published position loaded into the form.');
+      render();
+    }
+    return;
+  }
+
+  if (target.dataset.deleteDraft) {
+    deleteDraft(target.dataset.deleteDraft);
+    return;
+  }
+
+  if (target.dataset.postDraft) {
+    postJobFromDraft(target.dataset.postDraft);
+    return;
+  }
+
+  if (target.dataset.reviewStatus) {
+    reviewApplication(target.dataset.reviewStatus);
+    return;
+  }
+
+  if (target.dataset.action) {
+    switch (target.dataset.action) {
+      case 'reset-demo':
+        resetDemo();
+        return;
+      case 'clear-ta-filters':
+        clearTaFilters();
+        return;
+      case 'apply-ta-filters':
+        saveState();
+        render();
+        return;
+      case 'choose-apply-cv':
+        document.getElementById('apply-cv-input')?.click();
+        return;
+      case 'submit-application':
+        submitApplication();
+        return;
+      case 'choose-profile-cv':
+        document.getElementById('profile-cv-input')?.click();
+        return;
+      case 'save-profile':
+        saveProfile();
+        return;
+      case 'add-course-record':
+        addCourseRecord();
+        return;
+      case 'add-language-score':
+        addLanguageScore();
+        return;
+      case 'save-draft':
+        saveDraft();
+        return;
+      case 'post-job':
+        postJob();
+        return;
+      case 'close-job':
+        closeJob(target.dataset.jobId);
+        return;
+      case 'refresh-mo-apps':
+        saveState();
+        render();
+        return;
+      case 'request-supplement':
+        requestSupplement();
+        return;
+      case 'clear-ad-account-filters':
+        clearAdAccountFilters();
+        return;
+      case 'apply-ad-account-filters':
+        saveState();
+        render();
+        return;
+      case 'import-accounts':
+        importAccounts();
+        return;
+      case 'export-accounts':
+        exportAction('Account Management');
+        return;
+      case 'freeze-account':
+        freezeAccount(target.dataset.accountId);
+        return;
+      case 'delete-account':
+        deleteAccount(target.dataset.accountId);
+        return;
+      case 'remind-mo':
+        remindMo(target.dataset.jobId);
+        return;
+      case 'export-projects':
+        exportAction('Project Management');
+        return;
+      case 'clear-ad-log-filters':
+        clearAdLogFilters();
+        return;
+      case 'apply-ad-log-filters':
+        saveState();
+        render();
+        return;
+      case 'export-logs':
+        exportAction('Operation Log');
+        return;
+      default:
+        return;
+    }
+  }
+});
+
+window.addEventListener('hashchange', render);
+window.addEventListener('load', () => {
+  if (!location.hash) {
+    go('welcome');
+  } else {
+    render();
+  }
+});
+
+  </script>
+</body>
+</html>
