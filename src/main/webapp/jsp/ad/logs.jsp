@@ -17,8 +17,8 @@
             </div>
         </div>
         <div class="top-actions">
-            <button class="chip-button">Switch role</button>
-            <button class="chip-button">Reset demo</button>
+            <button class="chip-button" data-action="switch-role">Switch role</button>
+            <button class="chip-button" data-action="reset-demo">Reset demo</button>
             <div class="user-pill">
                 <span class="avatar">SA</span>
                 <span>
@@ -95,9 +95,9 @@
                     <p>System audit trail</p>
                 </div>
                 <div class="filter-actions">
-                    <button class="chip-button active">All actions</button>
-                    <button class="chip-button">Risk events</button>
-                    <button class="chip-button">Export CSV</button>
+                    <button class="chip-button active" data-filter="logs-all">All actions</button>
+                    <button class="chip-button" data-filter="logs-risk">Risk events</button>
+                    <button class="chip-button" data-export-csv="true" data-export-filename="operation-logs">Export CSV</button>
                 </div>
             </section>
 
@@ -123,7 +123,7 @@
                     <span>yu.ta@campus.edu</span>
                     <span class="status success">● Success</span>
                     <div class="row-actions">
-                        <button>Details</button>
+                        <button data-action="log-details">Details</button>
                     </div>
                 </article>
 
@@ -134,7 +134,7 @@
                     <span>Project list</span>
                     <span class="status success">● Success</span>
                     <div class="row-actions">
-                        <button>Details</button>
+                        <button data-action="log-details">Details</button>
                     </div>
                 </article>
 
@@ -145,7 +145,7 @@
                     <span>morgan.mo@campus.edu</span>
                     <span class="status warning">● Warning</span>
                     <div class="row-actions">
-                        <button>Details</button>
+                        <button data-action="log-details">Details</button>
                     </div>
                 </article>
 
@@ -156,13 +156,13 @@
                     <span>chen.mo@campus.edu</span>
                     <span class="status warning">● Warning</span>
                     <div class="row-actions">
-                        <button>Details</button>
+                        <button data-action="log-details">Details</button>
                     </div>
                 </article>
             </section>
         </main>
     </div>
 </div>
-<script src="${pageContext.request.contextPath}/js/app.js"></script>
+<script src="${pageContext.request.contextPath}/js/app.js?v=20260404-2"></script>
 </body>
 </html>

@@ -11,6 +11,13 @@
     <h1>Login</h1>
     <p>当前为原型阶段，先提供角色入口。</p>
 
+    <% String role = request.getParameter("role"); %>
+    <% if (role != null && !role.trim().isEmpty()) { %>
+    <div class="card" style="margin-bottom: 12px;">
+        <p><strong>Selected role:</strong> <%= role %></p>
+    </div>
+    <% } %>
+
     <div class="card">
         <p><strong>快速进入：</strong></p>
         <p>

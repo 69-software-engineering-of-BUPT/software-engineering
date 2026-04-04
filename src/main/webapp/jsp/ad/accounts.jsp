@@ -17,8 +17,8 @@
             </div>
         </div>
         <div class="top-actions">
-            <button class="chip-button">Switch role</button>
-            <button class="chip-button">Reset demo</button>
+            <button class="chip-button" data-action="switch-role">Switch role</button>
+            <button class="chip-button" data-action="reset-demo">Reset demo</button>
             <div class="user-pill">
                 <span class="avatar">SA</span>
                 <span>
@@ -95,9 +95,8 @@
                     <p>TA and MO accounts</p>
                 </div>
                 <div class="filter-actions">
-                    <button class="chip-button active">All accounts</button>
-                    <button class="chip-button">Pending review</button>
-                    <button class="chip-button">Create account</button>
+                    <button class="chip-button active" data-filter="accounts-all">All accounts</button>
+                    <button class="chip-button" data-export-csv="true" data-export-filename="accounts">Export CSV</button>
                 </div>
             </section>
 
@@ -126,8 +125,8 @@
                     <span class="status success">● Active</span>
                     <span>Today</span>
                     <div class="row-actions">
-                        <button>Edit</button>
-                        <button>Disable</button>
+                        <button data-action="account-edit">Edit</button>
+                        <button data-action="account-disable">Disable</button>
                     </div>
                 </article>
 
@@ -141,8 +140,8 @@
                     <span class="status success">● Active</span>
                     <span>Today</span>
                     <div class="row-actions">
-                        <button>Edit</button>
-                        <button>Disable</button>
+                        <button data-action="account-edit">Edit</button>
+                        <button data-action="account-disable">Disable</button>
                     </div>
                 </article>
 
@@ -156,8 +155,8 @@
                     <span class="status warning">● Pending</span>
                     <span>2 days ago</span>
                     <div class="row-actions">
-                        <button>Approve</button>
-                        <button>Reject</button>
+                        <button data-action="account-approve">Approve</button>
+                        <button data-action="account-reject">Reject</button>
                     </div>
                 </article>
 
@@ -171,14 +170,14 @@
                     <span class="status warning">● Pending</span>
                     <span>Never</span>
                     <div class="row-actions">
-                        <button>Approve</button>
-                        <button>Reject</button>
+                        <button data-action="account-approve">Approve</button>
+                        <button data-action="account-reject">Reject</button>
                     </div>
                 </article>
             </section>
         </main>
     </div>
 </div>
-<script src="${pageContext.request.contextPath}/js/app.js"></script>
+<script src="${pageContext.request.contextPath}/js/app.js?v=20260404-2"></script>
 </body>
 </html>
