@@ -4022,10 +4022,99 @@ function remindMo(jobId) {
   render();
 }
 
+function csvEscape(value) {
+  const text = String(value == null ? '' : value).replace(/"/g, '""');
+  return `"${text}"`;
+}
+
+function downloadCsvFile(filename, headers, rows) {
+  const lines = [headers, ...rows].map((cols) => cols.map(csvEscape).join(','));
+  const csv = `\uFEFF${lines.join('\r\n')}`;
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function rowsForAccountExport() {
+  return filteredAccounts().map((account) => [
+    account.name,
+    account.email,
+    account.role,
+    account.department,
+    account.status,
+    account.lastLogin,
+    account.courseLoad,
+    account.updatedAt
+  ]);
+}
+
+function rowsForProjectExport() {
+  const allJobs = [...state.jobs].sort((a, b) => (a.postedAt < b.postedAt ? 1 : -1));
+  const jobs = state.ad.projectsTab === 'unfilled'
+    ? allJobs.filter((job) => job.status === 'Open' && vacancies(job) > 0)
+    : allJobs;
+
+  return jobs.map((job) => [
+    job.module,
+    job.code,
+    job.moName,
+    formatDate(job.postedAt),
+    job.seats,
+    job.filledSeats,
+    vacancies(job),
+    isStaleUnfilled(job) ? 'Action Needed' : job.status
+  ]);
+}
+
+function rowsForLogExport() {
+  return filteredLogs().map((log) => [
+    log.time,
+    log.actor,
+    log.role,
+    log.action,
+    log.target,
+    log.result
+  ]);
+}
+
 function exportAction(target) {
+  const dateTag = new Date().toISOString().slice(0, 10);
+
+  if (target === 'Account Management') {
+    const headers = ['Name', 'Email', 'Role', 'Department', 'Status', 'Last Login', 'Course Load', 'Updated At'];
+    const rows = rowsForAccountExport();
+    if (!rows.length) {
+      showToast('No account data to export.');
+      return;
+    }
+    downloadCsvFile(`accounts-${dateTag}.csv`, headers, rows);
+  } else if (target === 'Project Management') {
+    const headers = ['Module', 'Code', 'MO', 'Posted', 'Seats', 'Filled', 'Vacancies', 'Status'];
+    const rows = rowsForProjectExport();
+    if (!rows.length) {
+      showToast('No project data to export.');
+      return;
+    }
+    downloadCsvFile(`projects-${dateTag}.csv`, headers, rows);
+  } else if (target === 'Operation Log') {
+    const headers = ['Time', 'Actor', 'Role', 'Action', 'Target', 'Result'];
+    const rows = rowsForLogExport();
+    if (!rows.length) {
+      showToast('No log data to export.');
+      return;
+    }
+    downloadCsvFile(`operation-logs-${dateTag}.csv`, headers, rows);
+  }
+
   pushLog('CSV Export', 'AD', USERS.AD.name, target, 'Done');
   saveState();
-  showToast(`${target} export prepared.`);
+  showToast(`${target} exported.`);
 }
 
 function importAccounts() {
