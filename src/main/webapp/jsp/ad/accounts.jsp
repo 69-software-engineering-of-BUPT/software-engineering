@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>AD - Account Management</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260406-1" />
 </head>
 <body class="ad-page">
 <div class="ad-shell">
@@ -100,84 +100,147 @@
                 </div>
             </section>
 
-            <section class="list-card">
-                <div class="list-title-row">
-                    <h2>Account list</h2>
-                    <span>7 item(s)</span>
-                </div>
+            <section class="account-workbench">
+                <section class="list-card account-list-card">
+                    <div class="list-title-row">
+                        <h2>Account list</h2>
+                        <span>7 item(s)</span>
+                    </div>
 
-                <div class="list-head account-grid">
-                    <span>NAME / EMAIL</span>
-                    <span>ROLE</span>
-                    <span>DEPARTMENT</span>
-                    <span>STATUS</span>
-                    <span>LAST LOGIN</span>
-                    <span>ACTION</span>
-                </div>
+                    <div class="list-head account-grid">
+                        <span>NAME / EMAIL</span>
+                        <span>ROLE</span>
+                        <span>DEPARTMENT</span>
+                        <span>STATUS</span>
+                        <span>LAST LOGIN</span>
+                    </div>
 
-                <article class="list-row account-grid">
-                    <div>
-                        <strong>Dr. Zhao</strong>
-                        <small>zhao.mo@campus.edu</small>
-                    </div>
-                    <span>MO</span>
-                    <span>Language Center</span>
-                    <span class="status success">● Active</span>
-                    <span>Today</span>
-                    <div class="row-actions">
-                        <button data-action="account-edit">Edit</button>
-                        <button data-action="account-disable">Disable</button>
-                    </div>
-                </article>
+                    <article class="list-row account-grid account-row active" tabindex="0"
+                             data-name="Dr. Zhao"
+                             data-email="zhao.mo@campus.edu"
+                             data-role="MO"
+                             data-department="Language Center"
+                             data-status-text="Active"
+                             data-status-class="success"
+                             data-last-login="Today"
+                             data-load="1/3"
+                             data-flag="Current user"
+                             data-assignments="Academic Writing|Dr. Zhao|03 Apr 2026;English Training|Dr. Zhao|08 Apr 2026">
+                        <div>
+                            <strong>Dr. Zhao</strong>
+                            <small>zhao.mo@campus.edu</small>
+                        </div>
+                        <span>MO</span>
+                        <span>Language Center</span>
+                        <span class="status success">● Active</span>
+                        <span>Today</span>
+                    </article>
 
-                <article class="list-row account-grid">
-                    <div>
-                        <strong>Dr. Chen</strong>
-                        <small>chen.mo@campus.edu</small>
-                    </div>
-                    <span>MO</span>
-                    <span>Data Science</span>
-                    <span class="status success">● Active</span>
-                    <span>Today</span>
-                    <div class="row-actions">
-                        <button data-action="account-edit">Edit</button>
-                        <button data-action="account-disable">Disable</button>
-                    </div>
-                </article>
+                    <article class="list-row account-grid account-row" tabindex="0"
+                             data-name="Dr. Chen"
+                             data-email="chen.mo@campus.edu"
+                             data-role="MO"
+                             data-department="Data Science"
+                             data-status-text="Active"
+                             data-status-class="success"
+                             data-last-login="Today"
+                             data-load="0/3"
+                             data-flag="Owns 2 published positions"
+                             data-assignments="Data Mining|Dr. Chen|05 Apr 2026;Machine Learning|Dr. Chen|11 Apr 2026">
+                        <div>
+                            <strong>Dr. Chen</strong>
+                            <small>chen.mo@campus.edu</small>
+                        </div>
+                        <span>MO</span>
+                        <span>Data Science</span>
+                        <span class="status success">● Active</span>
+                        <span>Today</span>
+                    </article>
 
-                <article class="list-row warn account-grid">
-                    <div>
-                        <strong>Prof. Morgan</strong>
-                        <small>morgan.mo@campus.edu</small>
-                    </div>
-                    <span>MO</span>
-                    <span>Design School</span>
-                    <span class="status warning">● Pending</span>
-                    <span>2 days ago</span>
-                    <div class="row-actions">
-                        <button data-action="account-approve">Approve</button>
-                        <button data-action="account-reject">Reject</button>
-                    </div>
-                </article>
+                    <article class="list-row warn account-grid account-row" tabindex="0"
+                             data-name="Prof. Morgan"
+                             data-email="morgan.mo@campus.edu"
+                             data-role="MO"
+                             data-department="Design School"
+                             data-status-text="Pending"
+                             data-status-class="warning"
+                             data-last-login="2 days ago"
+                             data-load="2/3"
+                             data-flag="Pending approval"
+                             data-assignments="Studio Design|Prof. Morgan|06 Apr 2026;Visual Design|Prof. Morgan|09 Apr 2026">
+                        <div>
+                            <strong>Prof. Morgan</strong>
+                            <small>morgan.mo@campus.edu</small>
+                        </div>
+                        <span>MO</span>
+                        <span>Design School</span>
+                        <span class="status warning">● Pending</span>
+                        <span>2 days ago</span>
+                    </article>
 
-                <article class="list-row warn account-grid">
-                    <div>
-                        <strong>Lin Yu</strong>
-                        <small>yu.ta@campus.edu</small>
+                    <article class="list-row warn account-grid account-row" tabindex="0"
+                             data-name="Lin Yu"
+                             data-email="yu.ta@campus.edu"
+                             data-role="TA"
+                             data-department="Economics"
+                             data-status-text="Pending"
+                             data-status-class="warning"
+                             data-last-login="Never"
+                             data-load="3/3"
+                             data-flag="Reached Upper Limit"
+                             data-assignments="Microeconomics|Dr. Chen|05 Apr 2026;Statistics|Prof. Allen|08 Apr 2026;Econometrics|Dr. Stone|10 Apr 2026">
+                        <div>
+                            <strong>Lin Yu</strong>
+                            <small>yu.ta@campus.edu</small>
+                        </div>
+                        <span>TA</span>
+                        <span>Economics</span>
+                        <span class="status warning">● Pending</span>
+                        <span>Never</span>
+                    </article>
+                </section>
+
+                <aside class="list-card account-detail-card" id="account-detail-panel">
+                    <div class="detail-head">
+                        <div>
+                            <h2 id="detail-name">Dr. Zhao</h2>
+                            <p id="detail-email">zhao.mo@campus.edu</p>
+                        </div>
+                        <span class="status success" id="detail-flag-badge">● Active</span>
                     </div>
-                    <span>TA</span>
-                    <span>Economics</span>
-                    <span class="status warning">● Pending</span>
-                    <span>Never</span>
-                    <div class="row-actions">
-                        <button data-action="account-approve">Approve</button>
-                        <button data-action="account-reject">Reject</button>
+
+                    <div class="detail-kv-grid">
+                        <div class="detail-kv">
+                            <small>ACCOUNT TYPE</small>
+                            <strong id="detail-role">MO</strong>
+                        </div>
+                        <div class="detail-kv">
+                            <small>DEPARTMENT</small>
+                            <strong id="detail-department">Language Center</strong>
+                        </div>
+                        <div class="detail-kv">
+                            <small>COURSE LOAD</small>
+                            <strong id="detail-load">1/3</strong>
+                        </div>
+                        <div class="detail-kv">
+                            <small>LAST LOGIN</small>
+                            <strong id="detail-last-login">Today</strong>
+                        </div>
+                        <div class="detail-kv detail-kv-full">
+                            <small>FLAG</small>
+                            <strong id="detail-flag">Current user</strong>
+                        </div>
                     </div>
-                </article>
+
+                    <section class="detail-assignment">
+                        <h3>Active assignments</h3>
+                        <ul id="detail-assignment-list"></ul>
+                    </section>
+                </aside>
             </section>
         </main>
     </div>
 </div>
-<script src="${pageContext.request.contextPath}/js/app.js?v=20260404-2"></script>
+<script src="${pageContext.request.contextPath}/js/app.js?v=20260406-1"></script>
 </body>
 </html>

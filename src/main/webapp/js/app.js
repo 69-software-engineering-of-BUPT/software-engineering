@@ -182,6 +182,110 @@ function filterLogRows(showRiskOnly) {
 	updateVisibleCount(listCard);
 }
 
+function parseAccountAssignments(raw) {
+	if (!raw) {
+		return [];
+	}
+
+	return raw
+		.split(';')
+		.map(function (item) {
+			var parts = item.split('|');
+			return {
+				course: normalizeText(parts[0]),
+				teacher: normalizeText(parts[1]),
+				date: normalizeText(parts[2])
+			};
+		})
+		.filter(function (item) {
+			return item.course;
+		});
+}
+
+function renderAccountDetail(row) {
+	if (!row) {
+		return;
+	}
+
+	var nameNode = document.getElementById('detail-name');
+	var emailNode = document.getElementById('detail-email');
+	var roleNode = document.getElementById('detail-role');
+	var deptNode = document.getElementById('detail-department');
+	var loadNode = document.getElementById('detail-load');
+	var lastLoginNode = document.getElementById('detail-last-login');
+	var flagNode = document.getElementById('detail-flag');
+	var badgeNode = document.getElementById('detail-flag-badge');
+	var assignmentListNode = document.getElementById('detail-assignment-list');
+
+	if (!nameNode || !emailNode || !roleNode || !deptNode || !loadNode || !lastLoginNode || !flagNode || !badgeNode || !assignmentListNode) {
+		return;
+	}
+
+	var data = row.dataset;
+	var statusClass = data.statusClass === 'warning' ? 'warning' : 'success';
+
+	nameNode.textContent = data.name || '-';
+	emailNode.textContent = data.email || '-';
+	roleNode.textContent = data.role || '-';
+	deptNode.textContent = data.department || '-';
+	loadNode.textContent = data.load || '-';
+	lastLoginNode.textContent = data.lastLogin || '-';
+	flagNode.textContent = data.flag || '-';
+	badgeNode.textContent = '● ' + (data.statusText || 'Active');
+	badgeNode.classList.remove('success', 'warning');
+	badgeNode.classList.add(statusClass);
+
+	var assignments = parseAccountAssignments(data.assignments || '');
+	assignmentListNode.innerHTML = '';
+
+	if (assignments.length === 0) {
+		var emptyItem = document.createElement('li');
+		emptyItem.innerHTML = '<span>No active assignments</span>';
+		assignmentListNode.appendChild(emptyItem);
+		return;
+	}
+
+	assignments.forEach(function (item) {
+		var li = document.createElement('li');
+		var rightMeta = [item.teacher, item.date].filter(Boolean).join(' · ');
+		li.innerHTML = '<span>' + item.course + '</span><small>' + rightMeta + '</small>';
+		assignmentListNode.appendChild(li);
+	});
+}
+
+function initAccountDetailInteraction() {
+	var rows = Array.prototype.slice.call(document.querySelectorAll('.account-row'));
+	if (rows.length === 0 || !document.getElementById('account-detail-panel')) {
+		return;
+	}
+
+	function activateRow(row) {
+		rows.forEach(function (item) {
+			item.classList.remove('active');
+		});
+		row.classList.add('active');
+		renderAccountDetail(row);
+	}
+
+	rows.forEach(function (row) {
+		row.addEventListener('click', function () {
+			activateRow(row);
+		});
+
+		row.addEventListener('keydown', function (event) {
+			if (event.key === 'Enter' || event.key === ' ') {
+				event.preventDefault();
+				activateRow(row);
+			}
+		});
+	});
+
+	var initial = document.querySelector('.account-row.active') || rows[0];
+	if (initial) {
+		activateRow(initial);
+	}
+}
+
 function handleCommonAction(action, button) {
 	var contextPath = getContextPath();
 	var row = button ? button.closest('.list-row') : null;
@@ -223,6 +327,8 @@ function handleCommonAction(action, button) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+	initAccountDetailInteraction();
+
 	var exportButtons = document.querySelectorAll('[data-export-csv="true"]');
 
 	Array.prototype.forEach.call(exportButtons, function (button) {
