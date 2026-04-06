@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>AD - Operation Logs</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260406-3" />
 </head>
 <body class="ad-page">
 <div class="ad-shell">
@@ -92,19 +92,64 @@
             <section class="page-head">
                 <div>
                     <h1>Operation Log</h1>
-                    <p>System audit trail</p>
+                    <p id="log-filter-summary">4 log entry or entries match the current filters</p>
                 </div>
                 <div class="filter-actions">
-                    <button class="chip-button active" data-filter="logs-all">All actions</button>
-                    <button class="chip-button" data-filter="logs-risk">Risk events</button>
                     <button class="chip-button" data-export-csv="true" data-export-filename="operation-logs">Export CSV</button>
+                </div>
+            </section>
+
+            <section class="account-filter-panel log-filter-panel">
+                <div class="account-filter-grid log-filter-grid">
+                    <label class="filter-field">
+                        <small>ACCOUNT TYPE</small>
+                        <select id="log-filter-role">
+                            <option value="all">All</option>
+                            <option value="AD">AD</option>
+                            <option value="TA">TA</option>
+                            <option value="MO">MO</option>
+                        </select>
+                    </label>
+
+                    <label class="filter-field">
+                        <small>ACTION</small>
+                        <select id="log-filter-action">
+                            <option value="all">All</option>
+                            <option value="submitted">Application Submitted</option>
+                            <option value="approved">Application Approved</option>
+                            <option value="supplement">Supplement Requested</option>
+                            <option value="reminder">Reminder Sent</option>
+                            <option value="export">Exported</option>
+                            <option value="password-reset">Forced Password Reset</option>
+                        </select>
+                    </label>
+
+                    <label class="filter-field">
+                        <small>RANGE</small>
+                        <select id="log-filter-range">
+                            <option value="all">All</option>
+                            <option value="current-sprint" selected>Current sprint</option>
+                            <option value="today">Today</option>
+                            <option value="last-7-days">Last 7 days</option>
+                        </select>
+                    </label>
+
+                    <div class="filter-field">
+                        <small>ENTRIES</small>
+                        <div class="upper-limit-chip"><span id="log-filter-entry-count">4</span></div>
+                    </div>
+                </div>
+
+                <div class="account-filter-actions">
+                    <button id="log-filter-clear" class="chip-button">Clear</button>
+                    <button id="log-filter-apply" class="chip-button active">Apply filters</button>
                 </div>
             </section>
 
             <section class="list-card">
                 <div class="list-title-row">
                     <h2>Log entries</h2>
-                    <span>6 item(s)</span>
+                    <span>4 item(s)</span>
                 </div>
 
                 <div class="list-head log-grid">
@@ -116,7 +161,10 @@
                     <span>ACTION</span>
                 </div>
 
-                <article class="list-row log-grid">
+                <article class="list-row log-grid log-row"
+                         data-role="AD"
+                         data-action-key="approved"
+                         data-time="2026-04-01 10:22">
                     <span>2026-04-01 10:22</span>
                     <span>System Admin</span>
                     <span>Approved account</span>
@@ -127,7 +175,10 @@
                     </div>
                 </article>
 
-                <article class="list-row log-grid">
+                <article class="list-row log-grid log-row"
+                         data-role="AD"
+                         data-action-key="export"
+                         data-time="2026-04-01 09:58">
                     <span>2026-04-01 09:58</span>
                     <span>System Admin</span>
                     <span>Exported vacancies</span>
@@ -138,7 +189,10 @@
                     </div>
                 </article>
 
-                <article class="list-row warn log-grid">
+                <article class="list-row warn log-grid log-row"
+                         data-role="AD"
+                         data-action-key="rejected"
+                         data-time="2026-04-01 09:35">
                     <span>2026-04-01 09:35</span>
                     <span>System Admin</span>
                     <span>Rejected account</span>
@@ -149,7 +203,10 @@
                     </div>
                 </article>
 
-                <article class="list-row warn log-grid">
+                <article class="list-row warn log-grid log-row"
+                         data-role="AD"
+                         data-action-key="password-reset"
+                         data-time="2026-04-01 08:47">
                     <span>2026-04-01 08:47</span>
                     <span>System Admin</span>
                     <span>Forced password reset</span>
@@ -163,6 +220,6 @@
         </main>
     </div>
 </div>
-<script src="${pageContext.request.contextPath}/js/app.js?v=20260404-2"></script>
+<script src="${pageContext.request.contextPath}/js/app.js?v=20260406-3"></script>
 </body>
 </html>

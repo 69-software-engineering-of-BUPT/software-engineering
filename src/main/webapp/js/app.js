@@ -479,6 +479,128 @@ function initAccountFilterPanel() {
 	applyAccountFilters(false);
 }
 
+function getLogRows() {
+	return Array.prototype.slice.call(document.querySelectorAll('.log-row'));
+}
+
+function parseLogDate(value) {
+	if (!value) {
+		return null;
+	}
+	var normalized = String(value).trim().replace(' ', 'T');
+	var parsed = new Date(normalized);
+	return isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function isLogInRange(row, rangeValue) {
+	if (rangeValue === 'all' || rangeValue === 'current-sprint') {
+		return true;
+	}
+
+	var logDate = parseLogDate(row && row.dataset ? row.dataset.time : '');
+	if (!logDate) {
+		return false;
+	}
+
+	var now = new Date();
+	var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+	if (rangeValue === 'today') {
+		return logDate >= todayStart;
+	}
+
+	if (rangeValue === 'last-7-days') {
+		var last7Days = new Date(todayStart);
+		last7Days.setDate(last7Days.getDate() - 6);
+		return logDate >= last7Days;
+	}
+
+	return true;
+}
+
+function applyLogFilters(showAppliedToast) {
+	var roleSelect = document.getElementById('log-filter-role');
+	var actionSelect = document.getElementById('log-filter-action');
+	var rangeSelect = document.getElementById('log-filter-range');
+	var listCard = document.querySelector('.ad-main .list-card');
+	var rows = getLogRows();
+
+	if (!roleSelect || !actionSelect || !rangeSelect || !listCard || rows.length === 0) {
+		return;
+	}
+
+	var role = roleSelect.value;
+	var actionKey = actionSelect.value;
+	var rangeValue = rangeSelect.value;
+
+	rows.forEach(function (row) {
+		var rowRole = (row.dataset.role || '').toUpperCase();
+		var rowAction = row.dataset.actionKey || '';
+		var roleMatched = role === 'all' || rowRole === role;
+		var actionMatched = actionKey === 'all' || rowAction === actionKey;
+		var rangeMatched = isLogInRange(row, rangeValue);
+		var shouldShow = roleMatched && actionMatched && rangeMatched;
+
+		row.style.display = shouldShow ? '' : 'none';
+	});
+
+	var visibleRows = rows.filter(function (row) {
+		return row.style.display !== 'none';
+	});
+
+	updateVisibleCount(listCard);
+
+	var summaryNode = document.getElementById('log-filter-summary');
+	if (summaryNode) {
+		summaryNode.textContent = visibleRows.length + ' log entry or entries match the current filters';
+	}
+
+	var countNode = document.getElementById('log-filter-entry-count');
+	if (countNode) {
+		countNode.textContent = String(visibleRows.length);
+	}
+
+	if (showAppliedToast) {
+		showToast('Log filters applied: ' + visibleRows.length + ' item(s)');
+	}
+}
+
+function initLogFilterPanel() {
+	var roleSelect = document.getElementById('log-filter-role');
+	var actionSelect = document.getElementById('log-filter-action');
+	var rangeSelect = document.getElementById('log-filter-range');
+	var applyButton = document.getElementById('log-filter-apply');
+	var clearButton = document.getElementById('log-filter-clear');
+
+	if (!roleSelect || !actionSelect || !rangeSelect || !applyButton || !clearButton) {
+		return;
+	}
+
+	applyButton.addEventListener('click', function () {
+		applyLogFilters(true);
+	});
+
+	clearButton.addEventListener('click', function () {
+		roleSelect.value = 'all';
+		actionSelect.value = 'all';
+		rangeSelect.value = 'current-sprint';
+		applyLogFilters(false);
+		showToast('Log filters cleared');
+	});
+
+	roleSelect.addEventListener('change', function () {
+		applyLogFilters(false);
+	});
+	actionSelect.addEventListener('change', function () {
+		applyLogFilters(false);
+	});
+	rangeSelect.addEventListener('change', function () {
+		applyLogFilters(false);
+	});
+
+	applyLogFilters(false);
+}
+
 function handleCommonAction(action, button) {
 	var contextPath = getContextPath();
 	var row = button ? button.closest('.list-row') : null;
@@ -525,6 +647,7 @@ function handleCommonAction(action, button) {
 document.addEventListener('DOMContentLoaded', function () {
 	initAccountDetailInteraction();
 	initAccountFilterPanel();
+	initLogFilterPanel();
 
 	var exportButtons = document.querySelectorAll('[data-export-csv="true"]');
 
