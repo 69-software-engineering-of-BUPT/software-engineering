@@ -1,6 +1,7 @@
 console.log('TA Recruitment prototype assets loaded.');
 
 var OP_LOG_STORAGE_KEY = 'taRecruitment.operationLogs';
+var PROJECT_VIEW_STORAGE_KEY = 'taRecruitment.selectedProject';
 
 function ensureToast() {
 	var toast = document.getElementById('ad-action-toast');
@@ -304,12 +305,12 @@ function updateVisibleCount(listCard) {
 }
 
 function filterProjectRows(showUnfilledOnly) {
-	var listCard = document.querySelector('.ad-main .list-card');
+	var listCard = document.querySelector('.project-list-card');
 	if (!listCard) {
 		return;
 	}
 
-	Array.prototype.forEach.call(listCard.querySelectorAll('.list-row'), function (row) {
+	Array.prototype.forEach.call(listCard.querySelectorAll('.project-row'), function (row) {
 		if (!showUnfilledOnly) {
 			row.style.display = '';
 			return;
@@ -320,6 +321,227 @@ function filterProjectRows(showUnfilledOnly) {
 	});
 
 	updateVisibleCount(listCard);
+	ensureVisibleProjectSelection();
+}
+
+function parseProjectTaList(raw) {
+	if (!raw) {
+		return [];
+	}
+
+	return raw
+		.split(';')
+		.map(function (item) {
+			var parts = item.split('|');
+			return {
+				name: normalizeText(parts[0]),
+				email: normalizeText(parts[1]),
+				note: normalizeText(parts[2])
+			};
+		})
+		.filter(function (item) {
+			return item.name;
+		});
+}
+
+function buildProjectPayloadFromRow(row) {
+	if (!row) {
+		return null;
+	}
+	var data = row.dataset || {};
+	return {
+		module: data.module || '',
+		moduleCode: data.moduleCode || '',
+		mo: data.mo || '',
+		posted: data.posted || '',
+		deadline: data.deadline || '',
+		seats: data.seats || '',
+		filled: data.filled || '',
+		vacancies: data.vacancies || '',
+		statusText: data.statusText || '',
+		statusClass: data.statusClass || 'warning',
+		liveDays: data.liveDays || '',
+		requirements: data.requirements || '',
+		details: data.details || '',
+		approvedTas: data.approvedTas || '',
+		pendingTas: data.pendingTas || ''
+	};
+}
+
+function setSelectedProjectForView(payload) {
+	if (!payload) {
+		return;
+	}
+	try {
+		localStorage.setItem(PROJECT_VIEW_STORAGE_KEY, JSON.stringify(payload));
+	} catch (error) {
+		// ignore storage exceptions in prototype mode
+	}
+}
+
+function getSelectedProjectForView() {
+	try {
+		var raw = localStorage.getItem(PROJECT_VIEW_STORAGE_KEY);
+		if (!raw) {
+			return null;
+		}
+		var parsed = JSON.parse(raw);
+		return parsed && typeof parsed === 'object' ? parsed : null;
+	} catch (error) {
+		return null;
+	}
+}
+
+function renderProjectViewData(payload) {
+	if (!payload) {
+		return;
+	}
+
+	var nameNode = document.getElementById('project-view-name');
+	var codeNode = document.getElementById('project-view-code');
+	var statusNode = document.getElementById('project-view-status');
+	var moNode = document.getElementById('project-view-mo');
+	var postedNode = document.getElementById('project-view-posted');
+	var deadlineNode = document.getElementById('project-view-deadline');
+	var capacityNode = document.getElementById('project-view-capacity');
+	var reqNode = document.getElementById('project-view-req');
+	var descNode = document.getElementById('project-view-desc');
+
+	if (!nameNode || !codeNode || !statusNode || !moNode || !postedNode || !deadlineNode || !capacityNode || !reqNode || !descNode) {
+		return;
+	}
+
+	nameNode.textContent = payload.module || '-';
+	codeNode.textContent = (payload.moduleCode || '-') + ' · ' + (payload.liveDays || '0') + ' day(s) live';
+	statusNode.textContent = '● ' + (payload.statusText || 'Action Needed');
+	statusNode.classList.remove('success', 'warning');
+	statusNode.classList.add(payload.statusClass === 'success' ? 'success' : 'warning');
+	moNode.textContent = payload.mo || '-';
+	postedNode.textContent = payload.posted || '-';
+	deadlineNode.textContent = payload.deadline || '-';
+	capacityNode.textContent = (payload.seats || '0') + ' / ' + (payload.filled || '0') + ' / ' + (payload.vacancies || '0');
+	reqNode.textContent = (payload.requirements || '-').split(';').join(' · ');
+	descNode.textContent = payload.details || '-';
+
+	renderProjectTaList('project-approved-ta-list', parseProjectTaList(payload.approvedTas));
+	renderProjectTaList('project-pending-ta-list', parseProjectTaList(payload.pendingTas));
+}
+
+function initProjectViewPage() {
+	if (!document.getElementById('project-view-page')) {
+		return;
+	}
+	renderProjectViewData(getSelectedProjectForView());
+}
+
+function renderProjectTaList(containerId, list) {
+	var listNode = document.getElementById(containerId);
+	if (!listNode) {
+		return;
+	}
+
+	listNode.innerHTML = '';
+	if (!list || list.length === 0) {
+		listNode.innerHTML = '<li><span>No TA in this section</span></li>';
+		return;
+	}
+
+	list.forEach(function (item) {
+		var li = document.createElement('li');
+		var right = [item.email, item.note].filter(Boolean).join(' · ');
+		li.innerHTML = '<span>' + item.name + '</span><small>' + right + '</small>';
+		listNode.appendChild(li);
+	});
+}
+
+function renderProjectDetail(row) {
+	if (!row) {
+		return;
+	}
+
+	var data = row.dataset;
+	var nameNode = document.getElementById('project-detail-name');
+	var codeNode = document.getElementById('project-detail-code');
+	var statusNode = document.getElementById('project-detail-status');
+	var moNode = document.getElementById('project-detail-mo');
+	var postedNode = document.getElementById('project-detail-posted');
+	var deadlineNode = document.getElementById('project-detail-deadline');
+	var capacityNode = document.getElementById('project-detail-capacity');
+	var reqNode = document.getElementById('project-detail-req');
+	var descNode = document.getElementById('project-detail-desc');
+
+	if (!nameNode || !codeNode || !statusNode || !moNode || !postedNode || !deadlineNode || !capacityNode || !reqNode || !descNode) {
+		return;
+	}
+
+	nameNode.textContent = data.module || '-';
+	codeNode.textContent = (data.moduleCode || '-') + ' · ' + (data.liveDays || '0') + ' day(s) live';
+	statusNode.textContent = '● ' + (data.statusText || 'Action Needed');
+	statusNode.classList.remove('success', 'warning');
+	statusNode.classList.add(data.statusClass === 'success' ? 'success' : 'warning');
+	moNode.textContent = data.mo || '-';
+	postedNode.textContent = data.posted || '-';
+	deadlineNode.textContent = data.deadline || '-';
+	capacityNode.textContent = (data.seats || '0') + ' / ' + (data.filled || '0') + ' / ' + (data.vacancies || '0');
+	reqNode.textContent = (data.requirements || '-').split(';').join(' · ');
+	descNode.textContent = data.details || '-';
+
+	renderProjectTaList('project-approved-ta-list', parseProjectTaList(data.approvedTas));
+	renderProjectTaList('project-pending-ta-list', parseProjectTaList(data.pendingTas));
+}
+
+function selectProjectRow(row) {
+	var rows = Array.prototype.slice.call(document.querySelectorAll('.project-row'));
+	rows.forEach(function (item) {
+		item.classList.remove('active');
+	});
+
+	if (!row) {
+		return;
+	}
+
+	row.classList.add('active');
+	renderProjectDetail(row);
+}
+
+function ensureVisibleProjectSelection() {
+	var rows = Array.prototype.slice.call(document.querySelectorAll('.project-row'));
+	if (rows.length === 0) {
+		return;
+	}
+
+	var activeRow = document.querySelector('.project-row.active');
+	if (activeRow && activeRow.style.display !== 'none') {
+		renderProjectDetail(activeRow);
+		return;
+	}
+
+	var firstVisible = rows.find(function (row) {
+		return row.style.display !== 'none';
+	});
+	selectProjectRow(firstVisible || null);
+}
+
+function initProjectDetailPanel() {
+	if (!document.getElementById('project-detail-panel')) {
+		return;
+	}
+
+	var rows = Array.prototype.slice.call(document.querySelectorAll('.project-row'));
+	if (rows.length === 0) {
+		return;
+	}
+
+	rows.forEach(function (row) {
+		row.addEventListener('click', function (event) {
+			if (event.target.closest('[data-action="project-view"]') || event.target.closest('[data-action="project-remind"]')) {
+				return;
+			}
+			selectProjectRow(row);
+		});
+	});
+
+	selectProjectRow(document.querySelector('.project-row.active') || rows[0]);
 }
 
 function filterLogRows(showRiskOnly) {
@@ -921,7 +1143,8 @@ function handleCommonAction(action, button) {
 			showToast('Reminder sent for: ' + rowTitle);
 			return;
 		case 'project-view':
-			showToast('View project: ' + rowTitle);
+			setSelectedProjectForView(buildProjectPayloadFromRow(row));
+			window.location.href = contextPath + '/jsp/ad/project-view.jsp';
 			return;
 		case 'log-details':
 			showToast('Showing log details');
@@ -938,6 +1161,8 @@ document.addEventListener('DOMContentLoaded', function () {
 	initAccountDetailInteraction();
 	initAccountDetailActions();
 	initAccountFilterPanel();
+	initProjectDetailPanel();
+	initProjectViewPage();
 	initLogFilterPanel();
 
 	var exportButtons = document.querySelectorAll('[data-export-csv="true"]');
