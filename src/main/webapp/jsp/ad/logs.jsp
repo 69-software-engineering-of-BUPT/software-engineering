@@ -115,12 +115,13 @@
                         <small>ACTION</small>
                         <select id="log-filter-action">
                             <option value="all">All</option>
-                            <option value="submitted">Application Submitted</option>
-                            <option value="approved">Application Approved</option>
-                            <option value="supplement">Supplement Requested</option>
-                            <option value="reminder">Reminder Sent</option>
-                            <option value="export">Exported</option>
-                            <option value="password-reset">Forced Password Reset</option>
+                            <option value="account-deleted">Account Deleted</option>
+                            <option value="account-frozen">Account Frozen</option>
+                            <option value="reminder-sent">Reminder Sent</option>
+                            <option value="application-submitted">Application Submitted</option>
+                            <option value="supplement-requested">Supplement Requested</option>
+                            <option value="application-approved">Application Approved</option>
+                            <option value="csv-export">CSV Export</option>
                         </select>
                     </label>
 
@@ -163,12 +164,12 @@
 
                 <article class="list-row log-grid log-row"
                          data-role="AD"
-                         data-action-key="approved"
+                         data-action-key="reminder-sent"
                          data-time="2026-04-01 10:22">
                     <span>2026-04-01 10:22</span>
                     <span>System Admin</span>
-                    <span>Approved account</span>
-                    <span>yu.ta@campus.edu</span>
+                    <span>Reminder Sent</span>
+                    <span>Human Computer Interaction Studio TA</span>
                     <span class="status success">● Success</span>
                     <div class="row-actions">
                         <button data-action="log-details">Details</button>
@@ -177,12 +178,12 @@
 
                 <article class="list-row log-grid log-row"
                          data-role="AD"
-                         data-action-key="export"
+                         data-action-key="csv-export"
                          data-time="2026-04-01 09:58">
                     <span>2026-04-01 09:58</span>
                     <span>System Admin</span>
-                    <span>Exported vacancies</span>
-                    <span>Project list</span>
+                    <span>CSV Export</span>
+                    <span>Operation log list</span>
                     <span class="status success">● Success</span>
                     <div class="row-actions">
                         <button data-action="log-details">Details</button>
@@ -191,11 +192,11 @@
 
                 <article class="list-row warn log-grid log-row"
                          data-role="AD"
-                         data-action-key="rejected"
+                         data-action-key="account-deleted"
                          data-time="2026-04-01 09:35">
                     <span>2026-04-01 09:35</span>
                     <span>System Admin</span>
-                    <span>Rejected account</span>
+                    <span>Account Deleted</span>
                     <span>morgan.mo@campus.edu</span>
                     <span class="status warning">● Warning</span>
                     <div class="row-actions">
@@ -205,11 +206,11 @@
 
                 <article class="list-row warn log-grid log-row"
                          data-role="AD"
-                         data-action-key="password-reset"
+                         data-action-key="account-frozen"
                          data-time="2026-04-01 08:47">
                     <span>2026-04-01 08:47</span>
                     <span>System Admin</span>
-                    <span>Forced password reset</span>
+                    <span>Account Frozen</span>
                     <span>chen.mo@campus.edu</span>
                     <span class="status warning">● Warning</span>
                     <div class="row-actions">
