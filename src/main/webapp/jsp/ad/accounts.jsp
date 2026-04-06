@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>AD - Account Management</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260406-1" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260406-2" />
 </head>
 <body class="ad-page">
 <div class="ad-shell">
@@ -92,11 +92,50 @@
             <section class="page-head">
                 <div>
                     <h1>Account Management</h1>
-                    <p>TA and MO accounts</p>
+                    <p id="account-filter-summary">4 account(s) match the current filters</p>
                 </div>
                 <div class="filter-actions">
-                    <button class="chip-button active" data-filter="accounts-all">All accounts</button>
+                    <button class="chip-button" data-action="import-csv">Import CSV</button>
                     <button class="chip-button" data-export-csv="true" data-export-filename="accounts">Export CSV</button>
+                </div>
+            </section>
+
+            <section class="account-filter-panel">
+                <div class="account-filter-grid">
+                    <label class="filter-field filter-search">
+                        <small>SEARCH</small>
+                        <input id="account-filter-search" type="text" placeholder="Name, email or department" />
+                    </label>
+
+                    <label class="filter-field">
+                        <small>ROLE</small>
+                        <select id="account-filter-role">
+                            <option value="all">All</option>
+                            <option value="TA">TA</option>
+                            <option value="MO">MO</option>
+                            <option value="AD">AD</option>
+                        </select>
+                    </label>
+
+                    <label class="filter-field">
+                        <small>STATUS</small>
+                        <select id="account-filter-status">
+                            <option value="all">All</option>
+                            <option value="active">Active</option>
+                            <option value="pending">Pending</option>
+                            <option value="upper-limit">Reached Upper Limit</option>
+                        </select>
+                    </label>
+
+                    <div class="filter-field">
+                        <small>UPPER LIMIT REACHED</small>
+                        <div class="upper-limit-chip"><span id="account-upper-limit-count">1</span> TA account(s)</div>
+                    </div>
+                </div>
+
+                <div class="account-filter-actions">
+                    <button id="account-filter-clear" class="chip-button">Clear</button>
+                    <button id="account-filter-apply" class="chip-button active">Apply filters</button>
                 </div>
             </section>
 
@@ -241,6 +280,6 @@
         </main>
     </div>
 </div>
-<script src="${pageContext.request.contextPath}/js/app.js?v=20260406-1"></script>
+<script src="${pageContext.request.contextPath}/js/app.js?v=20260406-2"></script>
 </body>
 </html>

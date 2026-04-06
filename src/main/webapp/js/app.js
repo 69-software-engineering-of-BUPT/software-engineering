@@ -112,11 +112,11 @@ function downloadCsv(content, filenamePrefix) {
 }
 
 function getContextPath() {
-	var cssLink = document.querySelector('link[href$="/css/app.css"]');
+	var cssLink = document.querySelector('link[href*="/css/app.css"]');
 	if (!cssLink) {
 		return '';
 	}
-	return cssLink.getAttribute('href').replace(/\/css\/app\.css$/, '');
+	return cssLink.getAttribute('href').replace(/\/css\/app\.css(\?.*)?$/, '');
 }
 
 function setActiveFilter(button) {
@@ -259,31 +259,224 @@ function initAccountDetailInteraction() {
 		return;
 	}
 
-	function activateRow(row) {
-		rows.forEach(function (item) {
-			item.classList.remove('active');
-		});
-		row.classList.add('active');
-		renderAccountDetail(row);
-	}
-
 	rows.forEach(function (row) {
 		row.addEventListener('click', function () {
-			activateRow(row);
+			selectAccountRow(row);
 		});
 
 		row.addEventListener('keydown', function (event) {
 			if (event.key === 'Enter' || event.key === ' ') {
 				event.preventDefault();
-				activateRow(row);
+				selectAccountRow(row);
 			}
 		});
 	});
 
 	var initial = document.querySelector('.account-row.active') || rows[0];
 	if (initial) {
-		activateRow(initial);
+		selectAccountRow(initial);
 	}
+}
+
+function getAccountRows() {
+	return Array.prototype.slice.call(document.querySelectorAll('.account-row'));
+}
+
+function isUpperLimitReached(row) {
+	if (!row) {
+		return false;
+	}
+
+	var flagText = normalizeText((row.dataset.flag || '').toLowerCase());
+	if (flagText.indexOf('upper limit') >= 0) {
+		return true;
+	}
+
+	var loadText = normalizeText(row.dataset.load || '');
+	var match = loadText.match(/(\d+)\s*\/\s*(\d+)/);
+	if (!match) {
+		return false;
+	}
+
+	var current = parseInt(match[1], 10);
+	var upper = parseInt(match[2], 10);
+	return !isNaN(current) && !isNaN(upper) && upper > 0 && current >= upper;
+}
+
+function getAccountStatusKey(row) {
+	if (!row) {
+		return 'unknown';
+	}
+
+	if (isUpperLimitReached(row)) {
+		return 'upper-limit';
+	}
+
+	var statusText = normalizeText((row.dataset.statusText || '').toLowerCase());
+	if (statusText === 'active') {
+		return 'active';
+	}
+	if (statusText === 'pending') {
+		return 'pending';
+	}
+	if (statusText === 'warning') {
+		return 'warning';
+	}
+
+	return statusText || 'unknown';
+}
+
+function renderEmptyAccountDetail() {
+	var nameNode = document.getElementById('detail-name');
+	var emailNode = document.getElementById('detail-email');
+	var roleNode = document.getElementById('detail-role');
+	var deptNode = document.getElementById('detail-department');
+	var loadNode = document.getElementById('detail-load');
+	var lastLoginNode = document.getElementById('detail-last-login');
+	var flagNode = document.getElementById('detail-flag');
+	var badgeNode = document.getElementById('detail-flag-badge');
+	var assignmentListNode = document.getElementById('detail-assignment-list');
+
+	if (!nameNode || !emailNode || !roleNode || !deptNode || !loadNode || !lastLoginNode || !flagNode || !badgeNode || !assignmentListNode) {
+		return;
+	}
+
+	nameNode.textContent = 'No account selected';
+	emailNode.textContent = '-';
+	roleNode.textContent = '-';
+	deptNode.textContent = '-';
+	loadNode.textContent = '-';
+	lastLoginNode.textContent = '-';
+	flagNode.textContent = '-';
+	badgeNode.textContent = '● -';
+	badgeNode.classList.remove('success', 'warning');
+	assignmentListNode.innerHTML = '<li><span>No matching account</span></li>';
+}
+
+function selectAccountRow(row) {
+	var rows = getAccountRows();
+	rows.forEach(function (item) {
+		item.classList.remove('active');
+	});
+
+	if (!row) {
+		renderEmptyAccountDetail();
+		return;
+	}
+
+	row.classList.add('active');
+	renderAccountDetail(row);
+}
+
+function ensureVisibleAccountSelection() {
+	var rows = getAccountRows();
+	if (rows.length === 0) {
+		return;
+	}
+
+	var activeRow = document.querySelector('.account-row.active');
+	if (activeRow && activeRow.style.display !== 'none') {
+		renderAccountDetail(activeRow);
+		return;
+	}
+
+	var firstVisible = rows.find(function (row) {
+		return row.style.display !== 'none';
+	});
+	selectAccountRow(firstVisible || null);
+}
+
+function updateAccountFilterMeta(visibleRows) {
+	var summaryNode = document.getElementById('account-filter-summary');
+	if (summaryNode) {
+		summaryNode.textContent = visibleRows.length + ' account(s) match the current filters';
+	}
+
+	var upperLimitNode = document.getElementById('account-upper-limit-count');
+	if (upperLimitNode) {
+		var upperCount = visibleRows.filter(isUpperLimitReached).length;
+		upperLimitNode.textContent = String(upperCount);
+	}
+}
+
+function applyAccountFilters(showAppliedToast) {
+	var searchInput = document.getElementById('account-filter-search');
+	var roleSelect = document.getElementById('account-filter-role');
+	var statusSelect = document.getElementById('account-filter-status');
+	var listCard = document.querySelector('.account-list-card');
+	var rows = getAccountRows();
+
+	if (!searchInput || !roleSelect || !statusSelect || !listCard || rows.length === 0) {
+		return;
+	}
+
+	var keyword = normalizeText(searchInput.value).toLowerCase();
+	var role = roleSelect.value;
+	var status = statusSelect.value;
+
+	rows.forEach(function (row) {
+		var dataset = row.dataset;
+		var searchHaystack = [dataset.name, dataset.email, dataset.department, dataset.flag].join(' ').toLowerCase();
+		var roleMatched = role === 'all' || (dataset.role || '').toUpperCase() === role;
+		var statusMatched = status === 'all' || getAccountStatusKey(row) === status;
+		var searchMatched = !keyword || searchHaystack.indexOf(keyword) >= 0;
+		var shouldShow = roleMatched && statusMatched && searchMatched;
+
+		row.style.display = shouldShow ? '' : 'none';
+	});
+
+	var visibleRows = rows.filter(function (row) {
+		return row.style.display !== 'none';
+	});
+
+	updateVisibleCount(listCard);
+	updateAccountFilterMeta(visibleRows);
+	ensureVisibleAccountSelection();
+
+	if (showAppliedToast) {
+		showToast('Filters applied: ' + visibleRows.length + ' account(s)');
+	}
+}
+
+function initAccountFilterPanel() {
+	var applyButton = document.getElementById('account-filter-apply');
+	var clearButton = document.getElementById('account-filter-clear');
+	var searchInput = document.getElementById('account-filter-search');
+	var roleSelect = document.getElementById('account-filter-role');
+	var statusSelect = document.getElementById('account-filter-status');
+
+	if (!applyButton || !clearButton || !searchInput || !roleSelect || !statusSelect) {
+		return;
+	}
+
+	applyButton.addEventListener('click', function () {
+		applyAccountFilters(true);
+	});
+
+	clearButton.addEventListener('click', function () {
+		searchInput.value = '';
+		roleSelect.value = 'all';
+		statusSelect.value = 'all';
+		applyAccountFilters(false);
+		showToast('Filters cleared');
+	});
+
+	searchInput.addEventListener('keydown', function (event) {
+		if (event.key === 'Enter') {
+			event.preventDefault();
+			applyAccountFilters(true);
+		}
+	});
+
+	roleSelect.addEventListener('change', function () {
+		applyAccountFilters(false);
+	});
+
+	statusSelect.addEventListener('change', function () {
+		applyAccountFilters(false);
+	});
+
+	applyAccountFilters(false);
 }
 
 function handleCommonAction(action, button) {
@@ -299,6 +492,9 @@ function handleCommonAction(action, button) {
 		case 'reset-demo':
 			showToast('Returning to login...');
 			window.location.href = contextPath + '/jsp/login.jsp';
+			return;
+		case 'import-csv':
+			showToast('Import feature is in progress');
 			return;
 		case 'account-edit':
 			showToast('Edit account: ' + rowTitle);
@@ -328,6 +524,7 @@ function handleCommonAction(action, button) {
 
 document.addEventListener('DOMContentLoaded', function () {
 	initAccountDetailInteraction();
+	initAccountFilterPanel();
 
 	var exportButtons = document.querySelectorAll('[data-export-csv="true"]');
 

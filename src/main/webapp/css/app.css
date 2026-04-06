@@ -273,6 +273,70 @@ h1 {
     gap: 10px;
 }
 
+.account-filter-panel {
+    margin-top: 14px;
+    border: 1px solid #d9d3ca;
+    border-radius: 22px;
+    background: #f6f3ee;
+    padding: 16px;
+}
+
+.account-filter-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr .8fr;
+    gap: 12px;
+}
+
+.filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-field small {
+    color: #848b95;
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+.filter-field input,
+.filter-field select,
+.upper-limit-chip {
+    height: 46px;
+    border: 1px solid #d8d1c7;
+    border-radius: 14px;
+    background: #f8f6f2;
+    color: #38414d;
+    padding: 0 14px;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+.filter-field input,
+.filter-field select {
+    font-size: 13px;
+    outline: none;
+}
+
+.filter-field input:focus,
+.filter-field select:focus {
+    border-color: #bda58a;
+    box-shadow: 0 0 0 2px rgba(189, 165, 138, 0.18);
+}
+
+.upper-limit-chip {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+}
+
+.account-filter-actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
 .account-workbench {
     margin-top: 14px;
     display: grid;
