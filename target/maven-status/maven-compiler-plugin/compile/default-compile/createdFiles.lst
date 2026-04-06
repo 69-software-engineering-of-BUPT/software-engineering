@@ -1,8 +1,0 @@
-com\bupt\tarecruit\model\Job.class
-com\bupt\tarecruit\util\JsonUtil.class
-com\bupt\tarecruit\model\Application.class
-com\bupt\tarecruit\repository\ApplicationRepository.class
-com\bupt\tarecruit\repository\UserRepository.class
-com\bupt\tarecruit\model\User.class
-com\bupt\tarecruit\model\Notification.class
-com\bupt\tarecruit\repository\JobRepository.class
