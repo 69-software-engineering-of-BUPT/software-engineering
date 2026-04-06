@@ -1,5 +1,7 @@
 console.log('TA Recruitment prototype assets loaded.');
 
+var OP_LOG_STORAGE_KEY = 'taRecruitment.operationLogs';
+
 function ensureToast() {
 	var toast = document.getElementById('ad-action-toast');
 	if (toast) {
@@ -109,6 +111,162 @@ function downloadCsv(content, filenamePrefix) {
 	link.click();
 	document.body.removeChild(link);
 	URL.revokeObjectURL(url);
+}
+
+function formatDateTime(date) {
+	var d = date instanceof Date ? date : new Date(date);
+	if (isNaN(d.getTime())) {
+		d = new Date();
+	}
+	var year = d.getFullYear();
+	var month = String(d.getMonth() + 1).padStart(2, '0');
+	var day = String(d.getDate()).padStart(2, '0');
+	var hour = String(d.getHours()).padStart(2, '0');
+	var minute = String(d.getMinutes()).padStart(2, '0');
+	return year + '-' + month + '-' + day + ' ' + hour + ':' + minute;
+}
+
+function getStoredOperationLogs() {
+	try {
+		var raw = localStorage.getItem(OP_LOG_STORAGE_KEY);
+		if (!raw) {
+			return [];
+		}
+		var parsed = JSON.parse(raw);
+		return Array.isArray(parsed) ? parsed : [];
+	} catch (error) {
+		return [];
+	}
+}
+
+function setStoredOperationLogs(logs) {
+	try {
+		localStorage.setItem(OP_LOG_STORAGE_KEY, JSON.stringify(logs || []));
+	} catch (error) {
+		// ignore storage exceptions in prototype mode
+	}
+}
+
+function actionLabelFromKey(actionKey) {
+	switch (actionKey) {
+		case 'account-deleted':
+			return 'Account Deleted';
+		case 'account-frozen':
+			return 'Account Frozen';
+		case 'reminder-sent':
+			return 'Reminder Sent';
+		case 'application-submitted':
+			return 'Application Submitted';
+		case 'supplement-requested':
+			return 'Supplement Requested';
+		case 'application-approved':
+			return 'Application Approved';
+		case 'csv-export':
+			return 'CSV Export';
+		default:
+			return 'Reminder Sent';
+	}
+}
+
+function resultStyleFromAction(actionKey) {
+	if (actionKey === 'account-deleted' || actionKey === 'account-frozen') {
+		return { text: 'Warning', css: 'warning' };
+	}
+	return { text: 'Success', css: 'success' };
+}
+
+function recordOperationLog(actionKey, target, options) {
+	var opts = options || {};
+	var logs = getStoredOperationLogs();
+	var now = new Date();
+	logs.push({
+		id: 'log-' + now.getTime() + '-' + Math.floor(Math.random() * 10000),
+		time: formatDateTime(now),
+		actor: opts.actor || 'System Admin',
+		role: opts.role || 'AD',
+		actionKey: actionKey,
+		actionLabel: actionLabelFromKey(actionKey),
+		target: target || '-',
+		result: (opts.result || resultStyleFromAction(actionKey).text),
+		resultClass: (opts.resultClass || resultStyleFromAction(actionKey).css)
+	});
+
+	if (logs.length > 200) {
+		logs = logs.slice(logs.length - 200);
+	}
+	setStoredOperationLogs(logs);
+}
+
+function readLogRowsFromDom() {
+	return Array.prototype.slice.call(document.querySelectorAll('.log-row')).map(function (row, index) {
+		var cells = row.querySelectorAll('span');
+		var statusNode = row.querySelector('.status');
+		var resultClass = statusNode && statusNode.classList.contains('warning') ? 'warning' : 'success';
+		var resultText = normalizeText(statusNode ? statusNode.textContent : '').replace(/^●\s*/, '') || 'Success';
+		return {
+			id: 'seed-' + index,
+			time: normalizeText(cells[0] ? cells[0].textContent : ''),
+			actor: normalizeText(cells[1] ? cells[1].textContent : ''),
+			role: (row.dataset.role || 'AD').toUpperCase(),
+			actionKey: row.dataset.actionKey || 'reminder-sent',
+			actionLabel: normalizeText(cells[2] ? cells[2].textContent : '') || actionLabelFromKey(row.dataset.actionKey),
+			target: normalizeText(cells[3] ? cells[3].textContent : ''),
+			result: resultText,
+			resultClass: resultClass
+		};
+	});
+}
+
+function ensureOperationLogSeeded() {
+	if (document.querySelectorAll('.log-row').length === 0) {
+		return;
+	}
+	var stored = getStoredOperationLogs();
+	if (stored.length > 0) {
+		return;
+	}
+	setStoredOperationLogs(readLogRowsFromDom());
+}
+
+function createLogRowNode(entry) {
+	var row = document.createElement('article');
+	var isWarn = entry.resultClass === 'warning';
+	row.className = 'list-row log-grid log-row' + (isWarn ? ' warn' : '');
+	row.dataset.role = (entry.role || 'AD').toUpperCase();
+	row.dataset.actionKey = entry.actionKey || 'reminder-sent';
+	row.dataset.time = entry.time || formatDateTime(new Date());
+
+	row.innerHTML =
+		'<span>' + (entry.time || '-') + '</span>' +
+		'<span>' + (entry.actor || 'System Admin') + '</span>' +
+		'<span>' + (entry.actionLabel || actionLabelFromKey(entry.actionKey)) + '</span>' +
+		'<span>' + (entry.target || '-') + '</span>' +
+		'<span class="status ' + (isWarn ? 'warning' : 'success') + '">● ' + (entry.result || (isWarn ? 'Warning' : 'Success')) + '</span>' +
+		'<div class="row-actions"><button data-action="log-details">Details</button></div>';
+
+	return row;
+}
+
+function renderOperationLogRows() {
+	var logListCard = document.querySelector('.ad-main .list-card');
+	if (!logListCard || document.querySelectorAll('.log-row').length === 0) {
+		return;
+	}
+
+	var container = logListCard;
+	Array.prototype.slice.call(container.querySelectorAll('.log-row')).forEach(function (row) {
+		row.remove();
+	});
+
+	var entries = getStoredOperationLogs().slice().sort(function (a, b) {
+		var ta = parseLogDate(a.time);
+		var tb = parseLogDate(b.time);
+		return (tb ? tb.getTime() : 0) - (ta ? ta.getTime() : 0);
+	});
+
+	entries.forEach(function (entry) {
+		container.appendChild(createLogRowNode(entry));
+	});
 }
 
 function getContextPath() {
@@ -545,6 +703,7 @@ function freezeSelectedAccount() {
 	updateAccountRowStatusView(row);
 	renderAccountDetail(row);
 	updateAccountActionButtonsState(row);
+	recordOperationLog('account-frozen', row.dataset.email || row.dataset.name || '-');
 	applyAccountFilters(false);
 	showToast('Account locked: ' + (row.dataset.name || '')); 
 }
@@ -584,7 +743,9 @@ function deleteSelectedAccount() {
 	}
 
 	var deletedName = row.dataset.name || 'Selected account';
+	var deletedTarget = row.dataset.email || deletedName;
 	row.remove();
+	recordOperationLog('account-deleted', deletedTarget);
 	applyAccountFilters(false);
 	showToast('Account deleted: ' + deletedName);
 }
@@ -756,6 +917,7 @@ function handleCommonAction(action, button) {
 			showToast('Rejected account: ' + rowTitle);
 			return;
 		case 'project-remind':
+			recordOperationLog('reminder-sent', rowTitle || 'Project');
 			showToast('Reminder sent for: ' + rowTitle);
 			return;
 		case 'project-view':
@@ -770,6 +932,9 @@ function handleCommonAction(action, button) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+	ensureOperationLogSeeded();
+	renderOperationLogRows();
+
 	initAccountDetailInteraction();
 	initAccountDetailActions();
 	initAccountFilterPanel();
@@ -789,6 +954,8 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 
 			downloadCsv(csv, button.getAttribute('data-export-filename'));
+			recordOperationLog('csv-export', (button.getAttribute('data-export-filename') || 'list') + ' list');
+			renderOperationLogRows();
 			showToast('CSV exported successfully');
 		});
 	});
