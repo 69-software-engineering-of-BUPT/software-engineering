@@ -575,3 +575,30 @@ h1 {
 .detail-assignment small {
     color: #808791;
 }
+
+.detail-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.detail-action-btn {
+    border: 1px solid #d7d1c8;
+    border-radius: 16px;
+    background: #f7f4ef;
+    padding: 12px 22px;
+    font-size: 13px;
+    color: #4a4f57;
+    cursor: pointer;
+}
+
+.detail-action-btn.danger {
+    color: #8c5c56;
+    border-color: #dcc3bf;
+    background: #f8efee;
+}
+
+.detail-action-btn:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}

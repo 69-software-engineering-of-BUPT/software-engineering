@@ -351,6 +351,7 @@ function renderEmptyAccountDetail() {
 	badgeNode.textContent = '● -';
 	badgeNode.classList.remove('success', 'warning');
 	assignmentListNode.innerHTML = '<li><span>No matching account</span></li>';
+	updateAccountActionButtonsState(null);
 }
 
 function selectAccountRow(row) {
@@ -366,6 +367,7 @@ function selectAccountRow(row) {
 
 	row.classList.add('active');
 	renderAccountDetail(row);
+	updateAccountActionButtonsState(row);
 }
 
 function ensureVisibleAccountSelection() {
@@ -477,6 +479,129 @@ function initAccountFilterPanel() {
 	});
 
 	applyAccountFilters(false);
+}
+
+function updateAccountActionButtonsState(row) {
+	var freezeBtn = document.getElementById('account-freeze-btn');
+	var unfreezeBtn = document.getElementById('account-unfreeze-btn');
+	var deleteBtn = document.getElementById('account-delete-btn');
+	if (!freezeBtn || !unfreezeBtn || !deleteBtn) {
+		return;
+	}
+
+	if (!row) {
+		freezeBtn.disabled = true;
+		unfreezeBtn.disabled = true;
+		deleteBtn.disabled = true;
+		return;
+	}
+
+	var locked = row.dataset.locked === 'true';
+	freezeBtn.disabled = locked;
+	unfreezeBtn.disabled = !locked;
+	deleteBtn.disabled = false;
+}
+
+function updateAccountRowStatusView(row) {
+	if (!row) {
+		return;
+	}
+
+	if (row.dataset.statusClass === 'warning') {
+		row.classList.add('warn');
+	} else {
+		row.classList.remove('warn');
+	}
+
+	var statusNode = row.querySelector('.status');
+	if (!statusNode) {
+		return;
+	}
+
+	statusNode.classList.remove('success', 'warning');
+	statusNode.classList.add(row.dataset.statusClass === 'warning' ? 'warning' : 'success');
+	statusNode.textContent = '● ' + (row.dataset.statusText || 'Active');
+}
+
+function freezeSelectedAccount() {
+	var row = document.querySelector('.account-row.active');
+	if (!row) {
+		showToast('No account selected');
+		return;
+	}
+
+	if (row.dataset.locked === 'true') {
+		showToast('Account is already locked');
+		return;
+	}
+
+	row.dataset.prevStatusText = row.dataset.statusText || 'Active';
+	row.dataset.prevStatusClass = row.dataset.statusClass || 'success';
+	row.dataset.prevFlag = row.dataset.flag || '-';
+	row.dataset.locked = 'true';
+	row.dataset.statusText = 'Warning';
+	row.dataset.statusClass = 'warning';
+	row.dataset.flag = 'Account locked by administrator';
+	updateAccountRowStatusView(row);
+	renderAccountDetail(row);
+	updateAccountActionButtonsState(row);
+	applyAccountFilters(false);
+	showToast('Account locked: ' + (row.dataset.name || '')); 
+}
+
+function unfreezeSelectedAccount() {
+	var row = document.querySelector('.account-row.active');
+	if (!row) {
+		showToast('No account selected');
+		return;
+	}
+
+	if (row.dataset.locked !== 'true') {
+		showToast('Account is not locked');
+		return;
+	}
+
+	row.dataset.locked = 'false';
+	row.dataset.statusText = row.dataset.prevStatusText || 'Active';
+	row.dataset.statusClass = row.dataset.prevStatusClass || 'success';
+	row.dataset.flag = row.dataset.prevFlag || '-';
+	delete row.dataset.prevStatusText;
+	delete row.dataset.prevStatusClass;
+	delete row.dataset.prevFlag;
+
+	updateAccountRowStatusView(row);
+	renderAccountDetail(row);
+	updateAccountActionButtonsState(row);
+	applyAccountFilters(false);
+	showToast('Account unlocked: ' + (row.dataset.name || ''));
+}
+
+function deleteSelectedAccount() {
+	var row = document.querySelector('.account-row.active');
+	if (!row) {
+		showToast('No account selected');
+		return;
+	}
+
+	var deletedName = row.dataset.name || 'Selected account';
+	row.remove();
+	applyAccountFilters(false);
+	showToast('Account deleted: ' + deletedName);
+}
+
+function initAccountDetailActions() {
+	var freezeBtn = document.getElementById('account-freeze-btn');
+	var unfreezeBtn = document.getElementById('account-unfreeze-btn');
+	var deleteBtn = document.getElementById('account-delete-btn');
+	if (!freezeBtn || !unfreezeBtn || !deleteBtn) {
+		return;
+	}
+
+	freezeBtn.addEventListener('click', freezeSelectedAccount);
+	unfreezeBtn.addEventListener('click', unfreezeSelectedAccount);
+	deleteBtn.addEventListener('click', deleteSelectedAccount);
+
+	updateAccountActionButtonsState(document.querySelector('.account-row.active'));
 }
 
 function getLogRows() {
@@ -646,6 +771,7 @@ function handleCommonAction(action, button) {
 
 document.addEventListener('DOMContentLoaded', function () {
 	initAccountDetailInteraction();
+	initAccountDetailActions();
 	initAccountFilterPanel();
 	initLogFilterPanel();
 

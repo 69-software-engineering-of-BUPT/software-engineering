@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>AD - Account Management</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260406-2" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260406-5" />
 </head>
 <body class="ad-page">
 <div class="ad-shell">
@@ -122,7 +122,7 @@
                         <select id="account-filter-status">
                             <option value="all">All</option>
                             <option value="active">Active</option>
-                            <option value="pending">Pending</option>
+                            <option value="warning">Warning</option>
                             <option value="upper-limit">Reached Upper Limit</option>
                         </select>
                     </label>
@@ -183,7 +183,7 @@
                              data-status-text="Active"
                              data-status-class="success"
                              data-last-login="Today"
-                             data-load="0/3"
+                             data-load="2/3"
                              data-flag="Owns 2 published positions"
                              data-assignments="Data Mining|Dr. Chen|05 Apr 2026;Machine Learning|Dr. Chen|11 Apr 2026">
                         <div>
@@ -201,11 +201,11 @@
                              data-email="morgan.mo@campus.edu"
                              data-role="MO"
                              data-department="Design School"
-                             data-status-text="Pending"
+                             data-status-text="Warning"
                              data-status-class="warning"
                              data-last-login="2 days ago"
-                             data-load="2/3"
-                             data-flag="Pending approval"
+                             data-load="0/3"
+                             data-flag="5 failed logins"
                              data-assignments="Studio Design|Prof. Morgan|06 Apr 2026;Visual Design|Prof. Morgan|09 Apr 2026">
                         <div>
                             <strong>Prof. Morgan</strong>
@@ -213,7 +213,7 @@
                         </div>
                         <span>MO</span>
                         <span>Design School</span>
-                        <span class="status warning">● Pending</span>
+                            <span class="status warning">● Warning</span>
                         <span>2 days ago</span>
                     </article>
 
@@ -222,7 +222,7 @@
                              data-email="yu.ta@campus.edu"
                              data-role="TA"
                              data-department="Economics"
-                             data-status-text="Pending"
+                                data-status-text="Reached Upper Limit"
                              data-status-class="warning"
                              data-last-login="Never"
                              data-load="3/3"
@@ -234,7 +234,7 @@
                         </div>
                         <span>TA</span>
                         <span>Economics</span>
-                        <span class="status warning">● Pending</span>
+                        <span class="status warning">● Reached Upper Limit</span>
                         <span>Never</span>
                     </article>
                 </section>
@@ -275,11 +275,17 @@
                         <h3>Active assignments</h3>
                         <ul id="detail-assignment-list"></ul>
                     </section>
+
+                    <div class="detail-actions">
+                        <button id="account-freeze-btn" class="detail-action-btn" type="button">Freeze account</button>
+                        <button id="account-unfreeze-btn" class="detail-action-btn" type="button">Unfreeze account</button>
+                        <button id="account-delete-btn" class="detail-action-btn danger" type="button">Delete account</button>
+                    </div>
                 </aside>
             </section>
         </main>
     </div>
 </div>
-<script src="${pageContext.request.contextPath}/js/app.js?v=20260406-2"></script>
+<script src="${pageContext.request.contextPath}/js/app.js?v=20260406-5"></script>
 </body>
 </html>
