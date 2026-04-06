@@ -273,12 +273,90 @@ h1 {
     gap: 10px;
 }
 
-.list-card {
+.account-filter-panel {
     margin-top: 14px;
+    border: 1px solid #d9d3ca;
+    border-radius: 22px;
+    background: #f6f3ee;
+    padding: 16px;
+}
+
+.account-filter-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr .8fr;
+    gap: 12px;
+}
+
+.log-filter-grid {
+    grid-template-columns: 1fr 1fr 1fr .35fr;
+}
+
+.filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-field small {
+    color: #848b95;
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+.filter-field input,
+.filter-field select,
+.upper-limit-chip {
+    height: 46px;
+    border: 1px solid #d8d1c7;
+    border-radius: 14px;
+    background: #f8f6f2;
+    color: #38414d;
+    padding: 0 14px;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+.filter-field input,
+.filter-field select {
+    font-size: 13px;
+    outline: none;
+}
+
+.filter-field input:focus,
+.filter-field select:focus {
+    border-color: #bda58a;
+    box-shadow: 0 0 0 2px rgba(189, 165, 138, 0.18);
+}
+
+.upper-limit-chip {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+}
+
+.account-filter-actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.account-workbench {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 14px;
+}
+
+.list-card {
     border: 1px solid #d9d3ca;
     border-radius: 18px;
     background: #f4f1eb;
     padding: 14px;
+}
+
+.account-list-card {
+    margin-top: 0;
 }
 
 .list-title-row {
@@ -307,7 +385,7 @@ h1 {
 }
 
 .account-grid {
-    grid-template-columns: 2.8fr 1fr 1.6fr 1.2fr 1.2fr 1.8fr;
+    grid-template-columns: 2.5fr .9fr 1.5fr 1.2fr 1.1fr;
 }
 
 .log-grid {
@@ -332,6 +410,27 @@ h1 {
 
 .list-row.warn {
     background: #f6f0e2;
+}
+
+.account-row {
+    cursor: pointer;
+    transition: box-shadow .15s ease, border-color .15s ease, transform .15s ease;
+}
+
+.account-row:hover {
+    border-color: #cfc7ba;
+    box-shadow: 0 6px 14px rgba(107, 90, 72, 0.08);
+    transform: translateY(-1px);
+}
+
+.account-row.active {
+    border-color: #c2b29d;
+    background: #f2ebdf;
+}
+
+.account-row:focus-visible {
+    outline: 2px solid #9f8464;
+    outline-offset: 1px;
 }
 
 .list-row strong,
@@ -381,4 +480,125 @@ h1 {
     font-size: 12px;
     color: #5f6266;
     cursor: pointer;
+}
+
+.account-detail-card {
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.detail-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.detail-head h2 {
+    margin: 0;
+    font-size: 30px;
+    color: #27303b;
+}
+
+.detail-head p {
+    margin: 6px 0 0;
+    color: #7b838d;
+    font-size: 13px;
+}
+
+.detail-kv-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.detail-kv {
+    border: 1px solid #d8d2c9;
+    border-radius: 14px;
+    background: #f7f4ef;
+    padding: 10px 12px;
+}
+
+.detail-kv small {
+    display: block;
+    color: #848b94;
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+.detail-kv strong {
+    display: block;
+    margin-top: 6px;
+    font-size: 25px;
+    color: #2e3947;
+}
+
+.detail-kv-full {
+    grid-column: 1 / -1;
+}
+
+.detail-assignment {
+    border: 1px solid #d8d2c9;
+    border-radius: 14px;
+    background: #f7f4ef;
+    padding: 12px;
+}
+
+.detail-assignment h3 {
+    margin: 0 0 10px;
+    font-size: 20px;
+    color: #2d3846;
+}
+
+.detail-assignment ul {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+}
+
+.detail-assignment li {
+    border-top: 1px solid #e2dcd2;
+    padding: 9px 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    color: #454b55;
+}
+
+.detail-assignment li:first-child {
+    border-top: none;
+    padding-top: 0;
+}
+
+.detail-assignment small {
+    color: #808791;
+}
+
+.detail-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.detail-action-btn {
+    border: 1px solid #d7d1c8;
+    border-radius: 16px;
+    background: #f7f4ef;
+    padding: 12px 22px;
+    font-size: 13px;
+    color: #4a4f57;
+    cursor: pointer;
+}
+
+.detail-action-btn.danger {
+    color: #8c5c56;
+    border-color: #dcc3bf;
+    background: #f8efee;
+}
+
+.detail-action-btn:disabled {
+    opacity: .55;
+    cursor: not-allowed;
 }

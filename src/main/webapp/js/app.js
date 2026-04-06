@@ -1,5 +1,7 @@
 console.log('TA Recruitment prototype assets loaded.');
 
+var OP_LOG_STORAGE_KEY = 'taRecruitment.operationLogs';
+
 function ensureToast() {
 	var toast = document.getElementById('ad-action-toast');
 	if (toast) {
@@ -111,12 +113,168 @@ function downloadCsv(content, filenamePrefix) {
 	URL.revokeObjectURL(url);
 }
 
+function formatDateTime(date) {
+	var d = date instanceof Date ? date : new Date(date);
+	if (isNaN(d.getTime())) {
+		d = new Date();
+	}
+	var year = d.getFullYear();
+	var month = String(d.getMonth() + 1).padStart(2, '0');
+	var day = String(d.getDate()).padStart(2, '0');
+	var hour = String(d.getHours()).padStart(2, '0');
+	var minute = String(d.getMinutes()).padStart(2, '0');
+	return year + '-' + month + '-' + day + ' ' + hour + ':' + minute;
+}
+
+function getStoredOperationLogs() {
+	try {
+		var raw = localStorage.getItem(OP_LOG_STORAGE_KEY);
+		if (!raw) {
+			return [];
+		}
+		var parsed = JSON.parse(raw);
+		return Array.isArray(parsed) ? parsed : [];
+	} catch (error) {
+		return [];
+	}
+}
+
+function setStoredOperationLogs(logs) {
+	try {
+		localStorage.setItem(OP_LOG_STORAGE_KEY, JSON.stringify(logs || []));
+	} catch (error) {
+		// ignore storage exceptions in prototype mode
+	}
+}
+
+function actionLabelFromKey(actionKey) {
+	switch (actionKey) {
+		case 'account-deleted':
+			return 'Account Deleted';
+		case 'account-frozen':
+			return 'Account Frozen';
+		case 'reminder-sent':
+			return 'Reminder Sent';
+		case 'application-submitted':
+			return 'Application Submitted';
+		case 'supplement-requested':
+			return 'Supplement Requested';
+		case 'application-approved':
+			return 'Application Approved';
+		case 'csv-export':
+			return 'CSV Export';
+		default:
+			return 'Reminder Sent';
+	}
+}
+
+function resultStyleFromAction(actionKey) {
+	if (actionKey === 'account-deleted' || actionKey === 'account-frozen') {
+		return { text: 'Warning', css: 'warning' };
+	}
+	return { text: 'Success', css: 'success' };
+}
+
+function recordOperationLog(actionKey, target, options) {
+	var opts = options || {};
+	var logs = getStoredOperationLogs();
+	var now = new Date();
+	logs.push({
+		id: 'log-' + now.getTime() + '-' + Math.floor(Math.random() * 10000),
+		time: formatDateTime(now),
+		actor: opts.actor || 'System Admin',
+		role: opts.role || 'AD',
+		actionKey: actionKey,
+		actionLabel: actionLabelFromKey(actionKey),
+		target: target || '-',
+		result: (opts.result || resultStyleFromAction(actionKey).text),
+		resultClass: (opts.resultClass || resultStyleFromAction(actionKey).css)
+	});
+
+	if (logs.length > 200) {
+		logs = logs.slice(logs.length - 200);
+	}
+	setStoredOperationLogs(logs);
+}
+
+function readLogRowsFromDom() {
+	return Array.prototype.slice.call(document.querySelectorAll('.log-row')).map(function (row, index) {
+		var cells = row.querySelectorAll('span');
+		var statusNode = row.querySelector('.status');
+		var resultClass = statusNode && statusNode.classList.contains('warning') ? 'warning' : 'success';
+		var resultText = normalizeText(statusNode ? statusNode.textContent : '').replace(/^●\s*/, '') || 'Success';
+		return {
+			id: 'seed-' + index,
+			time: normalizeText(cells[0] ? cells[0].textContent : ''),
+			actor: normalizeText(cells[1] ? cells[1].textContent : ''),
+			role: (row.dataset.role || 'AD').toUpperCase(),
+			actionKey: row.dataset.actionKey || 'reminder-sent',
+			actionLabel: normalizeText(cells[2] ? cells[2].textContent : '') || actionLabelFromKey(row.dataset.actionKey),
+			target: normalizeText(cells[3] ? cells[3].textContent : ''),
+			result: resultText,
+			resultClass: resultClass
+		};
+	});
+}
+
+function ensureOperationLogSeeded() {
+	if (document.querySelectorAll('.log-row').length === 0) {
+		return;
+	}
+	var stored = getStoredOperationLogs();
+	if (stored.length > 0) {
+		return;
+	}
+	setStoredOperationLogs(readLogRowsFromDom());
+}
+
+function createLogRowNode(entry) {
+	var row = document.createElement('article');
+	var isWarn = entry.resultClass === 'warning';
+	row.className = 'list-row log-grid log-row' + (isWarn ? ' warn' : '');
+	row.dataset.role = (entry.role || 'AD').toUpperCase();
+	row.dataset.actionKey = entry.actionKey || 'reminder-sent';
+	row.dataset.time = entry.time || formatDateTime(new Date());
+
+	row.innerHTML =
+		'<span>' + (entry.time || '-') + '</span>' +
+		'<span>' + (entry.actor || 'System Admin') + '</span>' +
+		'<span>' + (entry.actionLabel || actionLabelFromKey(entry.actionKey)) + '</span>' +
+		'<span>' + (entry.target || '-') + '</span>' +
+		'<span class="status ' + (isWarn ? 'warning' : 'success') + '">● ' + (entry.result || (isWarn ? 'Warning' : 'Success')) + '</span>' +
+		'<div class="row-actions"><button data-action="log-details">Details</button></div>';
+
+	return row;
+}
+
+function renderOperationLogRows() {
+	var logListCard = document.querySelector('.ad-main .list-card');
+	if (!logListCard || document.querySelectorAll('.log-row').length === 0) {
+		return;
+	}
+
+	var container = logListCard;
+	Array.prototype.slice.call(container.querySelectorAll('.log-row')).forEach(function (row) {
+		row.remove();
+	});
+
+	var entries = getStoredOperationLogs().slice().sort(function (a, b) {
+		var ta = parseLogDate(a.time);
+		var tb = parseLogDate(b.time);
+		return (tb ? tb.getTime() : 0) - (ta ? ta.getTime() : 0);
+	});
+
+	entries.forEach(function (entry) {
+		container.appendChild(createLogRowNode(entry));
+	});
+}
+
 function getContextPath() {
-	var cssLink = document.querySelector('link[href$="/css/app.css"]');
+	var cssLink = document.querySelector('link[href*="/css/app.css"]');
 	if (!cssLink) {
 		return '';
 	}
-	return cssLink.getAttribute('href').replace(/\/css\/app\.css$/, '');
+	return cssLink.getAttribute('href').replace(/\/css\/app\.css(\?.*)?$/, '');
 }
 
 function setActiveFilter(button) {
@@ -182,6 +340,553 @@ function filterLogRows(showRiskOnly) {
 	updateVisibleCount(listCard);
 }
 
+function parseAccountAssignments(raw) {
+	if (!raw) {
+		return [];
+	}
+
+	return raw
+		.split(';')
+		.map(function (item) {
+			var parts = item.split('|');
+			return {
+				course: normalizeText(parts[0]),
+				teacher: normalizeText(parts[1]),
+				date: normalizeText(parts[2])
+			};
+		})
+		.filter(function (item) {
+			return item.course;
+		});
+}
+
+function renderAccountDetail(row) {
+	if (!row) {
+		return;
+	}
+
+	var nameNode = document.getElementById('detail-name');
+	var emailNode = document.getElementById('detail-email');
+	var roleNode = document.getElementById('detail-role');
+	var deptNode = document.getElementById('detail-department');
+	var loadNode = document.getElementById('detail-load');
+	var lastLoginNode = document.getElementById('detail-last-login');
+	var flagNode = document.getElementById('detail-flag');
+	var badgeNode = document.getElementById('detail-flag-badge');
+	var assignmentListNode = document.getElementById('detail-assignment-list');
+
+	if (!nameNode || !emailNode || !roleNode || !deptNode || !loadNode || !lastLoginNode || !flagNode || !badgeNode || !assignmentListNode) {
+		return;
+	}
+
+	var data = row.dataset;
+	var statusClass = data.statusClass === 'warning' ? 'warning' : 'success';
+
+	nameNode.textContent = data.name || '-';
+	emailNode.textContent = data.email || '-';
+	roleNode.textContent = data.role || '-';
+	deptNode.textContent = data.department || '-';
+	loadNode.textContent = data.load || '-';
+	lastLoginNode.textContent = data.lastLogin || '-';
+	flagNode.textContent = data.flag || '-';
+	badgeNode.textContent = '● ' + (data.statusText || 'Active');
+	badgeNode.classList.remove('success', 'warning');
+	badgeNode.classList.add(statusClass);
+
+	var assignments = parseAccountAssignments(data.assignments || '');
+	assignmentListNode.innerHTML = '';
+
+	if (assignments.length === 0) {
+		var emptyItem = document.createElement('li');
+		emptyItem.innerHTML = '<span>No active assignments</span>';
+		assignmentListNode.appendChild(emptyItem);
+		return;
+	}
+
+	assignments.forEach(function (item) {
+		var li = document.createElement('li');
+		var rightMeta = [item.teacher, item.date].filter(Boolean).join(' · ');
+		li.innerHTML = '<span>' + item.course + '</span><small>' + rightMeta + '</small>';
+		assignmentListNode.appendChild(li);
+	});
+}
+
+function initAccountDetailInteraction() {
+	var rows = Array.prototype.slice.call(document.querySelectorAll('.account-row'));
+	if (rows.length === 0 || !document.getElementById('account-detail-panel')) {
+		return;
+	}
+
+	rows.forEach(function (row) {
+		row.addEventListener('click', function () {
+			selectAccountRow(row);
+		});
+
+		row.addEventListener('keydown', function (event) {
+			if (event.key === 'Enter' || event.key === ' ') {
+				event.preventDefault();
+				selectAccountRow(row);
+			}
+		});
+	});
+
+	var initial = document.querySelector('.account-row.active') || rows[0];
+	if (initial) {
+		selectAccountRow(initial);
+	}
+}
+
+function getAccountRows() {
+	return Array.prototype.slice.call(document.querySelectorAll('.account-row'));
+}
+
+function isUpperLimitReached(row) {
+	if (!row) {
+		return false;
+	}
+
+	var flagText = normalizeText((row.dataset.flag || '').toLowerCase());
+	if (flagText.indexOf('upper limit') >= 0) {
+		return true;
+	}
+
+	var loadText = normalizeText(row.dataset.load || '');
+	var match = loadText.match(/(\d+)\s*\/\s*(\d+)/);
+	if (!match) {
+		return false;
+	}
+
+	var current = parseInt(match[1], 10);
+	var upper = parseInt(match[2], 10);
+	return !isNaN(current) && !isNaN(upper) && upper > 0 && current >= upper;
+}
+
+function getAccountStatusKey(row) {
+	if (!row) {
+		return 'unknown';
+	}
+
+	if (isUpperLimitReached(row)) {
+		return 'upper-limit';
+	}
+
+	var statusText = normalizeText((row.dataset.statusText || '').toLowerCase());
+	if (statusText === 'active') {
+		return 'active';
+	}
+	if (statusText === 'pending') {
+		return 'pending';
+	}
+	if (statusText === 'warning') {
+		return 'warning';
+	}
+
+	return statusText || 'unknown';
+}
+
+function renderEmptyAccountDetail() {
+	var nameNode = document.getElementById('detail-name');
+	var emailNode = document.getElementById('detail-email');
+	var roleNode = document.getElementById('detail-role');
+	var deptNode = document.getElementById('detail-department');
+	var loadNode = document.getElementById('detail-load');
+	var lastLoginNode = document.getElementById('detail-last-login');
+	var flagNode = document.getElementById('detail-flag');
+	var badgeNode = document.getElementById('detail-flag-badge');
+	var assignmentListNode = document.getElementById('detail-assignment-list');
+
+	if (!nameNode || !emailNode || !roleNode || !deptNode || !loadNode || !lastLoginNode || !flagNode || !badgeNode || !assignmentListNode) {
+		return;
+	}
+
+	nameNode.textContent = 'No account selected';
+	emailNode.textContent = '-';
+	roleNode.textContent = '-';
+	deptNode.textContent = '-';
+	loadNode.textContent = '-';
+	lastLoginNode.textContent = '-';
+	flagNode.textContent = '-';
+	badgeNode.textContent = '● -';
+	badgeNode.classList.remove('success', 'warning');
+	assignmentListNode.innerHTML = '<li><span>No matching account</span></li>';
+	updateAccountActionButtonsState(null);
+}
+
+function selectAccountRow(row) {
+	var rows = getAccountRows();
+	rows.forEach(function (item) {
+		item.classList.remove('active');
+	});
+
+	if (!row) {
+		renderEmptyAccountDetail();
+		return;
+	}
+
+	row.classList.add('active');
+	renderAccountDetail(row);
+	updateAccountActionButtonsState(row);
+}
+
+function ensureVisibleAccountSelection() {
+	var rows = getAccountRows();
+	if (rows.length === 0) {
+		return;
+	}
+
+	var activeRow = document.querySelector('.account-row.active');
+	if (activeRow && activeRow.style.display !== 'none') {
+		renderAccountDetail(activeRow);
+		return;
+	}
+
+	var firstVisible = rows.find(function (row) {
+		return row.style.display !== 'none';
+	});
+	selectAccountRow(firstVisible || null);
+}
+
+function updateAccountFilterMeta(visibleRows) {
+	var summaryNode = document.getElementById('account-filter-summary');
+	if (summaryNode) {
+		summaryNode.textContent = visibleRows.length + ' account(s) match the current filters';
+	}
+
+	var upperLimitNode = document.getElementById('account-upper-limit-count');
+	if (upperLimitNode) {
+		var upperCount = visibleRows.filter(isUpperLimitReached).length;
+		upperLimitNode.textContent = String(upperCount);
+	}
+}
+
+function applyAccountFilters(showAppliedToast) {
+	var searchInput = document.getElementById('account-filter-search');
+	var roleSelect = document.getElementById('account-filter-role');
+	var statusSelect = document.getElementById('account-filter-status');
+	var listCard = document.querySelector('.account-list-card');
+	var rows = getAccountRows();
+
+	if (!searchInput || !roleSelect || !statusSelect || !listCard || rows.length === 0) {
+		return;
+	}
+
+	var keyword = normalizeText(searchInput.value).toLowerCase();
+	var role = roleSelect.value;
+	var status = statusSelect.value;
+
+	rows.forEach(function (row) {
+		var dataset = row.dataset;
+		var searchHaystack = [dataset.name, dataset.email, dataset.department, dataset.flag].join(' ').toLowerCase();
+		var roleMatched = role === 'all' || (dataset.role || '').toUpperCase() === role;
+		var statusMatched = status === 'all' || getAccountStatusKey(row) === status;
+		var searchMatched = !keyword || searchHaystack.indexOf(keyword) >= 0;
+		var shouldShow = roleMatched && statusMatched && searchMatched;
+
+		row.style.display = shouldShow ? '' : 'none';
+	});
+
+	var visibleRows = rows.filter(function (row) {
+		return row.style.display !== 'none';
+	});
+
+	updateVisibleCount(listCard);
+	updateAccountFilterMeta(visibleRows);
+	ensureVisibleAccountSelection();
+
+	if (showAppliedToast) {
+		showToast('Filters applied: ' + visibleRows.length + ' account(s)');
+	}
+}
+
+function initAccountFilterPanel() {
+	var applyButton = document.getElementById('account-filter-apply');
+	var clearButton = document.getElementById('account-filter-clear');
+	var searchInput = document.getElementById('account-filter-search');
+	var roleSelect = document.getElementById('account-filter-role');
+	var statusSelect = document.getElementById('account-filter-status');
+
+	if (!applyButton || !clearButton || !searchInput || !roleSelect || !statusSelect) {
+		return;
+	}
+
+	applyButton.addEventListener('click', function () {
+		applyAccountFilters(true);
+	});
+
+	clearButton.addEventListener('click', function () {
+		searchInput.value = '';
+		roleSelect.value = 'all';
+		statusSelect.value = 'all';
+		applyAccountFilters(false);
+		showToast('Filters cleared');
+	});
+
+	searchInput.addEventListener('keydown', function (event) {
+		if (event.key === 'Enter') {
+			event.preventDefault();
+			applyAccountFilters(true);
+		}
+	});
+
+	roleSelect.addEventListener('change', function () {
+		applyAccountFilters(false);
+	});
+
+	statusSelect.addEventListener('change', function () {
+		applyAccountFilters(false);
+	});
+
+	applyAccountFilters(false);
+}
+
+function updateAccountActionButtonsState(row) {
+	var freezeBtn = document.getElementById('account-freeze-btn');
+	var unfreezeBtn = document.getElementById('account-unfreeze-btn');
+	var deleteBtn = document.getElementById('account-delete-btn');
+	if (!freezeBtn || !unfreezeBtn || !deleteBtn) {
+		return;
+	}
+
+	if (!row) {
+		freezeBtn.disabled = true;
+		unfreezeBtn.disabled = true;
+		deleteBtn.disabled = true;
+		return;
+	}
+
+	var locked = row.dataset.locked === 'true';
+	freezeBtn.disabled = locked;
+	unfreezeBtn.disabled = !locked;
+	deleteBtn.disabled = false;
+}
+
+function updateAccountRowStatusView(row) {
+	if (!row) {
+		return;
+	}
+
+	if (row.dataset.statusClass === 'warning') {
+		row.classList.add('warn');
+	} else {
+		row.classList.remove('warn');
+	}
+
+	var statusNode = row.querySelector('.status');
+	if (!statusNode) {
+		return;
+	}
+
+	statusNode.classList.remove('success', 'warning');
+	statusNode.classList.add(row.dataset.statusClass === 'warning' ? 'warning' : 'success');
+	statusNode.textContent = '● ' + (row.dataset.statusText || 'Active');
+}
+
+function freezeSelectedAccount() {
+	var row = document.querySelector('.account-row.active');
+	if (!row) {
+		showToast('No account selected');
+		return;
+	}
+
+	if (row.dataset.locked === 'true') {
+		showToast('Account is already locked');
+		return;
+	}
+
+	row.dataset.prevStatusText = row.dataset.statusText || 'Active';
+	row.dataset.prevStatusClass = row.dataset.statusClass || 'success';
+	row.dataset.prevFlag = row.dataset.flag || '-';
+	row.dataset.locked = 'true';
+	row.dataset.statusText = 'Warning';
+	row.dataset.statusClass = 'warning';
+	row.dataset.flag = 'Account locked by administrator';
+	updateAccountRowStatusView(row);
+	renderAccountDetail(row);
+	updateAccountActionButtonsState(row);
+	recordOperationLog('account-frozen', row.dataset.email || row.dataset.name || '-');
+	applyAccountFilters(false);
+	showToast('Account locked: ' + (row.dataset.name || '')); 
+}
+
+function unfreezeSelectedAccount() {
+	var row = document.querySelector('.account-row.active');
+	if (!row) {
+		showToast('No account selected');
+		return;
+	}
+
+	if (row.dataset.locked !== 'true') {
+		showToast('Account is not locked');
+		return;
+	}
+
+	row.dataset.locked = 'false';
+	row.dataset.statusText = row.dataset.prevStatusText || 'Active';
+	row.dataset.statusClass = row.dataset.prevStatusClass || 'success';
+	row.dataset.flag = row.dataset.prevFlag || '-';
+	delete row.dataset.prevStatusText;
+	delete row.dataset.prevStatusClass;
+	delete row.dataset.prevFlag;
+
+	updateAccountRowStatusView(row);
+	renderAccountDetail(row);
+	updateAccountActionButtonsState(row);
+	applyAccountFilters(false);
+	showToast('Account unlocked: ' + (row.dataset.name || ''));
+}
+
+function deleteSelectedAccount() {
+	var row = document.querySelector('.account-row.active');
+	if (!row) {
+		showToast('No account selected');
+		return;
+	}
+
+	var deletedName = row.dataset.name || 'Selected account';
+	var deletedTarget = row.dataset.email || deletedName;
+	row.remove();
+	recordOperationLog('account-deleted', deletedTarget);
+	applyAccountFilters(false);
+	showToast('Account deleted: ' + deletedName);
+}
+
+function initAccountDetailActions() {
+	var freezeBtn = document.getElementById('account-freeze-btn');
+	var unfreezeBtn = document.getElementById('account-unfreeze-btn');
+	var deleteBtn = document.getElementById('account-delete-btn');
+	if (!freezeBtn || !unfreezeBtn || !deleteBtn) {
+		return;
+	}
+
+	freezeBtn.addEventListener('click', freezeSelectedAccount);
+	unfreezeBtn.addEventListener('click', unfreezeSelectedAccount);
+	deleteBtn.addEventListener('click', deleteSelectedAccount);
+
+	updateAccountActionButtonsState(document.querySelector('.account-row.active'));
+}
+
+function getLogRows() {
+	return Array.prototype.slice.call(document.querySelectorAll('.log-row'));
+}
+
+function parseLogDate(value) {
+	if (!value) {
+		return null;
+	}
+	var normalized = String(value).trim().replace(' ', 'T');
+	var parsed = new Date(normalized);
+	return isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function isLogInRange(row, rangeValue) {
+	if (rangeValue === 'all' || rangeValue === 'current-sprint') {
+		return true;
+	}
+
+	var logDate = parseLogDate(row && row.dataset ? row.dataset.time : '');
+	if (!logDate) {
+		return false;
+	}
+
+	var now = new Date();
+	var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+	if (rangeValue === 'today') {
+		return logDate >= todayStart;
+	}
+
+	if (rangeValue === 'last-7-days') {
+		var last7Days = new Date(todayStart);
+		last7Days.setDate(last7Days.getDate() - 6);
+		return logDate >= last7Days;
+	}
+
+	return true;
+}
+
+function applyLogFilters(showAppliedToast) {
+	var roleSelect = document.getElementById('log-filter-role');
+	var actionSelect = document.getElementById('log-filter-action');
+	var rangeSelect = document.getElementById('log-filter-range');
+	var listCard = document.querySelector('.ad-main .list-card');
+	var rows = getLogRows();
+
+	if (!roleSelect || !actionSelect || !rangeSelect || !listCard || rows.length === 0) {
+		return;
+	}
+
+	var role = roleSelect.value;
+	var actionKey = actionSelect.value;
+	var rangeValue = rangeSelect.value;
+
+	rows.forEach(function (row) {
+		var rowRole = (row.dataset.role || '').toUpperCase();
+		var rowAction = row.dataset.actionKey || '';
+		var roleMatched = role === 'all' || rowRole === role;
+		var actionMatched = actionKey === 'all' || rowAction === actionKey;
+		var rangeMatched = isLogInRange(row, rangeValue);
+		var shouldShow = roleMatched && actionMatched && rangeMatched;
+
+		row.style.display = shouldShow ? '' : 'none';
+	});
+
+	var visibleRows = rows.filter(function (row) {
+		return row.style.display !== 'none';
+	});
+
+	updateVisibleCount(listCard);
+
+	var summaryNode = document.getElementById('log-filter-summary');
+	if (summaryNode) {
+		summaryNode.textContent = visibleRows.length + ' log entry or entries match the current filters';
+	}
+
+	var countNode = document.getElementById('log-filter-entry-count');
+	if (countNode) {
+		countNode.textContent = String(visibleRows.length);
+	}
+
+	if (showAppliedToast) {
+		showToast('Log filters applied: ' + visibleRows.length + ' item(s)');
+	}
+}
+
+function initLogFilterPanel() {
+	var roleSelect = document.getElementById('log-filter-role');
+	var actionSelect = document.getElementById('log-filter-action');
+	var rangeSelect = document.getElementById('log-filter-range');
+	var applyButton = document.getElementById('log-filter-apply');
+	var clearButton = document.getElementById('log-filter-clear');
+
+	if (!roleSelect || !actionSelect || !rangeSelect || !applyButton || !clearButton) {
+		return;
+	}
+
+	applyButton.addEventListener('click', function () {
+		applyLogFilters(true);
+	});
+
+	clearButton.addEventListener('click', function () {
+		roleSelect.value = 'all';
+		actionSelect.value = 'all';
+		rangeSelect.value = 'current-sprint';
+		applyLogFilters(false);
+		showToast('Log filters cleared');
+	});
+
+	roleSelect.addEventListener('change', function () {
+		applyLogFilters(false);
+	});
+	actionSelect.addEventListener('change', function () {
+		applyLogFilters(false);
+	});
+	rangeSelect.addEventListener('change', function () {
+		applyLogFilters(false);
+	});
+
+	applyLogFilters(false);
+}
+
 function handleCommonAction(action, button) {
 	var contextPath = getContextPath();
 	var row = button ? button.closest('.list-row') : null;
@@ -196,6 +901,9 @@ function handleCommonAction(action, button) {
 			showToast('Returning to login...');
 			window.location.href = contextPath + '/jsp/login.jsp';
 			return;
+		case 'import-csv':
+			showToast('Import feature is in progress');
+			return;
 		case 'account-edit':
 			showToast('Edit account: ' + rowTitle);
 			return;
@@ -209,6 +917,7 @@ function handleCommonAction(action, button) {
 			showToast('Rejected account: ' + rowTitle);
 			return;
 		case 'project-remind':
+			recordOperationLog('reminder-sent', rowTitle || 'Project');
 			showToast('Reminder sent for: ' + rowTitle);
 			return;
 		case 'project-view':
@@ -223,6 +932,14 @@ function handleCommonAction(action, button) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+	ensureOperationLogSeeded();
+	renderOperationLogRows();
+
+	initAccountDetailInteraction();
+	initAccountDetailActions();
+	initAccountFilterPanel();
+	initLogFilterPanel();
+
 	var exportButtons = document.querySelectorAll('[data-export-csv="true"]');
 
 	Array.prototype.forEach.call(exportButtons, function (button) {
@@ -237,6 +954,8 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 
 			downloadCsv(csv, button.getAttribute('data-export-filename'));
+			recordOperationLog('csv-export', (button.getAttribute('data-export-filename') || 'list') + ' list');
+			renderOperationLogRows();
 			showToast('CSV exported successfully');
 		});
 	});
