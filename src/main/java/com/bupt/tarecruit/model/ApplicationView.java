@@ -1,24 +1,18 @@
 package com.bupt.tarecruit.model;
 
-/**
- * Data Transfer Object (DTO) for TA004.
- * Used to combine Application status with Job details for display on the UI.
- */
 public class ApplicationView {
     private String jobId;
     private String moduleName;
     private String mdName;
-    private String status;       // Application status: PENDING, APPROVED, etc.
-    private String applyTime;    // Timestamp of the submission
-    private String applicationType; 
+    private String status;
+    private String applyTime;
+    private String applicationType;
     private String applicationId;
     private String feedback;
-    /** Original application text plus optional TA follow-up lines (not shown in the table, used in the feedback dialog). */
     private String statement;
+    private String studentId;
+    private String studentName;
 
-    public ApplicationView() {}
-
-    // Getters and Setters
     public String getJobId() { return jobId; }
     public void setJobId(String jobId) { this.jobId = jobId; }
 
@@ -45,4 +39,10 @@ public class ApplicationView {
 
     public String getStatement() { return statement; }
     public void setStatement(String statement) { this.statement = statement; }
+
+    public String getStudentId() { return studentId; }
+    public void setStudentId(String studentId) { this.studentId = studentId; }
+
+    public String getStudentName() { return studentName; }
+    public void setStudentName(String studentName) { this.studentName = studentName; }
 }
