@@ -695,3 +695,218 @@ h1 {
     opacity: .55;
     cursor: not-allowed;
 }
+
+/* --- TA personal home (additions; keep existing AD tokens) --- */
+.ta-shell {
+    max-width: 1120px;
+}
+
+.ta-layout {
+    grid-template-columns: 220px 1fr;
+}
+
+.ta-main .ta-profile-card {
+    margin-top: 0;
+}
+
+.ta-profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+@media (max-width: 900px) {
+    .ta-profile-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ta-profile-actions {
+    margin-top: 14px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.ta-app-head,
+.ta-app-row {
+    display: grid;
+    grid-template-columns: 0.9fr 1.5fr 1fr 0.85fr 1fr 0.75fr 1fr 0.85fr;
+    gap: 10px;
+    align-items: center;
+}
+
+.ta-app-head {
+    margin-bottom: 8px;
+}
+
+.ta-app-row span {
+    min-width: 0;
+    word-break: break-word;
+}
+
+.ta-app-row .ta-feedback-btn {
+    width: 100%;
+    max-width: 110px;
+    justify-self: end;
+}
+
+.ta-app-row--alert {
+    border-color: #c9a227 !important;
+    box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.15);
+}
+
+.ta-new-mark {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: #eadcb6;
+    color: #6b5316;
+    vertical-align: middle;
+}
+
+.ta-approve-type {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    color: #6f7681;
+}
+
+.status.danger {
+    background: #edd5d2;
+    color: #7a4540;
+}
+
+.status.neutral {
+    background: #e2e6ea;
+    color: #4b5561;
+}
+
+.ta-empty-hint {
+    margin: 12px 4px 4px;
+    color: #7f868f;
+    font-size: 13px;
+}
+
+.ta-feedback-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(47, 55, 66, 0.35);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 18px;
+    box-sizing: border-box;
+}
+
+.ta-feedback-overlay--open {
+    display: flex;
+}
+
+.ta-feedback-panel {
+    width: min(760px, 100%);
+    max-height: 92vh;
+    overflow: auto;
+    margin: 0;
+}
+
+.ta-feedback-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.ta-feedback-head h2 {
+    margin: 0;
+    font-size: 22px;
+    color: #2d3846;
+}
+
+.ta-feedback-meta {
+    margin: 8px 0 14px;
+    color: #7a828c;
+    font-size: 12px;
+}
+
+.ta-chat-thread {
+    border: 1px solid #d8d2c9;
+    border-radius: 14px;
+    background: #fbfaf7;
+    padding: 14px;
+    max-height: 48vh;
+    overflow-y: auto;
+}
+
+.ta-chat-row {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+.ta-chat-row:last-child {
+    margin-bottom: 0;
+}
+
+.ta-chat-row--ta {
+    align-items: flex-end;
+}
+
+.ta-chat-row--mo {
+    align-items: flex-start;
+}
+
+.ta-chat-sender {
+    margin-bottom: 4px;
+    font-size: 11px;
+    color: #7f868f;
+}
+
+.ta-chat-bubble {
+    max-width: min(85%, 560px);
+    padding: 10px 12px;
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.ta-chat-bubble--ta {
+    border: 1px solid #d9d8e6;
+    background: #ebe9ff;
+    color: #394259;
+    border-bottom-right-radius: 6px;
+}
+
+.ta-chat-bubble--mo {
+    border: 1px solid #d7d1c8;
+    background: #f1ece4;
+    color: #3d4651;
+    border-bottom-left-radius: 6px;
+}
+
+.ta-reply-form {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px dashed #ddd5c9;
+}
+
+.ta-reply-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #d8d1c7;
+    border-radius: 14px;
+    background: #f8f6f2;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 96px;
+}
