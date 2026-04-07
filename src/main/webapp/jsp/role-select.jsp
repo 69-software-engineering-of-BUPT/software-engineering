@@ -149,7 +149,7 @@
                 <div class="role-chip">TA</div>
                 <h3>TA</h3>
                 <p>Browse open positions, upload a PDF CV, write a statement and follow status updates.</p>
-                <a class="chip-button" href="${pageContext.request.contextPath}/jsp/login.jsp?role=TA">Enter as TA</a>
+                <a class="chip-button" href="${pageContext.request.contextPath}/ta/enter?userId=TA001">Enter as TA</a>
             </article>
             <article class="role-card">
                 <div class="role-chip">MO</div>
