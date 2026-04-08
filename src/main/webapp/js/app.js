@@ -203,7 +203,7 @@ function readLogRowsFromDom() {
 		var cells = row.querySelectorAll('span');
 		var statusNode = row.querySelector('.status');
 		var resultClass = statusNode && statusNode.classList.contains('warning') ? 'warning' : 'success';
-		var resultText = normalizeText(statusNode ? statusNode.textContent : '').replace(/^鈼廫s*/, '') || 'Success';
+        var resultText = normalizeText(statusNode ? statusNode.textContent : '').replace(/^[^A-Za-z]+/, '') || 'Success';
 		return {
 			id: 'seed-' + index,
 			time: normalizeText(cells[0] ? cells[0].textContent : ''),
@@ -242,7 +242,7 @@ function createLogRowNode(entry) {
 		'<span>' + (entry.actor || 'System Admin') + '</span>' +
 		'<span>' + (entry.actionLabel || actionLabelFromKey(entry.actionKey)) + '</span>' +
 		'<span>' + (entry.target || '-') + '</span>' +
-		'<span class="status ' + (isWarn ? 'warning' : 'success') + '">鈼?' + (entry.result || (isWarn ? 'Warning' : 'Success')) + '</span>' +
+        '<span class="status ' + (isWarn ? 'warning' : 'success') + '">' + (entry.result || (isWarn ? 'Warning' : 'Success')) + '</span>' +
 		'<div class="row-actions"><button data-action="log-details">Details</button></div>';
 
 	return row;
@@ -412,15 +412,15 @@ function renderProjectViewData(payload) {
 	}
 
 	nameNode.textContent = payload.module || '-';
-	codeNode.textContent = (payload.moduleCode || '-') + ' 路 ' + (payload.liveDays || '0') + ' day(s) live';
-	statusNode.textContent = '鈼?' + (payload.statusText || 'Action Needed');
+    codeNode.textContent = (payload.moduleCode || '-') + ' | ' + (payload.liveDays || '0') + ' day(s) live';
+    statusNode.textContent = payload.statusText || 'Action Needed';
 	statusNode.classList.remove('success', 'warning');
 	statusNode.classList.add(payload.statusClass === 'success' ? 'success' : 'warning');
 	moNode.textContent = payload.mo || '-';
 	postedNode.textContent = payload.posted || '-';
 	deadlineNode.textContent = payload.deadline || '-';
 	capacityNode.textContent = (payload.seats || '0') + ' / ' + (payload.filled || '0') + ' / ' + (payload.vacancies || '0');
-	reqNode.textContent = (payload.requirements || '-').split(';').join(' 路 ');
+    reqNode.textContent = (payload.requirements || '-').split(';').join(' | ');
 	descNode.textContent = payload.details || '-';
 
 	renderProjectTaList('project-approved-ta-list', parseProjectTaList(payload.approvedTas));
@@ -448,7 +448,7 @@ function renderProjectTaList(containerId, list) {
 
 	list.forEach(function (item) {
 		var li = document.createElement('li');
-		var right = [item.email, item.note].filter(Boolean).join(' 路 ');
+        var right = [item.email, item.note].filter(Boolean).join(' | ');
 		li.innerHTML = '<span>' + item.name + '</span><small>' + right + '</small>';
 		listNode.appendChild(li);
 	});
@@ -475,15 +475,15 @@ function renderProjectDetail(row) {
 	}
 
 	nameNode.textContent = data.module || '-';
-	codeNode.textContent = (data.moduleCode || '-') + ' 路 ' + (data.liveDays || '0') + ' day(s) live';
-	statusNode.textContent = '鈼?' + (data.statusText || 'Action Needed');
+    codeNode.textContent = (data.moduleCode || '-') + ' | ' + (data.liveDays || '0') + ' day(s) live';
+    statusNode.textContent = data.statusText || 'Action Needed';
 	statusNode.classList.remove('success', 'warning');
 	statusNode.classList.add(data.statusClass === 'success' ? 'success' : 'warning');
 	moNode.textContent = data.mo || '-';
 	postedNode.textContent = data.posted || '-';
 	deadlineNode.textContent = data.deadline || '-';
 	capacityNode.textContent = (data.seats || '0') + ' / ' + (data.filled || '0') + ' / ' + (data.vacancies || '0');
-	reqNode.textContent = (data.requirements || '-').split(';').join(' 路 ');
+    reqNode.textContent = (data.requirements || '-').split(';').join(' | ');
 	descNode.textContent = data.details || '-';
 
 	renderProjectTaList('project-approved-ta-list', parseProjectTaList(data.approvedTas));
@@ -611,7 +611,7 @@ function renderAccountDetail(row) {
 	loadNode.textContent = data.load || '-';
 	lastLoginNode.textContent = data.lastLogin || '-';
 	flagNode.textContent = data.flag || '-';
-	badgeNode.textContent = '鈼?' + (data.statusText || 'Active');
+    badgeNode.textContent = data.statusText || 'Active';
 	badgeNode.classList.remove('success', 'warning');
 	badgeNode.classList.add(statusClass);
 
@@ -627,7 +627,7 @@ function renderAccountDetail(row) {
 
 	assignments.forEach(function (item) {
 		var li = document.createElement('li');
-		var rightMeta = [item.teacher, item.date].filter(Boolean).join(' 路 ');
+        var rightMeta = [item.teacher, item.date].filter(Boolean).join(' | ');
 		li.innerHTML = '<span>' + item.course + '</span><small>' + rightMeta + '</small>';
 		assignmentListNode.appendChild(li);
 	});
@@ -728,7 +728,7 @@ function renderEmptyAccountDetail() {
 	loadNode.textContent = '-';
 	lastLoginNode.textContent = '-';
 	flagNode.textContent = '-';
-	badgeNode.textContent = '鈼?-';
+    badgeNode.textContent = '-';
 	badgeNode.classList.remove('success', 'warning');
 	assignmentListNode.innerHTML = '<li><span>No matching account</span></li>';
 	updateAccountActionButtonsState(null);
@@ -900,7 +900,7 @@ function updateAccountRowStatusView(row) {
 
 	statusNode.classList.remove('success', 'warning');
 	statusNode.classList.add(row.dataset.statusClass === 'warning' ? 'warning' : 'success');
-	statusNode.textContent = '鈼?' + (row.dataset.statusText || 'Active');
+    statusNode.textContent = row.dataset.statusText || 'Active';
 }
 
 function freezeSelectedAccount() {
@@ -1116,11 +1116,11 @@ function handleCommonAction(action, button) {
 
 	switch (action) {
 		case 'switch-role':
-			showToast('Switching role...');
+			showToast('Signing out...');
 			window.location.href = contextPath + '/logout';
 			return;
 		case 'reset-demo':
-			showToast('Returning to login...');
+			showToast('Opening the sign-in page...');
 			window.location.href = contextPath + '/logout';
 			return;
 		case 'import-csv':
@@ -1222,3 +1222,5 @@ document.addEventListener('DOMContentLoaded', function () {
 		}
 	});
 });
+
+

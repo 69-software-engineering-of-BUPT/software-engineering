@@ -19,12 +19,12 @@
         <div class="brand-group">
             <div class="brand-icon">MO</div>
             <div>
-                <div class="brand-title">Module organiser workspace</div>
+                <div class="brand-title">Module Organizer Workspace</div>
                 <div class="brand-subtitle">Publish jobs and review applications</div>
             </div>
         </div>
         <div class="top-actions">
-            <a class="chip-button" href="${pageContext.request.contextPath}/logout">Logout</a>
+            <a class="chip-button" href="${pageContext.request.contextPath}/logout">Sign out</a>
         </div>
     </header>
     <main class="ad-main">
@@ -38,7 +38,7 @@
         <section class="list-card" style="margin-bottom:18px;">
             <div class="list-title-row">
                 <h2>Publish a job</h2>
-                <span>MO001</span>
+                <span>MO Workspace</span>
             </div>
             <form method="post" action="${pageContext.request.contextPath}/mo/jobs" class="ta-profile-form">
                 <div class="ta-profile-grid">

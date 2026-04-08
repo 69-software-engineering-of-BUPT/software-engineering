@@ -26,7 +26,7 @@
         </div>
         <div class="top-actions">
             <a class="chip-button" href="${pageContext.request.contextPath}/mo/home">Back to home</a>
-            <a class="chip-button" href="${pageContext.request.contextPath}/logout">Logout</a>
+            <a class="chip-button" href="${pageContext.request.contextPath}/logout">Sign out</a>
         </div>
     </header>
     <main class="ad-main">

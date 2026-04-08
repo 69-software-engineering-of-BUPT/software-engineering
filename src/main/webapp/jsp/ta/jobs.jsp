@@ -21,13 +21,13 @@
         <div class="brand-group">
             <div class="brand-icon">JB</div>
             <div>
-                <div class="brand-title">Job overview</div>
+                <div class="brand-title">Job Overview</div>
                 <div class="brand-subtitle">Browse open TA positions and apply</div>
             </div>
         </div>
         <div class="top-actions">
             <a class="chip-button" href="${pageContext.request.contextPath}/ta/home">Back to home</a>
-            <a class="chip-button" href="${pageContext.request.contextPath}/logout">Logout</a>
+            <a class="chip-button" href="${pageContext.request.contextPath}/logout">Sign out</a>
         </div>
     </header>
     <main class="ad-main">

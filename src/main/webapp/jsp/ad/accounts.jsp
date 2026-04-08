@@ -13,12 +13,12 @@
             <div class="brand-icon">TR</div>
             <div>
                 <div class="brand-title">TA Recruitment Portal</div>
-                <div class="brand-subtitle">Spring 2026 · Role based prototype</div>
+                <div class="brand-subtitle">Spring 2026 | Role-based prototype</div>
             </div>
         </div>
         <div class="top-actions">
-            <button class="chip-button" data-action="switch-role">Switch role</button>
-            <button class="chip-button" data-action="reset-demo">Reset demo</button>
+            <button class="chip-button" data-action="switch-role">Sign out</button>
+            <button class="chip-button" data-action="reset-demo">Go to sign-in</button>
             <div class="user-pill">
                 <span class="avatar">SA</span>
                 <span>
@@ -104,7 +104,7 @@
                 <div class="account-filter-grid">
                     <label class="filter-field filter-search">
                         <small>SEARCH</small>
-                        <input id="account-filter-search" type="text" placeholder="Name, email or department" />
+                        <input id="account-filter-search" type="text" placeholder="Name, email, or department" />
                     </label>
 
                     <label class="filter-field">
@@ -171,7 +171,7 @@
                         </div>
                         <span>MO</span>
                         <span>Language Center</span>
-                        <span class="status success">● Active</span>
+                        <span class="status success">Active</span>
                         <span>Today</span>
                     </article>
 
@@ -192,7 +192,7 @@
                         </div>
                         <span>MO</span>
                         <span>Data Science</span>
-                        <span class="status success">● Active</span>
+                        <span class="status success">Active</span>
                         <span>Today</span>
                     </article>
 
@@ -213,7 +213,7 @@
                         </div>
                         <span>MO</span>
                         <span>Design School</span>
-                            <span class="status warning">● Warning</span>
+                        <span class="status warning">Warning</span>
                         <span>2 days ago</span>
                     </article>
 
@@ -222,7 +222,7 @@
                              data-email="yu.ta@campus.edu"
                              data-role="TA"
                              data-department="Economics"
-                                data-status-text="Reached Upper Limit"
+                             data-status-text="Reached Upper Limit"
                              data-status-class="warning"
                              data-last-login="Never"
                              data-load="3/3"
@@ -234,7 +234,7 @@
                         </div>
                         <span>TA</span>
                         <span>Economics</span>
-                        <span class="status warning">● Reached Upper Limit</span>
+                        <span class="status warning">Reached Upper Limit</span>
                         <span>Never</span>
                     </article>
                 </section>
@@ -245,7 +245,7 @@
                             <h2 id="detail-name">Dr. Zhao</h2>
                             <p id="detail-email">zhao.mo@campus.edu</p>
                         </div>
-                        <span class="status success" id="detail-flag-badge">● Active</span>
+                        <span class="status success" id="detail-flag-badge">Active</span>
                     </div>
 
                     <div class="detail-kv-grid">

@@ -13,12 +13,12 @@
             <div class="brand-icon">TR</div>
             <div>
                 <div class="brand-title">TA Recruitment Portal</div>
-                <div class="brand-subtitle">Spring 2026 · Role based prototype</div>
+                <div class="brand-subtitle">Spring 2026 | Role-based prototype</div>
             </div>
         </div>
         <div class="top-actions">
-            <button class="chip-button" data-action="switch-role">Switch role</button>
-            <button class="chip-button" data-action="reset-demo">Reset demo</button>
+            <button class="chip-button" data-action="switch-role">Sign out</button>
+            <button class="chip-button" data-action="reset-demo">Go to sign-in</button>
             <div class="user-pill">
                 <span class="avatar">SA</span>
                 <span>
@@ -92,7 +92,7 @@
             <section class="page-head">
                 <div>
                     <h1>Operation Log</h1>
-                    <p id="log-filter-summary">4 log entry or entries match the current filters</p>
+                    <p id="log-filter-summary">4 log entries match the current filters</p>
                 </div>
                 <div class="filter-actions">
                     <button class="chip-button" data-export-csv="true" data-export-filename="operation-logs">Export CSV</button>
@@ -170,7 +170,7 @@
                     <span>System Admin</span>
                     <span>Reminder Sent</span>
                     <span>Human Computer Interaction Studio TA</span>
-                    <span class="status success">● Success</span>
+                    <span class="status success">Success</span>
                     <div class="row-actions">
                         <button data-action="log-details">Details</button>
                     </div>
@@ -184,7 +184,7 @@
                     <span>System Admin</span>
                     <span>CSV Export</span>
                     <span>Operation log list</span>
-                    <span class="status success">● Success</span>
+                    <span class="status success">Success</span>
                     <div class="row-actions">
                         <button data-action="log-details">Details</button>
                     </div>
@@ -198,7 +198,7 @@
                     <span>System Admin</span>
                     <span>Account Deleted</span>
                     <span>morgan.mo@campus.edu</span>
-                    <span class="status warning">● Warning</span>
+                    <span class="status warning">Warning</span>
                     <div class="row-actions">
                         <button data-action="log-details">Details</button>
                     </div>
@@ -212,7 +212,7 @@
                     <span>System Admin</span>
                     <span>Account Frozen</span>
                     <span>chen.mo@campus.edu</span>
-                    <span class="status warning">● Warning</span>
+                    <span class="status warning">Warning</span>
                     <div class="row-actions">
                         <button data-action="log-details">Details</button>
                     </div>

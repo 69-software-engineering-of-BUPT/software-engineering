@@ -22,13 +22,13 @@
         <div class="brand-group">
             <div class="brand-icon">TA</div>
             <div>
-                <div class="brand-title">Personal home</div>
+                <div class="brand-title">Personal Home</div>
                 <div class="brand-subtitle">Profile, notifications and application history</div>
             </div>
         </div>
         <div class="top-actions">
             <a class="chip-button" href="${pageContext.request.contextPath}/ta/jobs">Job overview</a>
-            <a class="chip-button" href="${pageContext.request.contextPath}/logout">Logout</a>
+            <a class="chip-button" href="${pageContext.request.contextPath}/logout">Sign out</a>
         </div>
     </header>
 
@@ -160,7 +160,7 @@
 <div id="ta-feedback-overlay" class="ta-feedback-overlay" aria-hidden="true">
     <div class="ta-feedback-panel list-card" role="dialog" aria-modal="true" aria-labelledby="ta-feedback-title">
         <div class="ta-feedback-head">
-            <h2 id="ta-feedback-title">Application conversation</h2>
+            <h2 id="ta-feedback-title">Application Conversation</h2>
             <button type="button" class="chip-button" id="ta-feedback-close">Close</button>
         </div>
         <p class="ta-feedback-meta" id="ta-feedback-meta"></p>

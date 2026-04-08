@@ -13,7 +13,7 @@
             <div class="brand-icon">TR</div>
             <div>
                 <div class="brand-title">TA Recruitment Portal</div>
-                <div class="brand-subtitle">Spring 2026 · Role based prototype</div>
+                <div class="brand-subtitle">Spring 2026 | Role-based prototype</div>
             </div>
         </div>
     </header>
@@ -24,9 +24,9 @@
                 <h2>Welcome</h2>
                 <span>Entry</span>
             </div>
-            <p style="margin: 0 0 14px; color: #69707a;">系统已启动，请选择入口：</p>
+            <p style="margin: 0 0 14px; color: #69707a;">The portal is ready. Choose the entry point below.</p>
             <div class="row-actions">
-                <a class="chip-button" href="${pageContext.request.contextPath}/jsp/login.jsp">Login</a>
+                <a class="chip-button" href="${pageContext.request.contextPath}/jsp/login.jsp">Sign in</a>
             </div>
         </section>
     </main>

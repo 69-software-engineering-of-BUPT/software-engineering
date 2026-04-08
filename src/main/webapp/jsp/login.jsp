@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     String loginError = (String) request.getAttribute("loginError");
     String loginUserId = (String) request.getAttribute("loginUserId");
@@ -8,7 +8,7 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>Login - TA Recruitment System</title>
+    <title>Sign In - TA Recruitment Portal</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css" />
 </head>
 <body class="ad-page">
@@ -18,7 +18,7 @@
             <div class="brand-icon">TR</div>
             <div>
                 <div class="brand-title">TA Recruitment Portal</div>
-                <div class="brand-subtitle">Real login for TA / MO / Admin</div>
+                <div class="brand-subtitle">Secure access for TA, MO, and Admin</div>
             </div>
         </div>
     </header>
@@ -43,7 +43,7 @@
                     </label>
                 </div>
                 <div class="ta-profile-actions">
-                    <button type="submit" class="chip-button active">Login</button>
+                    <button type="submit" class="chip-button active">Sign in</button>
                 </div>
             </form>
             <p style="margin:16px 0 0; color:#69707a; line-height:1.6;">Test accounts: TA001 / password123, MO001 / password123, ADMIN001 / password123.</p>
