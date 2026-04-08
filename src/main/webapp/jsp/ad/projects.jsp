@@ -1,4 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%
+    String _adRole = (String) session.getAttribute("userRole");
+    if (session.getAttribute("userAccount") == null || !"ADMIN".equalsIgnoreCase(_adRole)) {
+        response.sendRedirect(request.getContextPath() + "/login");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -17,10 +24,10 @@
             </div>
         </div>
         <div class="top-actions">
-            <button class="chip-button" data-action="switch-role">Switch role</button>
             <button class="chip-button" data-action="reset-demo">Reset demo</button>
+            <a class="chip-button" href="${pageContext.request.contextPath}/logout">Sign out</a>
             <div class="user-pill">
-                <span class="avatar">SA</span>
+                <span class="avatar">AD</span>
                 <span>
                     <strong>System Admin</strong>
                     <small>Administrator</small>

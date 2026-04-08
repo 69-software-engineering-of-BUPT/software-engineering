@@ -68,4 +68,18 @@ public class ApplicationRepository {
         }
         return result;
     }
+
+    public List<Application> findAll() throws Exception {
+        List<Application> result = new ArrayList<>();
+        File dir = new File(DATA_PATH);
+        if (!dir.exists()) return result;
+        File[] files = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".json"));
+        if (files != null) {
+            for (File file : files) {
+                Application app = JsonUtil.readFromJsonFile(file.getAbsolutePath(), Application.class);
+                if (app != null) result.add(app);
+            }
+        }
+        return result;
+    }
 }

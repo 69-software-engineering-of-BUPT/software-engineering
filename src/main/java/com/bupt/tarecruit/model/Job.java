@@ -7,10 +7,13 @@ package com.bupt.tarecruit.model;
 public class Job {
     private String jobId;
     private String mdId;
-    private String mdName;        // Added: Name of the Module Organizer (for TA004 display)
+    private String mdName;        // Name of the Module Organizer
     private String moduleName;    // The name of the course module
+    private String jobType;       // e.g. "Teaching Assistant", "Lab Assistant"
     private String requirements;
     private String introduction;
+    private int weeklyWorkload;   // Hours per week
+    private String deadline;      // Application deadline (yyyy-MM-dd)
     private String status;        // "OPEN", "CLOSED"
     private String publishedAt;
 
@@ -29,11 +32,20 @@ public class Job {
     public String getModuleName() { return moduleName; }
     public void setModuleName(String moduleName) { this.moduleName = moduleName; }
 
+    public String getJobType() { return jobType; }
+    public void setJobType(String jobType) { this.jobType = jobType; }
+
     public String getIntroduction() { return introduction; }
     public void setIntroduction(String introduction) { this.introduction = introduction; }
 
     public String getRequirements() { return requirements; }
     public void setRequirements(String requirements) { this.requirements = requirements; }
+
+    public int getWeeklyWorkload() { return weeklyWorkload; }
+    public void setWeeklyWorkload(int weeklyWorkload) { this.weeklyWorkload = weeklyWorkload; }
+
+    public String getDeadline() { return deadline; }
+    public void setDeadline(String deadline) { this.deadline = deadline; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

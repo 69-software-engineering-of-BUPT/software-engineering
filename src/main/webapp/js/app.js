@@ -1116,12 +1116,12 @@ function handleCommonAction(action, button) {
 
 	switch (action) {
 		case 'switch-role':
-			showToast('Switching role...');
-			window.location.href = contextPath + '/jsp/role-select.jsp';
+			showToast('Signing out...');
+			window.location.href = contextPath + '/logout';
 			return;
 		case 'reset-demo':
-			showToast('Returning to login...');
-			window.location.href = contextPath + '/jsp/login.jsp';
+			showToast('Signing out...');
+			window.location.href = contextPath + '/logout';
 			return;
 		case 'import-csv':
 			showToast('Import feature is in progress');

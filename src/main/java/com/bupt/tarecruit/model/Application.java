@@ -19,6 +19,7 @@ public class Application {
     private String mdId;      // ID of the person who updated the status
     private String markTime;      // Timestamp of the last status update
     private String applicationType; // Type of application (leader/non-leader)
+    private boolean cvAttached;      // Whether TA chose to attach CV
 
     public Application() {}
 
@@ -52,4 +53,7 @@ public class Application {
 
     public String getApplicationType() { return applicationType; }
     public void setApplicationType(String applicationType) { this.applicationType = applicationType; }
+
+    public boolean isCvAttached() { return cvAttached; }
+    public void setCvAttached(boolean cvAttached) { this.cvAttached = cvAttached; }
 }

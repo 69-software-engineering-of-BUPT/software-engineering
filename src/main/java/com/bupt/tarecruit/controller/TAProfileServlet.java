@@ -25,7 +25,7 @@ public class TAProfileServlet extends HttpServlet {
         String loggedInId = (String) session.getAttribute("userAccount");
 
         if (loggedInId == null) {
-            resp.sendRedirect(req.getContextPath() + "/jsp/login.jsp");
+            resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
@@ -43,7 +43,7 @@ public class TAProfileServlet extends HttpServlet {
         String loggedInId = (String) req.getSession().getAttribute("userAccount");
 
         if (loggedInId == null) {
-            resp.sendRedirect(req.getContextPath() + "/jsp/login.jsp");
+            resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 

@@ -25,7 +25,7 @@ public class TAApplicationReplyServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         String studentId = (String) req.getSession().getAttribute("userAccount");
         if (studentId == null) {
-            resp.sendRedirect(req.getContextPath() + "/jsp/login.jsp");
+            resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 

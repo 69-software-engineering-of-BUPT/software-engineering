@@ -607,6 +607,55 @@ h1 {
     gap: 10px;
 }
 
+/* Compact key-value pairs used in MO application cards */
+.kv-pair {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 9px 12px;
+    background: #f7f4ef;
+    border: 1px solid #e4ddd4;
+    border-radius: 12px;
+}
+
+.kv-key {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #9197a0;
+}
+
+.kv-val {
+    font-size: 13px;
+    color: #2e3947;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+/* MO application card overrides */
+.mo-app-card {
+    margin-bottom: 16px;
+    padding: 18px 20px;
+}
+
+.mo-app-card + .mo-app-card {
+    margin-top: 0;
+}
+
+.mo-card-actions {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed #ddd5c9;
+}
+
+.mo-card-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
 .detail-kv {
     border: 1px solid #d8d2c9;
     border-radius: 14px;
@@ -909,4 +958,64 @@ h1 {
     font-family: inherit;
     resize: vertical;
     min-height: 96px;
+}
+
+/* --- TA Jobs page --- */
+.ta-job-card {
+    transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+.ta-job-card:hover {
+    border-color: #cfc7ba;
+    box-shadow: 0 6px 14px rgba(107, 90, 72, 0.08);
+}
+
+.ta-job-card .detail-kv-grid {
+    margin-top: 12px;
+}
+
+.ta-job-card .detail-kv strong {
+    font-size: 15px;
+}
+
+/* --- Flash messages --- */
+.ta-flash--success {
+    background: #e8f0e8;
+    border-color: #c4d8c3;
+}
+
+.ta-flash--warn {
+    background: #f6f0e2;
+    border-color: #ddd0b5;
+}
+
+/* --- Notification cards --- */
+.ta-noti-card {
+    transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+.ta-noti-card:hover {
+    border-color: #cfc7ba;
+    box-shadow: 0 4px 12px rgba(107, 90, 72, 0.06);
+}
+
+/* --- Apply form textarea --- */
+#ta-apply-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #d8d1c7;
+    border-radius: 14px;
+    background: #f8f6f2;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* --- Filter field in sidebar for TA pages --- */
+.ta-sidebar .filter-field input,
+.ta-sidebar .filter-field select {
+    height: 38px;
+    font-size: 12px;
 }
