@@ -15,6 +15,9 @@ public class ApplicationView {
     private String feedback;
     /** Original application text plus optional TA follow-up lines (not shown in the table, used in the feedback dialog). */
     private String statement;
+    private String taId;         // TA's user ID (used in MO review view)
+    private boolean cvAttached;  // Whether TA chose to attach their CV
+    private String cvFilePath;   // Actual path to TA's CV file (populated in MO view)
 
     public ApplicationView() {}
 
@@ -45,4 +48,13 @@ public class ApplicationView {
 
     public String getStatement() { return statement; }
     public void setStatement(String statement) { this.statement = statement; }
+
+    public String getTaId() { return taId; }
+    public void setTaId(String taId) { this.taId = taId; }
+
+    public boolean isCvAttached() { return cvAttached; }
+    public void setCvAttached(boolean cvAttached) { this.cvAttached = cvAttached; }
+
+    public String getCvFilePath() { return cvFilePath; }
+    public void setCvFilePath(String cvFilePath) { this.cvFilePath = cvFilePath; }
 }

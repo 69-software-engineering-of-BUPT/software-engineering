@@ -1,4 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%
+    String _adRole = (String) session.getAttribute("userRole");
+    if (session.getAttribute("userAccount") == null || !"ADMIN".equalsIgnoreCase(_adRole)) {
+        response.sendRedirect(request.getContextPath() + "/login");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html>
 <head>

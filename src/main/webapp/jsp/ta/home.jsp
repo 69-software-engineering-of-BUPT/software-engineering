@@ -1,10 +1,17 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.bupt.tarecruit.model.TAProfile" %>
+<%@ page import="com.bupt.tarecruit.model.User" %>
 <%
     TAProfile profile = (TAProfile) request.getAttribute("profile");
     String studentId = (String) request.getAttribute("studentId");
     String profileErr = (String) request.getAttribute("profileErrorMsg");
     if (studentId == null) studentId = "";
+    User currentUser = (User) request.getAttribute("currentUser");
+    String cvPath = (currentUser != null && currentUser.getCvFilePath() != null) ? currentUser.getCvFilePath() : "";
+    String cvSuccess = (String) session.getAttribute("cvSuccess");
+    if (cvSuccess != null) session.removeAttribute("cvSuccess");
+    Integer unreadCount = (Integer) request.getAttribute("unreadCount");
+    if (unreadCount == null) unreadCount = 0;
 %>
 <!DOCTYPE html>
 <html>
@@ -24,8 +31,9 @@
             </div>
         </div>
         <div class="top-actions">
-            <a class="chip-button" href="${pageContext.request.contextPath}/jsp/ta/jobs.jsp">Job overview</a>
-            <a class="chip-button" href="${pageContext.request.contextPath}/jsp/role-select.jsp">Switch role</a>
+            <a class="chip-button" href="${pageContext.request.contextPath}/ta/jobs">Job overview</a>
+            <a class="chip-button" href="${pageContext.request.contextPath}/ta/notifications">Notifications<% if (unreadCount > 0) { %> (<%= unreadCount %>)<% } %></a>
+            <a class="chip-button" href="${pageContext.request.contextPath}/logout">Sign out</a>
             <div class="user-pill">
                 <span class="avatar"><%= studentId.length() >= 2 ? studentId.substring(0, 2).toUpperCase() : "TA" %></span>
                 <span>
@@ -52,11 +60,18 @@
                         <small>Profile &amp; applications</small>
                     </span>
                 </span>
-                <a class="nav-item" href="${pageContext.request.contextPath}/jsp/ta/jobs.jsp">
+                <a class="nav-item" href="${pageContext.request.contextPath}/ta/jobs">
                     <span class="nav-icon">JB</span>
                     <span>
                         <strong>Job overview</strong>
-                        <small>Open positions (placeholder)</small>
+                        <small>Open positions</small>
+                    </span>
+                </a>
+                <a class="nav-item" href="${pageContext.request.contextPath}/ta/notifications">
+                    <span class="nav-icon">NT</span>
+                    <span>
+                        <strong>Notifications</strong>
+                        <small><%= unreadCount %> unread</small>
                     </span>
                 </a>
             </section>
@@ -114,6 +129,30 @@
                 </form>
             </section>
 
+            <section class="list-card ta-profile-card" style="margin-top:14px;">
+                <div class="list-title-row">
+                    <h2>Upload CV</h2>
+                    <span>PDF only, max 5 MB</span>
+                </div>
+                <% if (cvSuccess != null) { %>
+                <p style="margin:0 0 10px;color:#4f6c4d;"><strong>Success:</strong> <%= cvSuccess %></p>
+                <% } %>
+                <% if (!cvPath.isEmpty()) { %>
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+                    <span style="color:#3d4148;font-size:13px;">Current file: <strong><%= cvPath %></strong></span>
+                    <a href="<%= request.getContextPath() + "/" + cvPath %>" target="_blank" class="chip-button active" style="text-decoration:none;">View CV</a>
+                </div>
+                <% } else { %>
+                <p style="margin:0 0 10px;color:#7f868f;">No CV uploaded yet.</p>
+                <% } %>
+                <form method="post" action="${pageContext.request.contextPath}/ta/uploadCv" enctype="multipart/form-data">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <input type="file" name="cvFile" accept=".pdf" />
+                        <button type="submit" class="chip-button active">Upload</button>
+                    </div>
+                </form>
+            </section>
+
             <section class="page-head" style="margin-top: 22px;">
                 <div>
                     <h1 style="font-size: 38px;">Application history</h1>
@@ -147,7 +186,7 @@
 
 <script type="application/json" id="ta-applications-json"><%= request.getAttribute("applicationListJson") != null ? request.getAttribute("applicationListJson") : "[]" %></script>
 <script>window.TA_CONTEXT = "${pageContext.request.contextPath}";</script>
-<script src="${pageContext.request.contextPath}/js/ta-home.js"></script>
+<script src="${pageContext.request.contextPath}/js/ta-home.js?v=20260409b"></script>
 
 <div id="ta-feedback-overlay" class="ta-feedback-overlay" aria-hidden="true">
     <div class="ta-feedback-panel list-card" role="dialog" aria-modal="true" aria-labelledby="ta-feedback-title">
