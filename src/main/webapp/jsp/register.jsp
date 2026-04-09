@@ -20,38 +20,38 @@
         <div class="auth-brand">
             <div class="brand-icon">TR</div>
             <div class="auth-brandtext">
-                <span class="auth-brandline">BUPT International School</span>
-                <span class="auth-brandline auth-brandline--muted">TA account onboarding</span>
+                <span class="auth-brandline">TA Recruitment Portal</span>
+                <span class="auth-brandline auth-brandline--muted">Create a Teaching Assistant account</span>
             </div>
         </div>
         <div class="auth-hero">
-            <p class="auth-eyebrow">TA account setup</p>
+            <p class="auth-eyebrow">TA registration</p>
             <h1 class="auth-title">
                 <span>Create your</span>
-                <span>TA profile</span>
+                <span>TA account</span>
             </h1>
-            <p class="auth-copy">Use one account to browse openings, submit applications, and return to the portal throughout the recruitment cycle.</p>
+            <p class="auth-copy">Register as a Teaching Assistant to browse open positions and submit applications.</p>
         </div>
         <div class="auth-checklist">
             <div class="auth-check-item">
                 <span class="auth-check-index">01</span>
                 <div class="auth-check-copy">
-                    <strong>Choose a clear User ID</strong>
-                    Use letters, numbers, and underscores only so the account can be stored safely.
+                    <strong>Choose a valid User ID</strong>
+                    Use letters, numbers, and underscores only.
                 </div>
             </div>
             <div class="auth-check-item">
                 <span class="auth-check-index">02</span>
                 <div class="auth-check-copy">
                     <strong>TA accounts only</strong>
-                    Module Organiser and Administrator accounts are still issued by the system administrator.
+                    Module Organiser and Administrator accounts are issued by the system administrator.
                 </div>
             </div>
             <div class="auth-check-item">
                 <span class="auth-check-index">03</span>
                 <div class="auth-check-copy">
-                    <strong>Sign in right after registration</strong>
-                    Once your account is created successfully, you can use the same credentials on the sign-in page.
+                    <strong>Use the same credentials to sign in</strong>
+                    After registration, go to the sign-in page and use the account you just created.
                 </div>
             </div>
         </div>
@@ -59,9 +59,9 @@
 
     <section class="auth-main">
         <div class="auth-panel-head">
-            <p class="auth-panel-kicker">Start with a TA account</p>
+            <p class="auth-panel-kicker">Create account</p>
             <h2 class="auth-panel-title">Register</h2>
-            <p class="auth-panel-subtitle">Create your account now, then sign in with the same credentials when you are ready.</p>
+            <p class="auth-panel-subtitle">Create your TA account to get started.</p>
         </div>
 
         <% if (error != null) { %>

@@ -17,43 +17,42 @@
         <div class="auth-brand">
             <div class="brand-icon">TR</div>
             <div class="auth-brandtext">
-                <span class="auth-brandline">BUPT International School</span>
-                <span class="auth-brandline auth-brandline--muted">Spring recruitment portal</span>
+                <span class="auth-brandline">TA Recruitment Portal</span>
+                <span class="auth-brandline auth-brandline--muted">Secure access for TA, MO, and Admin</span>
             </div>
         </div>
         <div class="auth-hero">
-            <p class="auth-eyebrow">Role-based sign in</p>
+            <p class="auth-eyebrow">Portal access</p>
             <h1 class="auth-title">
-                <span>TA Recruitment</span>
-                <span>refined for</span>
-                <span>every role.</span>
+                <span>Sign in to the</span>
+                <span>recruitment portal</span>
             </h1>
-            <p class="auth-copy">One entry point for applicants, organisers, and administrators. Sign in to continue where your work left off.</p>
+            <p class="auth-copy">Use your account credentials to continue to the correct workspace for your role.</p>
         </div>
         <div class="auth-role-grid">
             <article class="auth-role-card">
                 <span class="auth-card-index">01</span>
                 <strong>TA</strong>
-                <p>Browse live openings and check every application update.</p>
+                <p>Browse open positions and track your application status.</p>
             </article>
             <article class="auth-role-card">
                 <span class="auth-card-index">02</span>
                 <strong>MO</strong>
-                <p>Review candidates, reply, and move decisions forward quickly.</p>
+                <p>Manage vacancies, review applicants, and respond.</p>
             </article>
             <article class="auth-role-card">
                 <span class="auth-card-index">03</span>
                 <strong>AD</strong>
-                <p>Monitor account activity and keep the recruitment workspace healthy.</p>
+                <p>Monitor accounts, projects, and system activity.</p>
             </article>
         </div>
     </section>
 
     <section class="auth-main">
         <div class="auth-panel-head">
-            <p class="auth-panel-kicker">Welcome back</p>
+            <p class="auth-panel-kicker">Session based</p>
             <h2 class="auth-panel-title">Sign in</h2>
-            <p class="auth-panel-subtitle">Enter your account credentials to continue to your role-specific dashboard.</p>
+            <p class="auth-panel-subtitle">Enter your credentials to continue.</p>
         </div>
 
         <% if (loginError != null) { %>
