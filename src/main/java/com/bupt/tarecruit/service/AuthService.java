@@ -1,8 +1,5 @@
 package com.bupt.tarecruit.service;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import com.bupt.tarecruit.model.User;
 import com.bupt.tarecruit.repository.UserRepository;
 
@@ -10,11 +7,7 @@ public class AuthService {
     private final UserRepository userRepository;
 
     public AuthService() {
-        this(Paths.get("."));
-    }
-
-    public AuthService(Path root) {
-        this.userRepository = new UserRepository(root);
+        this.userRepository = new UserRepository();
     }
 
     public AuthenticatedUser authenticate(String userId, String password) throws Exception {

@@ -36,6 +36,7 @@ public class RegisterServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
         String userId   = req.getParameter("userId");
         String name     = req.getParameter("name");
         String password = req.getParameter("password");
@@ -47,6 +48,13 @@ public class RegisterServlet extends HttpServlet {
         // Basic validation
         if (isBlank(userId) || isBlank(name) || isBlank(password) || isBlank(confirm)) {
             req.setAttribute("error", "All fields are required.");
+            req.getRequestDispatcher("/jsp/register.jsp").forward(req, resp);
+            return;
+        }
+        if (!isValidUserId(userId)) {
+            req.setAttribute("error", "User ID may contain only letters, numbers, and underscores.");
+            req.setAttribute("prevUserId", userId);
+            req.setAttribute("prevName", name);
             req.getRequestDispatcher("/jsp/register.jsp").forward(req, resp);
             return;
         }
@@ -72,6 +80,7 @@ public class RegisterServlet extends HttpServlet {
         } catch (Exception ignored) { }
         if (existing != null) {
             req.setAttribute("error", "User ID \"" + userId + "\" is already taken. Please choose another.");
+            req.setAttribute("prevUserId", userId);
             req.setAttribute("prevName", name);
             req.getRequestDispatcher("/jsp/register.jsp").forward(req, resp);
             return;
@@ -100,5 +109,9 @@ public class RegisterServlet extends HttpServlet {
 
     private boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
+    }
+
+    private boolean isValidUserId(String userId) {
+        return userId != null && userId.matches("[A-Za-z0-9_]+");
     }
 }
