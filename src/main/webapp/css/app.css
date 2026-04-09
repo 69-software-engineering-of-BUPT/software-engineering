@@ -328,6 +328,21 @@ h1 {
     box-shadow: 0 0 0 2px rgba(189, 165, 138, 0.18);
 }
 
+.filter-field.mandatory-error input,
+.filter-field.mandatory-error select,
+.filter-field.mandatory-error textarea {
+    border-color: #c0392b !important;
+    box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.15) !important;
+}
+
+.mandatory-hint {
+    color: #c0392b;
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+}
+
 .upper-limit-chip {
     display: flex;
     align-items: center;
@@ -780,7 +795,7 @@ h1 {
 .ta-app-head,
 .ta-app-row {
     display: grid;
-    grid-template-columns: 0.9fr 1.5fr 1fr 0.85fr 1fr 0.75fr 1fr 0.85fr;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 0.85fr;
     gap: 10px;
     align-items: center;
 }

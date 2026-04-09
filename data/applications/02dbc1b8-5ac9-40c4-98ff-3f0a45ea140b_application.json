@@ -4,7 +4,7 @@
   "taId": "TA001",
   "status": "REJECTED",
   "appliedAt": "2026-04-07 17:14:43",
-  "statement": "111111",
+  "statement": "111111\n[2026-04-09 12:53 TA]: 111",
   "mdId": "MO001",
   "markTime": "2026-04-07 20:28:02",
   "applicationType": "L",
