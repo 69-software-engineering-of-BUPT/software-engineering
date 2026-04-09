@@ -39,16 +39,39 @@ public class TAApplicationReplyServlet extends HttpServlet {
         try {
             Application app = applicationRepository.findById(applicationId.trim());
             if (app == null || !studentId.equals(app.getStudentId())) {
-                resp.sendError(403, "Cannot update this application");
+                if (isAjax(req)) {
+                    sendJson(resp, 403, "{\"error\":\"Cannot update this application\"}");
+                } else {
+                    resp.sendError(403, "Cannot update this application");
+                }
                 return;
             }
             if (message != null && !message.trim().isEmpty()) {
                 applicationService.updateStatementFromChat(applicationId.trim(), message.trim());
             }
-            resp.sendRedirect(req.getContextPath() + "/ta/home");
+            if (isAjax(req)) {
+                sendJson(resp, 200, "{\"success\":true}");
+            } else {
+                resp.sendRedirect(req.getContextPath() + "/ta/home");
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            resp.sendError(500, "Failed to send reply");
+            if (isAjax(req)) {
+                sendJson(resp, 500, "{\"error\":\"Failed to send reply\"}");
+            } else {
+                resp.sendError(500, "Failed to send reply");
+            }
         }
+    }
+
+    private boolean isAjax(HttpServletRequest req) {
+        return "XMLHttpRequest".equals(req.getHeader("X-Requested-With"));
+    }
+
+    private void sendJson(HttpServletResponse resp, int status, String json) throws IOException {
+        resp.setStatus(status);
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+        resp.getWriter().write(json);
     }
 }

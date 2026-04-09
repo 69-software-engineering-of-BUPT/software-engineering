@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.bupt.tarecruit.model.Notification" %>
 <%@ page import="com.bupt.tarecruit.model.TAProfile" %>
@@ -8,12 +8,14 @@
     String profileErr = (String) request.getAttribute("profileErrorMsg");
     List<Notification> notifications = (List<Notification>) request.getAttribute("notifications");
     if (studentId == null) studentId = "";
+    Integer unreadCount = (Integer) request.getAttribute("unreadCount");
+    if (unreadCount == null) unreadCount = 0;
 %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>TA Personal Home</title>
+    <title>TA - Personal home</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css" />
 </head>
 <body class="ad-page ta-page">
@@ -22,13 +24,21 @@
         <div class="brand-group">
             <div class="brand-icon">TA</div>
             <div>
-                <div class="brand-title">Personal Home</div>
-                <div class="brand-subtitle">Profile, notifications and application history</div>
+                <div class="brand-title">Personal home</div>
+                <div class="brand-subtitle">Profile &amp; application history</div>
             </div>
         </div>
         <div class="top-actions">
             <a class="chip-button" href="${pageContext.request.contextPath}/ta/jobs">Job overview</a>
+            <a class="chip-button" href="${pageContext.request.contextPath}/ta/notifications">Notifications<% if (unreadCount > 0) { %> (<%= unreadCount %>)<% } %></a>
             <a class="chip-button" href="${pageContext.request.contextPath}/logout">Sign out</a>
+            <div class="user-pill">
+                <span class="avatar"><%= studentId.length() >= 2 ? studentId.substring(0, 2).toUpperCase() : "TA" %></span>
+                <span>
+                    <strong><%= profile != null && profile.getFullName() != null && !profile.getFullName().isEmpty() ? profile.getFullName() : "Teaching Assistant" %></strong>
+                    <small><%= studentId.isEmpty() ? "Not signed in" : studentId %></small>
+                </span>
+            </div>
         </div>
     </header>
 
@@ -36,18 +46,31 @@
         <aside class="ad-sidebar ta-sidebar">
             <section class="side-card profile-card">
                 <span class="role-tag">TA</span>
-                <h3><%= request.getSession().getAttribute("userName") != null ? request.getSession().getAttribute("userName") : "Teaching Assistant" %></h3>
-                <p><%= studentId %></p>
+                <h3>Account</h3>
+                <p>Signed in as <strong><%= studentId.isEmpty() ? "-" : studentId %></strong></p>
             </section>
             <section class="side-block">
                 <p class="side-title">NAVIGATION</p>
                 <span class="nav-item active">
                     <span class="nav-icon">HM</span>
-                    <span><strong>Home</strong><small>Profile & applications</small></span>
+                    <span>
+                        <strong>Home</strong>
+                        <small>Profile &amp; applications</small>
+                    </span>
                 </span>
                 <a class="nav-item" href="${pageContext.request.contextPath}/ta/jobs">
                     <span class="nav-icon">JB</span>
-                    <span><strong>Job overview</strong><small>Open positions</small></span>
+                    <span>
+                        <strong>Job overview</strong>
+                        <small>Open positions</small>
+                    </span>
+                </a>
+                <a class="nav-item" href="${pageContext.request.contextPath}/ta/notifications">
+                    <span class="nav-icon">NT</span>
+                    <span>
+                        <strong>Notifications</strong>
+                        <small><%= unreadCount %> unread</small>
+                    </span>
                 </a>
             </section>
         </aside>
@@ -80,7 +103,7 @@
             <section class="page-head">
                 <div>
                     <h1 style="font-size: 38px;">Personal information</h1>
-                    <p>All fields are required and saved against your TA account.</p>
+                    <p>Edit your profile fields and save. All fields are required by the server validation rules.</p>
                 </div>
             </section>
 
@@ -89,7 +112,7 @@
                     <h2>Basic profile</h2>
                     <span><%= studentId %></span>
                 </div>
-                <form class="ta-profile-form" method="post" action="${pageContext.request.contextPath}/ta/profile">
+                <form class="ta-profile-form" method="post" action="${pageContext.request.contextPath}/ta/profile" novalidate>
                     <div class="ta-profile-grid">
                         <label class="filter-field">
                             <small>STUDENT ID</small>
@@ -97,23 +120,23 @@
                         </label>
                         <label class="filter-field">
                             <small>FULL NAME</small>
-                            <input type="text" name="fullName" required value="<%= profile != null && profile.getFullName() != null ? profile.getFullName() : "" %>" />
+                            <input type="text" name="fullName" value="<%= profile != null && profile.getFullName() != null ? profile.getFullName() : "" %>" readonly />
                         </label>
                         <label class="filter-field">
                             <small>EMAIL</small>
-                            <input type="email" name="email" required value="<%= profile != null && profile.getEmail() != null ? profile.getEmail() : "" %>" />
+                            <input type="email" name="email" value="<%= profile != null && profile.getEmail() != null ? profile.getEmail() : "" %>" />
                         </label>
                         <label class="filter-field">
                             <small>PHONE</small>
-                            <input type="text" name="phoneNumber" required value="<%= profile != null && profile.getPhoneNumber() != null ? profile.getPhoneNumber() : "" %>" />
+                            <input type="text" name="phoneNumber" value="<%= profile != null && profile.getPhoneNumber() != null ? profile.getPhoneNumber() : "" %>" />
                         </label>
                         <label class="filter-field">
                             <small>RESEARCH AREA</small>
-                            <input type="text" name="researchArea" required value="<%= profile != null && profile.getResearchArea() != null ? profile.getResearchArea() : "" %>" />
+                            <input type="text" name="researchArea" value="<%= profile != null && profile.getResearchArea() != null ? profile.getResearchArea() : "" %>" />
                         </label>
                         <label class="filter-field">
                             <small>CET6 GRADE</small>
-                            <input type="text" name="cet6Grade" required value="<%= profile != null && profile.getCet6Grade() != null ? profile.getCet6Grade() : "" %>" />
+                            <input type="text" name="cet6Grade" value="<%= profile != null && profile.getCet6Grade() != null ? profile.getCet6Grade() : "" %>" />
                         </label>
                     </div>
                     <div class="ta-profile-actions">
@@ -125,25 +148,23 @@
             <section class="page-head" style="margin-top: 22px;">
                 <div>
                     <h1 style="font-size: 38px;">Application history</h1>
-                    <p>Track your latest application results and respond to feedback.</p>
+                    <p>Filter by status. Use Feedback to view your statement, instructor comments, and send a follow-up.</p>
                 </div>
                 <div class="filter-actions" id="ta-app-filters">
                     <button type="button" class="chip-button active" data-ta-filter="ALL">All</button>
                     <button type="button" class="chip-button" data-ta-filter="PENDING">Pending</button>
                     <button type="button" class="chip-button" data-ta-filter="APPROVED">Approved</button>
                     <button type="button" class="chip-button" data-ta-filter="REJECTED">Rejected</button>
+                    <button type="button" class="chip-button" data-ta-filter="INTERVIEW">Interview</button>
                 </div>
             </section>
 
             <section class="list-card ta-apps-card">
                 <div class="list-head ta-app-head">
-                    <span>JOB ID</span>
                     <span>MODULE</span>
                     <span>MO</span>
                     <span>STATUS</span>
                     <span>APPLIED</span>
-                    <span>TYPE</span>
-                    <span>APP ID</span>
                     <span>FEEDBACK</span>
                 </div>
                 <div id="ta-app-rows"></div>
@@ -155,12 +176,12 @@
 
 <script type="application/json" id="ta-applications-json"><%= request.getAttribute("applicationListJson") != null ? request.getAttribute("applicationListJson") : "[]" %></script>
 <script>window.TA_CONTEXT = "${pageContext.request.contextPath}";</script>
-<script src="${pageContext.request.contextPath}/js/ta-home.js"></script>
+<script src="${pageContext.request.contextPath}/js/ta-home.js?v=20260409b"></script>
 
 <div id="ta-feedback-overlay" class="ta-feedback-overlay" aria-hidden="true">
     <div class="ta-feedback-panel list-card" role="dialog" aria-modal="true" aria-labelledby="ta-feedback-title">
         <div class="ta-feedback-head">
-            <h2 id="ta-feedback-title">Application Conversation</h2>
+            <h2 id="ta-feedback-title">Application conversation</h2>
             <button type="button" class="chip-button" id="ta-feedback-close">Close</button>
         </div>
         <p class="ta-feedback-meta" id="ta-feedback-meta"></p>

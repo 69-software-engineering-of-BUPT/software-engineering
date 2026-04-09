@@ -176,7 +176,6 @@
                 return span;
             }
 
-            row.appendChild(cell(app.jobId));
             row.appendChild(cell(app.moduleName));
             row.appendChild(cell(app.mdName));
 
@@ -203,8 +202,6 @@
             row.appendChild(stSpan);
 
             row.appendChild(cell(app.applyTime));
-            row.appendChild(cell(app.applicationType));
-            row.appendChild(cell(app.applicationId));
 
             var fbCell = document.createElement('span');
             var btn = document.createElement('button');
@@ -256,7 +253,119 @@
 
         var replyForm = document.querySelector('.ta-reply-form');
         if (replyForm) {
-            replyForm.setAttribute('action', contextPath() + '/ta/application/reply');
+            var replyAction = contextPath() + '/ta/application/reply';
+            replyForm.setAttribute('action', replyAction);
+
+            replyForm.addEventListener('submit', function (ev) {
+                ev.preventDefault();
+                var appIdInput = document.getElementById('ta-dialog-app-id');
+                var replyInput = document.getElementById('ta-dialog-reply');
+                var message = (replyInput.value || '').trim();
+                var applicationId = (appIdInput.value || '').trim();
+
+                if (!message || !applicationId) return;
+
+                var formData = new URLSearchParams();
+                formData.append('applicationId', applicationId);
+                formData.append('message', message);
+
+                var submitBtn = replyForm.querySelector('button[type="submit"]');
+                if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending...'; }
+
+                fetch(replyAction, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData.toString()
+                }).then(function (resp) {
+                    if (!resp.ok) throw new Error('Failed');
+                    return resp.json();
+                }).then(function () {
+                    // Append the message to the chat thread
+                    var chat = document.getElementById('ta-dialog-chat-thread');
+                    addChatBubble(chat, 'You (follow-up)', message, 'ta');
+                    chat.scrollTop = chat.scrollHeight;
+
+                    // Update the in-memory app data so subsequent opens reflect it
+                    var allApps = window.__TA_APPS__ || [];
+                    for (var i = 0; i < allApps.length; i++) {
+                        if (allApps[i].applicationId === applicationId) {
+                            var now = new Date();
+                            var ts = now.getFullYear() + '-' +
+                                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                                String(now.getDate()).padStart(2, '0') + ' ' +
+                                String(now.getHours()).padStart(2, '0') + ':' +
+                                String(now.getMinutes()).padStart(2, '0');
+                            var line = '\n[' + ts + ' TA]: ' + message;
+                            allApps[i].statement = (allApps[i].statement || '') + line;
+                            break;
+                        }
+                    }
+
+                    replyInput.value = '';
+                }).catch(function () {
+                    alert('Failed to send reply. Please try again.');
+                }).finally(function () {
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Send reply'; }
+                });
+            });
+        }
+
+        // Profile form validation
+        var profileForm = document.querySelector('.ta-profile-form');
+        if (profileForm) {
+            var profileFields = [
+                { name: 'email', label: 'Email' },
+                { name: 'phoneNumber', label: 'Phone' },
+                { name: 'researchArea', label: 'Research Area' },
+                { name: 'cet6Grade', label: 'CET6 Grade' }
+            ];
+
+            // Real-time: clear mandatory on input
+            profileFields.forEach(function (f) {
+                var input = profileForm.querySelector('[name="' + f.name + '"]');
+                if (!input) return;
+                input.addEventListener('input', function () {
+                    if (input.value.trim()) {
+                        var wrap = input.closest('.filter-field');
+                        if (wrap) {
+                            wrap.classList.remove('mandatory-error');
+                            var h = wrap.querySelector('.mandatory-hint');
+                            if (h) h.remove();
+                        }
+                    }
+                });
+            });
+
+            profileForm.addEventListener('submit', function (ev) {
+                var valid = true;
+                for (var i = 0; i < profileFields.length; i++) {
+                    var input = profileForm.querySelector('[name="' + profileFields[i].name + '"]');
+                    if (!input) continue;
+                    var fieldWrap = input.closest('.filter-field');
+                    // Clear previous
+                    if (fieldWrap) {
+                        fieldWrap.classList.remove('mandatory-error');
+                        var oldHint = fieldWrap.querySelector('.mandatory-hint');
+                        if (oldHint) oldHint.remove();
+                    }
+                    if (!input.value.trim()) {
+                        valid = false;
+                        if (fieldWrap) {
+                            fieldWrap.classList.add('mandatory-error');
+                            var hint = document.createElement('span');
+                            hint.className = 'mandatory-hint';
+                            hint.textContent = 'Mandatory';
+                            fieldWrap.appendChild(hint);
+                        }
+                    }
+                }
+                if (!valid) {
+                    ev.preventDefault();
+                }
+            });
         }
     }
 
