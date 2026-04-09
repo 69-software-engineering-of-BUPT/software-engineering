@@ -29,7 +29,7 @@ class AuthFilterTest {
 
         filter.doFilter(request, response, chain);
 
-        verify(response).sendRedirect("/jsp/login.jsp");
+        verify(response).sendRedirect("/login");
         verify(chain, never()).doFilter(request, response);
     }
 
