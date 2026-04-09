@@ -1,15 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.bupt.tarecruit.model.TAProfile" %>
-<%@ page import="com.bupt.tarecruit.model.User" %>
 <%
     TAProfile profile = (TAProfile) request.getAttribute("profile");
     String studentId = (String) request.getAttribute("studentId");
     String profileErr = (String) request.getAttribute("profileErrorMsg");
     if (studentId == null) studentId = "";
-    User currentUser = (User) request.getAttribute("currentUser");
-    String cvPath = (currentUser != null && currentUser.getCvFilePath() != null) ? currentUser.getCvFilePath() : "";
-    String cvSuccess = (String) session.getAttribute("cvSuccess");
-    if (cvSuccess != null) session.removeAttribute("cvSuccess");
     Integer unreadCount = (Integer) request.getAttribute("unreadCount");
     if (unreadCount == null) unreadCount = 0;
 %>
@@ -96,7 +91,7 @@
                     <h2>Basic profile</h2>
                     <span><%= studentId %></span>
                 </div>
-                <form class="ta-profile-form" method="post" action="${pageContext.request.contextPath}/ta/profile">
+                <form class="ta-profile-form" method="post" action="${pageContext.request.contextPath}/ta/profile" novalidate>
                     <div class="ta-profile-grid">
                         <label class="filter-field">
                             <small>STUDENT ID</small>
@@ -104,23 +99,23 @@
                         </label>
                         <label class="filter-field">
                             <small>FULL NAME</small>
-                            <input type="text" name="fullName" required value="<%= profile != null && profile.getFullName() != null ? profile.getFullName() : "" %>" />
+                            <input type="text" name="fullName" value="<%= profile != null && profile.getFullName() != null ? profile.getFullName() : "" %>" readonly />
                         </label>
                         <label class="filter-field">
                             <small>EMAIL</small>
-                            <input type="email" name="email" required value="<%= profile != null && profile.getEmail() != null ? profile.getEmail() : "" %>" />
+                            <input type="email" name="email" value="<%= profile != null && profile.getEmail() != null ? profile.getEmail() : "" %>" />
                         </label>
                         <label class="filter-field">
                             <small>PHONE</small>
-                            <input type="text" name="phoneNumber" required value="<%= profile != null && profile.getPhoneNumber() != null ? profile.getPhoneNumber() : "" %>" />
+                            <input type="text" name="phoneNumber" value="<%= profile != null && profile.getPhoneNumber() != null ? profile.getPhoneNumber() : "" %>" />
                         </label>
                         <label class="filter-field">
                             <small>RESEARCH AREA</small>
-                            <input type="text" name="researchArea" required value="<%= profile != null && profile.getResearchArea() != null ? profile.getResearchArea() : "" %>" />
+                            <input type="text" name="researchArea" value="<%= profile != null && profile.getResearchArea() != null ? profile.getResearchArea() : "" %>" />
                         </label>
                         <label class="filter-field">
                             <small>CET6 GRADE</small>
-                            <input type="text" name="cet6Grade" required value="<%= profile != null && profile.getCet6Grade() != null ? profile.getCet6Grade() : "" %>" />
+                            <input type="text" name="cet6Grade" value="<%= profile != null && profile.getCet6Grade() != null ? profile.getCet6Grade() : "" %>" />
                         </label>
                     </div>
                     <div class="ta-profile-actions">
@@ -129,29 +124,7 @@
                 </form>
             </section>
 
-            <section class="list-card ta-profile-card" style="margin-top:14px;">
-                <div class="list-title-row">
-                    <h2>Upload CV</h2>
-                    <span>PDF only, max 5 MB</span>
-                </div>
-                <% if (cvSuccess != null) { %>
-                <p style="margin:0 0 10px;color:#4f6c4d;"><strong>Success:</strong> <%= cvSuccess %></p>
-                <% } %>
-                <% if (!cvPath.isEmpty()) { %>
-                <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
-                    <span style="color:#3d4148;font-size:13px;">Current file: <strong><%= cvPath %></strong></span>
-                    <a href="<%= request.getContextPath() + "/" + cvPath %>" target="_blank" class="chip-button active" style="text-decoration:none;">View CV</a>
-                </div>
-                <% } else { %>
-                <p style="margin:0 0 10px;color:#7f868f;">No CV uploaded yet.</p>
-                <% } %>
-                <form method="post" action="${pageContext.request.contextPath}/ta/uploadCv" enctype="multipart/form-data">
-                    <div style="display:flex;align-items:center;gap:12px;">
-                        <input type="file" name="cvFile" accept=".pdf" />
-                        <button type="submit" class="chip-button active">Upload</button>
-                    </div>
-                </form>
-            </section>
+
 
             <section class="page-head" style="margin-top: 22px;">
                 <div>
@@ -163,18 +136,16 @@
                     <button type="button" class="chip-button" data-ta-filter="PENDING">Pending</button>
                     <button type="button" class="chip-button" data-ta-filter="APPROVED">Approved</button>
                     <button type="button" class="chip-button" data-ta-filter="REJECTED">Rejected</button>
+                    <button type="button" class="chip-button" data-ta-filter="INTERVIEW">Interview</button>
                 </div>
             </section>
 
             <section class="list-card ta-apps-card">
                 <div class="list-head ta-app-head">
-                    <span>JOB ID</span>
                     <span>MODULE</span>
                     <span>MO</span>
                     <span>STATUS</span>
                     <span>APPLIED</span>
-                    <span>TYPE</span>
-                    <span>APP ID</span>
                     <span>FEEDBACK</span>
                 </div>
                 <div id="ta-app-rows"></div>
