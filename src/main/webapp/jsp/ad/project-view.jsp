@@ -20,12 +20,12 @@
             <div class="brand-icon">TR</div>
             <div>
                 <div class="brand-title">TA Recruitment Portal</div>
-                <div class="brand-subtitle">Spring 2026 | Role-based prototype</div>
+                <div class="brand-subtitle">Spring 2026 · Role based prototype</div>
             </div>
         </div>
         <div class="top-actions">
-            <button class="chip-button" data-action="switch-role">Sign out</button>
-            <button class="chip-button" data-action="reset-demo">Go to sign-in</button>
+            <button class="chip-button" data-action="switch-role">Switch role</button>
+            <button class="chip-button" data-action="reset-demo">Reset demo</button>
             <div class="user-pill">
                 <span class="avatar">SA</span>
                 <span>
@@ -87,14 +87,14 @@
                         <h2 id="project-view-name">No project selected</h2>
                         <p id="project-view-code">-</p>
                     </div>
-                    <span class="status warning" id="project-view-status">-</span>
+                    <span class="status warning" id="project-view-status">● -</span>
                 </div>
 
                 <section class="project-detail-block">
-                    <h3>Course details</h3>
+                    <h3>Course basic information</h3>
                     <div class="project-basic-grid">
                         <div class="detail-kv">
-                            <small>MODULE ORGANIZER</small>
+                            <small>MODULE ORGANISER</small>
                             <strong id="project-view-mo">-</strong>
                         </div>
                         <div class="detail-kv">

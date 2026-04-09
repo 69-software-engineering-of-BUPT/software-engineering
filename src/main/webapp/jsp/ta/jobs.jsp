@@ -1,31 +1,32 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%
-    String applySuccess = (String) request.getAttribute("applySuccess");
-    String applyError = (String) request.getAttribute("applyError");
-    String studentId = (String) request.getAttribute("studentId");
-    String cvFilePath = (String) request.getAttribute("cvFilePath");
-    if (studentId == null) studentId = "";
-    if (cvFilePath == null) cvFilePath = "";
-%>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>TA Job Overview</title>
+    <title>TA · Job overview</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css" />
 </head>
 <body class="ad-page ta-page">
+<%
+    String applySuccess = (String) session.getAttribute("applySuccess");
+    String applyError = (String) session.getAttribute("applyError");
+    if (applySuccess != null) session.removeAttribute("applySuccess");
+    if (applyError != null) session.removeAttribute("applyError");
+    String studentId = (String) request.getAttribute("studentId");
+    if (studentId == null) studentId = "";
+%>
 <div class="ad-shell ta-shell">
     <header class="ad-topbar">
         <div class="brand-group">
             <div class="brand-icon">JB</div>
             <div>
-                <div class="brand-title">Job Overview</div>
-                <div class="brand-subtitle">Browse open TA positions and apply</div>
+                <div class="brand-title">Job overview</div>
+                <div class="brand-subtitle">Browse open TA positions &amp; apply</div>
             </div>
         </div>
         <div class="top-actions">
-            <a class="chip-button" href="${pageContext.request.contextPath}/ta/home">Back to home</a>
+            <a class="chip-button" href="${pageContext.request.contextPath}/ta/home">Home</a>
+            <a class="chip-button" href="${pageContext.request.contextPath}/ta/notifications">Notifications</a>
             <a class="chip-button" href="${pageContext.request.contextPath}/logout">Sign out</a>
         </div>
     </header>
@@ -52,6 +53,7 @@
                     <span><strong>Notifications</strong><small>Status updates</small></span>
                 </a>
             </section>
+
         </aside>
 
         <main class="ad-main ta-main">
@@ -69,7 +71,7 @@
             <section class="page-head">
                 <div>
                     <h1 style="font-size:38px;">Open positions</h1>
-                    <p>Search, sort, and apply to current TA openings. Existing applications are shown directly in the list.</p>
+                    <p>Click <strong>Apply</strong> to submit your application. You may include an optional statement.</p>
                 </div>
                 <div class="filter-actions">
                     <span id="job-count-label" style="color:#7f868f;font-size:13px;"></span>
@@ -101,6 +103,7 @@
     </div>
 </div>
 
+<!-- Apply modal -->
 <div id="ta-apply-overlay" class="ta-feedback-overlay" aria-hidden="true">
     <div class="ta-feedback-panel list-card" role="dialog" aria-modal="true" aria-labelledby="ta-apply-title">
         <div class="ta-feedback-head">
@@ -145,10 +148,8 @@
 </div>
 
 <script type="application/json" id="ta-jobs-json"><%= request.getAttribute("jobListJson") != null ? request.getAttribute("jobListJson") : "[]" %></script>
-<script type="application/json" id="ta-applied-job-ids-json"><%= request.getAttribute("appliedJobIdsJson") != null ? request.getAttribute("appliedJobIdsJson") : "[]" %></script>
 <script>
     window.TA_CONTEXT = "${pageContext.request.contextPath}";
-    window.TA_CURRENT_CV = "<%= cvFilePath.replace("\\", "\\\\").replace("\"", "\\\"") %>";
 </script>
 <script src="${pageContext.request.contextPath}/js/ta-jobs.js"></script>
 </body>

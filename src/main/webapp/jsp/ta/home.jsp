@@ -1,12 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.List" %>
-<%@ page import="com.bupt.tarecruit.model.Notification" %>
 <%@ page import="com.bupt.tarecruit.model.TAProfile" %>
 <%
     TAProfile profile = (TAProfile) request.getAttribute("profile");
     String studentId = (String) request.getAttribute("studentId");
     String profileErr = (String) request.getAttribute("profileErrorMsg");
-    List<Notification> notifications = (List<Notification>) request.getAttribute("notifications");
     if (studentId == null) studentId = "";
     Integer unreadCount = (Integer) request.getAttribute("unreadCount");
     if (unreadCount == null) unreadCount = 0;
@@ -15,7 +12,7 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>TA - Personal home</title>
+    <title>TA · Personal home</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css" />
 </head>
 <body class="ad-page ta-page">
@@ -82,24 +79,6 @@
             </section>
             <% } %>
 
-            <section class="list-card" style="margin-bottom: 18px;">
-                <div class="list-title-row">
-                    <h2>Latest notifications</h2>
-                    <span><%= notifications != null ? notifications.size() : 0 %> item(s)</span>
-                </div>
-                <% if (notifications == null || notifications.isEmpty()) { %>
-                <p style="margin:0; color:#69707a;">No status updates yet.</p>
-                <% } else { %>
-                    <% for (Notification notification : notifications) { %>
-                    <article class="list-row" style="display:block;">
-                        <strong><%= notification.getType() %></strong>
-                        <p style="margin:8px 0 4px;"><%= notification.getContent() %></p>
-                        <small><%= notification.getCreatedAt() %></small>
-                    </article>
-                    <% } %>
-                <% } %>
-            </section>
-
             <section class="page-head">
                 <div>
                     <h1 style="font-size: 38px;">Personal information</h1>
@@ -144,6 +123,8 @@
                     </div>
                 </form>
             </section>
+
+
 
             <section class="page-head" style="margin-top: 22px;">
                 <div>

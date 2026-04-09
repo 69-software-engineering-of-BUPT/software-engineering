@@ -1,4 +1,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%
+    String adUserId   = (String) request.getAttribute("userId");
+    String adUserName = (String) request.getAttribute("userName");
+    if (adUserId == null)   adUserId   = (String) session.getAttribute("userAccount");
+    if (adUserName == null) adUserName = (String) session.getAttribute("userName");
+    if (adUserId == null)   adUserId   = "";
+    if (adUserName == null) adUserName = "System Admin";
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,17 +21,17 @@
             <div class="brand-icon">TR</div>
             <div>
                 <div class="brand-title">TA Recruitment Portal</div>
-                <div class="brand-subtitle">Spring 2026 | Role-based prototype</div>
+                <div class="brand-subtitle">Spring 2026 · Admin panel</div>
             </div>
         </div>
         <div class="top-actions">
-            <button class="chip-button" data-action="switch-role">Sign out</button>
-            <button class="chip-button" data-action="reset-demo">Go to sign-in</button>
+            <button class="chip-button" data-action="reset-demo">Reset demo</button>
+            <a class="chip-button" href="${pageContext.request.contextPath}/logout">Sign out</a>
             <div class="user-pill">
-                <span class="avatar">SA</span>
+                <span class="avatar">AD</span>
                 <span>
-                    <strong>System Admin</strong>
-                    <small>Administrator</small>
+                    <strong><%= adUserName %></strong>
+                    <small><%= adUserId %></small>
                 </span>
             </div>
         </div>
@@ -97,6 +105,7 @@
                 <div class="filter-actions">
                     <button class="chip-button" data-action="import-csv">Import CSV</button>
                     <button class="chip-button" data-export-csv="true" data-export-filename="accounts">Export CSV</button>
+                    <a class="chip-button active" href="${pageContext.request.contextPath}/register">+ Create TA account</a>
                 </div>
             </section>
 
@@ -104,7 +113,7 @@
                 <div class="account-filter-grid">
                     <label class="filter-field filter-search">
                         <small>SEARCH</small>
-                        <input id="account-filter-search" type="text" placeholder="Name, email, or department" />
+                        <input id="account-filter-search" type="text" placeholder="Name, email or department" />
                     </label>
 
                     <label class="filter-field">
@@ -154,89 +163,21 @@
                         <span>LAST LOGIN</span>
                     </div>
 
-                    <article class="list-row account-grid account-row active" tabindex="0"
-                             data-name="Dr. Zhao"
-                             data-email="zhao.mo@campus.edu"
-                             data-role="MO"
-                             data-department="Language Center"
-                             data-status-text="Active"
-                             data-status-class="success"
-                             data-last-login="Today"
-                             data-load="1/3"
-                             data-flag="Current user"
-                             data-assignments="Academic Writing|Dr. Zhao|03 Apr 2026;English Training|Dr. Zhao|08 Apr 2026">
-                        <div>
-                            <strong>Dr. Zhao</strong>
-                            <small>zhao.mo@campus.edu</small>
-                        </div>
-                        <span>MO</span>
-                        <span>Language Center</span>
-                        <span class="status success">Active</span>
-                        <span>Today</span>
-                    </article>
-
                     <article class="list-row account-grid account-row" tabindex="0"
-                             data-name="Dr. Chen"
-                             data-email="chen.mo@campus.edu"
-                             data-role="MO"
-                             data-department="Data Science"
+                             data-name="Loading…"
+                             data-email=""
+                             data-role=""
+                             data-department=""
                              data-status-text="Active"
                              data-status-class="success"
-                             data-last-login="Today"
-                             data-load="2/3"
-                             data-flag="Owns 2 published positions"
-                             data-assignments="Data Mining|Dr. Chen|05 Apr 2026;Machine Learning|Dr. Chen|11 Apr 2026">
-                        <div>
-                            <strong>Dr. Chen</strong>
-                            <small>chen.mo@campus.edu</small>
-                        </div>
-                        <span>MO</span>
-                        <span>Data Science</span>
-                        <span class="status success">Active</span>
-                        <span>Today</span>
+                             data-last-login="—"
+                             data-load="—"
+                             data-flag=""
+                             data-assignments=""
+                             style="display:none;">
+                        <div><!-- placeholder --></div>
                     </article>
-
-                    <article class="list-row warn account-grid account-row" tabindex="0"
-                             data-name="Prof. Morgan"
-                             data-email="morgan.mo@campus.edu"
-                             data-role="MO"
-                             data-department="Design School"
-                             data-status-text="Warning"
-                             data-status-class="warning"
-                             data-last-login="2 days ago"
-                             data-load="0/3"
-                             data-flag="5 failed logins"
-                             data-assignments="Studio Design|Prof. Morgan|06 Apr 2026;Visual Design|Prof. Morgan|09 Apr 2026">
-                        <div>
-                            <strong>Prof. Morgan</strong>
-                            <small>morgan.mo@campus.edu</small>
-                        </div>
-                        <span>MO</span>
-                        <span>Design School</span>
-                        <span class="status warning">Warning</span>
-                        <span>2 days ago</span>
-                    </article>
-
-                    <article class="list-row warn account-grid account-row" tabindex="0"
-                             data-name="Lin Yu"
-                             data-email="yu.ta@campus.edu"
-                             data-role="TA"
-                             data-department="Economics"
-                             data-status-text="Reached Upper Limit"
-                             data-status-class="warning"
-                             data-last-login="Never"
-                             data-load="3/3"
-                             data-flag="Reached Upper Limit"
-                             data-assignments="Microeconomics|Dr. Chen|05 Apr 2026;Statistics|Prof. Allen|08 Apr 2026;Econometrics|Dr. Stone|10 Apr 2026">
-                        <div>
-                            <strong>Lin Yu</strong>
-                            <small>yu.ta@campus.edu</small>
-                        </div>
-                        <span>TA</span>
-                        <span>Economics</span>
-                        <span class="status warning">Reached Upper Limit</span>
-                        <span>Never</span>
-                    </article>
+                    <div id="account-list-body"></div>
                 </section>
 
                 <aside class="list-card account-detail-card" id="account-detail-panel">
@@ -245,7 +186,7 @@
                             <h2 id="detail-name">Dr. Zhao</h2>
                             <p id="detail-email">zhao.mo@campus.edu</p>
                         </div>
-                        <span class="status success" id="detail-flag-badge">Active</span>
+                        <span class="status success" id="detail-flag-badge">● Active</span>
                     </div>
 
                     <div class="detail-kv-grid">
@@ -283,9 +224,115 @@
                     </div>
                 </aside>
             </section>
+
+            <!-- TA CV Files Section -->
+            <section class="list-card" style="margin-top:16px;">
+                <div class="list-title-row">
+                    <h2>TA CV Files</h2>
+                    <span id="ta-cv-badge">—</span>
+                </div>
+                <div class="list-head account-grid" style="grid-template-columns:120px 160px 120px 1fr;">
+                    <span>USER ID</span>
+                    <span>NAME</span>
+                    <span>ACTIVE JOBS</span>
+                    <span>CV FILE</span>
+                </div>
+                <div id="ta-cv-list"></div>
+            </section>
         </main>
     </div>
 </div>
+<script type="application/json" id="ta-users-json"><%= request.getAttribute("taUsersJson") != null ? request.getAttribute("taUsersJson") : "[]" %></script>
+<script type="application/json" id="all-users-json"><%= request.getAttribute("allUsersJson") != null ? request.getAttribute("allUsersJson") : "[]" %></script>
+<script>
+(function () {
+    var raw = document.getElementById('all-users-json');
+    if (!raw) return;
+    var users;
+    try { users = JSON.parse(raw.textContent || '[]'); } catch (e) { return; }
+    var container = document.getElementById('account-list-body');
+    if (!container) return;
+
+    function escHtml(s) {
+        return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    users.forEach(function (u, idx) {
+        var role = (u.role || '').toUpperCase();
+        var isTA  = role === 'TA';
+        var activeJobs = u.activeJobsCount || 0;
+        var upperLimit = isTA && activeJobs >= 3;
+        var load       = isTA ? (activeJobs + '/3') : '—';
+        var statusText = upperLimit ? 'Reached Upper Limit' : 'Active';
+        var statusCls  = upperLimit ? 'warning' : 'success';
+        var dept       = u.major || '—';
+        var flag       = upperLimit ? 'Reached Upper Limit' : '';
+        var displayId  = escHtml(u.userId || '');
+        var displayName = escHtml(u.name || u.userId || '');
+
+        var art = document.createElement('article');
+        art.className = 'list-row account-grid account-row' + (upperLimit ? ' warn' : '') + (idx === 0 ? ' active' : '');
+        art.tabIndex = 0;
+        art.dataset.name       = u.name || u.userId || '';
+        art.dataset.email      = u.userId || '';
+        art.dataset.role       = role;
+        art.dataset.department = dept;
+        art.dataset.statusText = statusText;
+        art.dataset.statusClass = statusCls;
+        art.dataset.lastLogin  = '—';
+        art.dataset.load       = load;
+        art.dataset.flag       = flag;
+        art.dataset.assignments = '';
+
+        art.innerHTML =
+            '<div><strong>' + displayName + '</strong><small>' + displayId + '</small></div>' +
+            '<span>' + escHtml(role) + '</span>' +
+            '<span>' + escHtml(dept) + '</span>' +
+            '<span class="status ' + statusCls + '">● ' + escHtml(statusText) + '</span>' +
+            '<span>—</span>';
+
+        container.appendChild(art);
+    });
+
+    if (users.length === 0) {
+        var p = document.createElement('p');
+        p.style.cssText = 'padding:14px;color:#aaa;font-size:13px;';
+        p.textContent = 'No user accounts found.';
+        container.appendChild(p);
+    }
+}());
+</script>
 <script src="${pageContext.request.contextPath}/js/app.js?v=20260406-6"></script>
+<script>
+(function () {
+    var el = document.getElementById('ta-users-json');
+    if (!el) return;
+    var users;
+    try { users = JSON.parse(el.textContent || '[]'); } catch (e) { return; }
+    var list = document.getElementById('ta-cv-list');
+    var badge = document.getElementById('ta-cv-badge');
+    if (badge) badge.textContent = users.length + ' TA(s)';
+    var ctx = '${pageContext.request.contextPath}';
+    users.forEach(function (u) {
+        var row = document.createElement('div');
+        row.className = 'list-row';
+        row.style.cssText = 'display:grid;grid-template-columns:120px 160px 120px 1fr;gap:8px;padding:10px 14px;border-bottom:1px solid #f0ece4;align-items:center;';
+        var cvHtml = u.cvFilePath
+            ? '<a href="' + ctx + '/' + u.cvFilePath + '" target="_blank" style="color:#5870b3;text-decoration:underline;font-size:12px;">' + u.cvFilePath + '</a>'
+            : '<span style="color:#aaa;font-size:12px;">No CV uploaded</span>';
+        row.innerHTML = '<span style="font-size:13px;">' + (u.userId || '') + '</span>'
+            + '<span style="font-size:13px;">' + (u.name || '') + '</span>'
+            + '<span style="font-size:13px;">' + (u.activeJobsCount || 0) + ' / 3</span>'
+            + '<span>' + cvHtml + '</span>';
+        list.appendChild(row);
+    });
+    if (users.length === 0) {
+        var empty = document.createElement('p');
+        empty.style.cssText = 'padding:14px;color:#aaa;font-size:13px;';
+        empty.textContent = 'No TA accounts found.';
+        list.appendChild(empty);
+    }
+}());
+</script>
 </body>
 </html>

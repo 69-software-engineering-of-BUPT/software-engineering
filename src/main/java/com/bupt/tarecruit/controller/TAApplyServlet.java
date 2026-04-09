@@ -70,9 +70,7 @@ public class TAApplyServlet extends HttpServlet {
             }
 
             // Handle CV file upload
-            boolean cvUploaded = user != null
-                && user.getCvFilePath() != null
-                && !user.getCvFilePath().trim().isEmpty();
+            boolean cvUploaded = false;
             Part filePart = req.getPart("cvFile");
             if (filePart != null && filePart.getSize() > 0) {
                 String fileName = getFileName(filePart);
