@@ -42,7 +42,7 @@ public class AuthFilter implements Filter {
 
         HttpSession session = httpRequest.getSession(false);
         if (session == null || session.getAttribute("userRole") == null) {
-            httpResponse.sendRedirect(contextPath + "/jsp/login.jsp");
+            httpResponse.sendRedirect(contextPath + "/login");
             return;
         }
 
@@ -64,6 +64,8 @@ public class AuthFilter implements Filter {
             || "/index.jsp".equals(path)
             || "/jsp/login.jsp".equals(path)
             || "/login".equals(path)
+            || "/jsp/register.jsp".equals(path)
+            || "/register".equals(path)
             || "/logout".equals(path)
             || path.startsWith("/css/")
             || path.startsWith("/js/")
