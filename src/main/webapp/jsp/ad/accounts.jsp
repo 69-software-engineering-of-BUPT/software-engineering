@@ -47,7 +47,7 @@
 
             <section class="side-block">
                 <p class="side-title">NAVIGATION</p>
-                <a class="nav-item active" href="${pageContext.request.contextPath}/jsp/ad/accounts.jsp">
+                <a class="nav-item active" href="${pageContext.request.contextPath}/ad/accounts">
                     <span class="nav-icon">AC</span>
                     <span>
                         <strong>Account Management</strong>
