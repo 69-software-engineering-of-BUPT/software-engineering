@@ -5,17 +5,18 @@ import com.google.gson.annotations.SerializedName;
 public class Application {
     private String applicationId;
     private String jobId;
-    @SerializedName("taId")
+    @SerializedName(value = "studentId", alternate = {"taId"})
     private String studentId;
     private String status;
-    @SerializedName("appliedAt")
+    @SerializedName(value = "applyTime", alternate = {"appliedAt"})
     private String applyTime;
     private String statement;
     private String feedback;
-    @SerializedName("markedBy")
-    private String mdId;
+    @SerializedName(value = "markedBy", alternate = {"mdId"})
+    private String markedBy;
     private String markTime;
     private String applicationType;
+    private boolean cvAttached;
 
     public String getApplicationId() { return applicationId; }
     public void setApplicationId(String applicationId) { this.applicationId = applicationId; }
@@ -38,12 +39,15 @@ public class Application {
     public String getFeedback() { return feedback; }
     public void setFeedback(String feedback) { this.feedback = feedback; }
 
-    public String getMarkedBy() { return mdId; }
-    public void setMarkedBy(String markedBy) { this.mdId = markedBy; }
+    public String getMarkedBy() { return markedBy; }
+    public void setMarkedBy(String markedBy) { this.markedBy = markedBy; }
 
     public String getMarkTime() { return markTime; }
     public void setMarkTime(String markTime) { this.markTime = markTime; }
 
     public String getApplicationType() { return applicationType; }
     public void setApplicationType(String applicationType) { this.applicationType = applicationType; }
+
+    public boolean isCvAttached() { return cvAttached; }
+    public void setCvAttached(boolean cvAttached) { this.cvAttached = cvAttached; }
 }

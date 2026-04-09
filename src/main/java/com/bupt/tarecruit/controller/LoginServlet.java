@@ -19,22 +19,35 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.sendRedirect(req.getContextPath() + "/jsp/login.jsp");
+        HttpSession session = req.getSession(false);
+        if (session != null && session.getAttribute("userAccount") != null) {
+            try {
+                resp.sendRedirect(req.getContextPath() + targetFor((String) session.getAttribute("userRole")));
+            } catch (AuthenticationException ex) {
+                session.invalidate();
+                resp.sendRedirect(req.getContextPath() + "/login");
+            }
+            return;
+        }
+        req.getRequestDispatcher("/jsp/login.jsp").forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
+        String userId = req.getParameter("userId");
         try {
-            AuthenticatedUser user = authService.authenticate(req.getParameter("userId"), req.getParameter("password"));
+            AuthenticatedUser user = authService.authenticate(userId, req.getParameter("password"));
             HttpSession session = req.getSession(true);
             session.setAttribute("userAccount", user.getUserId());
             session.setAttribute("userRole", user.getRole());
             session.setAttribute("userName", user.getName());
             resp.sendRedirect(req.getContextPath() + targetFor(user.getRole()));
         } catch (AuthenticationException ex) {
+            String inputUserId = userId == null ? "" : userId.trim();
             req.setAttribute("loginError", ex.getMessage());
-            req.setAttribute("loginUserId", req.getParameter("userId"));
+            req.setAttribute("loginUserId", inputUserId);
+            req.setAttribute("inputUserId", inputUserId);
             req.getRequestDispatcher("/jsp/login.jsp").forward(req, resp);
         } catch (Exception ex) {
             throw new ServletException("Login failed", ex);

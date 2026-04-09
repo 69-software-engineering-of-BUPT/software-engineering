@@ -1,0 +1,13 @@
+{
+  "applicationId": "099074f5-204a-4313-ac4b-2937201dcf4e",
+  "jobId": "JOB002",
+  "taId": "TA001",
+  "status": "INTERVIEW",
+  "appliedAt": "2026-04-07 20:36:23",
+  "statement": "1111111\n[2026-04-07 20:37 TA]: 好\n[2026-04-08 23:56 TA]: 谢谢\n[2026-04-09 00:34 TA]: 1111\n[2026-04-09 00:52 MO]: hhh",
+  "feedback": "你很棒，我们接受你了",
+  "mdId": "MO001",
+  "markTime": "2026-04-07 20:37:00",
+  "applicationType": "NL",
+  "cvAttached": true
+}

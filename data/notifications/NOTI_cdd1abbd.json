@@ -1,0 +1,9 @@
+{
+  "notificationId": "cdd1abbd",
+  "taId": "TA001",
+  "type": "STATUS_UPDATE",
+  "content": "Your application for EBU6304 Software Engineering has not been successful at this time.",
+  "relatedApplicationId": "APP001",
+  "createdAt": "2026-04-07 20:28:01",
+  "isRead": true
+}

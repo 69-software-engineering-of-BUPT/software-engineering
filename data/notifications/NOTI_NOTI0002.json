@@ -1,0 +1,9 @@
+{
+  "notificationId": "NOTI0002",
+  "taId": "TA001",
+  "type": "FEEDBACK",
+  "content": "Dr. Smith has left feedback on your application for EBU6304 Software Engineering. Please check your application history for details.",
+  "relatedApplicationId": "APP001",
+  "createdAt": "2026-04-03 14:15:00",
+  "isRead": true
+}

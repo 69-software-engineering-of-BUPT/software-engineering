@@ -1,11 +1,13 @@
 {
   "jobId": "JOB001",
-  "moId": "MO001",
+  "mdId": "MO001",
+  "mdName": "Dr. Smith",
   "moduleName": "EBU6304 Software Engineering",
   "jobType": "Teaching Assistant",
   "requirements": "Proficient in Java and Agile",
+  "introduction": "Assist with labs, tutorials, and coursework marking for the Software Engineering module.",
   "weeklyWorkload": 10,
-  "deadline": "2026-04-15",
+  "deadline": "2026-04-30",
   "status": "OPEN",
   "publishedAt": "2026-03-31T10:00:00Z"
 }

@@ -1,0 +1,13 @@
+{
+  "jobId": "JOB002",
+  "mdId": "MO001",
+  "mdName": "Dr. Smith",
+  "moduleName": "EBU5476 Data Structures",
+  "jobType": "Lab Assistant",
+  "requirements": "Strong knowledge of C++ and algorithms",
+  "introduction": "Support lab sessions for Data Structures, help students with programming exercises.",
+  "weeklyWorkload": 8,
+  "deadline": "2026-05-10",
+  "status": "OPEN",
+  "publishedAt": "2026-04-01T09:00:00Z"
+}

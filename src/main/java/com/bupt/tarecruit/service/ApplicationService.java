@@ -45,6 +45,7 @@ public class ApplicationService {
         if (app.getStatement() != null && app.getStatement().length() > MAX_WORD_LIMIT) {
             throw new ApplicationException("Statement exceeds the 500 character limit.");
         }
+
         Job job = jobRepo.findById(app.getJobId());
         if (job == null) {
             throw new ApplicationException("Job not found.");
@@ -56,10 +57,16 @@ public class ApplicationService {
             throw new ApplicationException("You have already applied for this job.");
         }
 
-        app.setApplicationId(IdGenerator.newId("APP"));
-        app.setApplyTime(TimeUtil.nowDateTime());
-        app.setStatus("PENDING");
-        if (app.getApplicationType() == null || app.getApplicationType().trim().isEmpty()) {
+        if (isBlank(app.getApplicationId())) {
+            app.setApplicationId(IdGenerator.newId("APP"));
+        }
+        if (isBlank(app.getApplyTime())) {
+            app.setApplyTime(TimeUtil.nowDateTime());
+        }
+        if (isBlank(app.getStatus())) {
+            app.setStatus("PENDING");
+        }
+        if (isBlank(app.getApplicationType())) {
             app.setApplicationType("Standard");
         }
         appRepo.save(app);
@@ -68,11 +75,10 @@ public class ApplicationService {
     public List<ApplicationView> getTAApplicationList(String studentId) throws Exception {
         List<ApplicationView> viewList = new ArrayList<ApplicationView>();
         List<Application> apps = appRepo.findByStudentId(studentId);
-
         for (Application app : apps) {
             viewList.add(toView(app));
         }
-        viewList.sort(Comparator.comparing(ApplicationView::getApplyTime, Comparator.nullsLast(Comparator.reverseOrder())));
+        sortByApplyTimeDesc(viewList);
         return viewList;
     }
 
@@ -81,44 +87,84 @@ public class ApplicationService {
         for (Application app : appRepo.findByJobId(jobId)) {
             viewList.add(toView(app));
         }
-        viewList.sort(Comparator.comparing(ApplicationView::getApplyTime, Comparator.nullsLast(Comparator.reverseOrder())));
+        sortByApplyTimeDesc(viewList);
+        return viewList;
+    }
+
+    public List<ApplicationView> getApplicationsForMO(String moId) throws Exception {
+        List<ApplicationView> viewList = new ArrayList<ApplicationView>();
+        for (Application app : appRepo.getAll()) {
+            Job job = jobRepo.findById(app.getJobId());
+            if (job == null || !ownsJob(moId, job)) {
+                continue;
+            }
+            viewList.add(toView(app, job));
+        }
+        sortByApplyTimeDesc(viewList);
         return viewList;
     }
 
     public void reviewApplication(String applicationId, String reviewerId, String decision, String feedback) throws Exception {
+        updateApplicationStatus(applicationId, decision, feedback, reviewerId);
+        Application app = appRepo.findById(applicationId);
+        if (app != null) {
+            String normalizedDecision = normalizeDecision(decision);
+            String message = "Application " + app.getApplicationId() + " was " + normalizedDecision
+                + (isBlank(app.getFeedback()) ? "." : ": " + app.getFeedback());
+            notificationService.createStatusUpdate(app.getStudentId(), app.getApplicationId(), message);
+        }
+    }
+
+    public void updateApplicationStatus(String applicationId, String newStatus, String feedback, String reviewerId) throws Exception {
         Application app = appRepo.findById(applicationId);
         if (app == null) {
             throw new ApplicationException("Application record not found.");
         }
-        if (!"APPROVED".equals(decision) && !"REJECTED".equals(decision)) {
-            throw new ApplicationException("Unsupported review decision.");
-        }
-        app.setStatus(decision);
+
+        String previousStatus = app.getStatus();
+        String normalizedDecision = normalizeDecision(newStatus);
+        app.setStatus(normalizedDecision);
         app.setFeedback(feedback == null ? "" : feedback.trim());
         app.setMarkedBy(reviewerId);
         app.setMarkTime(TimeUtil.nowDateTime());
         appRepo.save(app);
-        notificationService.createStatusUpdate(app.getStudentId(), app.getApplicationId(),
-            "Application " + app.getApplicationId() + " was " + decision + (app.getFeedback().isEmpty() ? "." : ": " + app.getFeedback()));
+
+        if ("REJECTED".equals(normalizedDecision) && !"REJECTED".equalsIgnoreCase(previousStatus)) {
+            adjustActiveJobsCount(app.getStudentId(), -1);
+        }
     }
 
     public void updateStatementFromChat(String appId, String newMessage) throws Exception {
+        appendMessage(appId, "TA", newMessage);
+    }
+
+    public void appendMOMessage(String appId, String moId, String message) throws Exception {
+        appendMessage(appId, "MO", message);
+    }
+
+    private void appendMessage(String appId, String sender, String message) throws Exception {
         Application app = appRepo.findById(appId);
         if (app == null) {
             throw new ApplicationException("Application record not found");
         }
-        if (newMessage.length() > MAX_WORD_LIMIT) {
-            throw new ApplicationException("Message exceeds the 500 word limit");
+        if (isBlank(message)) {
+            return;
         }
-        String formattedMessage = "\n[" + TimeUtil.nowDateTime().substring(0, 16) + " TA]: " + newMessage;
+        if (message.trim().length() > MAX_WORD_LIMIT) {
+            throw new ApplicationException("Message exceeds the 500 character limit.");
+        }
+        String formattedMessage = "\n[" + TimeUtil.nowDateTime().substring(0, 16) + " " + sender + "]: " + message.trim();
         String currentStatement = app.getStatement() == null ? "" : app.getStatement();
         app.setStatement(currentStatement + formattedMessage);
         appRepo.save(app);
     }
 
     private ApplicationView toView(Application app) throws Exception {
+        return toView(app, jobRepo.findById(app.getJobId()));
+    }
+
+    private ApplicationView toView(Application app, Job job) throws Exception {
         ApplicationView view = new ApplicationView();
-        Job job = jobRepo.findById(app.getJobId());
         User student = userRepo.getUserById(app.getStudentId());
         view.setApplicationId(app.getApplicationId());
         view.setFeedback(app.getFeedback());
@@ -129,9 +175,13 @@ public class ApplicationService {
         view.setStatement(app.getStatement());
         view.setStudentId(app.getStudentId());
         view.setStudentName(student != null ? student.getName() : app.getStudentId());
+        view.setCvAttached(app.isCvAttached());
+        if (app.isCvAttached() && student != null) {
+            view.setCvFilePath(student.getCvFilePath());
+        }
         if (job != null) {
             view.setModuleName(job.getModuleName());
-            view.setMdName(job.getMdName() != null && !job.getMdName().trim().isEmpty() ? job.getMdName() : resolveMoName(job.getMoId()));
+            view.setMdName(!isBlank(job.getMdName()) ? job.getMdName() : resolveMoName(job.getMoId()));
         }
         return view;
     }
@@ -142,6 +192,32 @@ public class ApplicationService {
         }
         User mo = userRepo.getUserById(moId);
         return mo != null ? mo.getName() : moId;
+    }
+
+    private boolean ownsJob(String moId, Job job) {
+        return !isBlank(moId) && (moId.equals(job.getMoId()) || moId.equals(job.getMdId()));
+    }
+
+    private void adjustActiveJobsCount(String taId, int delta) throws Exception {
+        User ta = userRepo.getUserById(taId);
+        if (ta == null) {
+            return;
+        }
+        int next = ta.getActiveJobsCount() + delta;
+        ta.setActiveJobsCount(next < 0 ? 0 : next);
+        userRepo.saveUser(ta);
+    }
+
+    private String normalizeDecision(String decision) {
+        String normalized = decision == null ? "" : decision.trim().toUpperCase();
+        if ("APPROVED".equals(normalized) || "REJECTED".equals(normalized) || "INTERVIEW".equals(normalized)) {
+            return normalized;
+        }
+        throw new ApplicationException("Unsupported review decision.");
+    }
+
+    private void sortByApplyTimeDesc(List<ApplicationView> viewList) {
+        viewList.sort(Comparator.comparing(ApplicationView::getApplyTime, Comparator.nullsLast(Comparator.reverseOrder())));
     }
 
     private boolean isBlank(String value) {

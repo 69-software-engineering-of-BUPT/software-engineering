@@ -33,7 +33,7 @@ class ApplicationServiceTest {
         Path root = TestDataWorkspace.copyProjectData();
         JobService jobService = new JobService(root);
         Job extraJob = new Job();
-        extraJob.setJobId("JOB002");
+        extraJob.setJobId("JOBT002");
         extraJob.setMoId("MO001");
         extraJob.setMdName("Dr. Smith");
         extraJob.setModuleName("Algorithms");
@@ -49,13 +49,13 @@ class ApplicationServiceTest {
         ApplicationService service = new ApplicationService(root);
         Application application = new Application();
         application.setStudentId("TA001");
-        application.setJobId("JOB002");
+        application.setJobId("JOBT002");
         application.setStatement("Interested");
 
         service.submitApplication(application);
 
         assertEquals(beforeCount + 1, jsonCount(root.resolve("data").resolve("applications")));
-        assertTrue(service.getTAApplicationList("TA001").stream().anyMatch(item -> "JOB002".equals(item.getJobId())));
+        assertTrue(service.getTAApplicationList("TA001").stream().anyMatch(item -> "JOBT002".equals(item.getJobId())));
     }
 
     @Test
@@ -63,7 +63,7 @@ class ApplicationServiceTest {
         Path root = TestDataWorkspace.copyProjectData();
         JobService jobService = new JobService(root);
         Job extraJob = new Job();
-        extraJob.setJobId("JOB003");
+        extraJob.setJobId("JOBT003");
         extraJob.setMoId("MO001");
         extraJob.setMdName("Dr. Smith");
         extraJob.setModuleName("Closed Module");
@@ -77,7 +77,7 @@ class ApplicationServiceTest {
         ApplicationService service = new ApplicationService(root);
         Application application = new Application();
         application.setStudentId("TA001");
-        application.setJobId("JOB003");
+        application.setJobId("JOBT003");
         application.setStatement("Interested");
 
         assertThrows(ApplicationException.class, () -> service.submitApplication(application));
@@ -88,7 +88,7 @@ class ApplicationServiceTest {
         Path root = TestDataWorkspace.copyProjectData();
         JobService jobService = new JobService(root);
         Job extraJob = new Job();
-        extraJob.setJobId("JOB004");
+        extraJob.setJobId("JOBT004");
         extraJob.setMoId("MO001");
         extraJob.setMdName("Dr. Smith");
         extraJob.setModuleName("Databases");
@@ -102,12 +102,12 @@ class ApplicationServiceTest {
         ApplicationService service = new ApplicationService(root);
         Application application = new Application();
         application.setStudentId("TA001");
-        application.setJobId("JOB004");
+        application.setJobId("JOBT004");
         application.setStatement("Interested");
         service.submitApplication(application);
 
         String applicationId = service.getTAApplicationList("TA001").stream()
-            .filter(item -> "JOB004".equals(item.getJobId()))
+            .filter(item -> "JOBT004".equals(item.getJobId()))
             .findFirst()
             .orElseThrow(() -> new AssertionError("application not found"))
             .getApplicationId();

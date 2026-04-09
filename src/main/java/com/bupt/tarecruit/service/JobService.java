@@ -3,6 +3,7 @@ package com.bupt.tarecruit.service;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import com.bupt.tarecruit.model.Job;
@@ -38,6 +39,10 @@ public class JobService {
         return jobRepository.findById(jobId);
     }
 
+    public Job getJobById(String jobId) throws Exception {
+        return findById(jobId);
+    }
+
     public List<Job> getOpenJobs() throws Exception {
         List<Job> result = new ArrayList<Job>();
         for (Job job : jobRepository.getAllJobs()) {
@@ -45,6 +50,7 @@ public class JobService {
                 result.add(job);
             }
         }
+        result.sort(Comparator.comparing(Job::getPublishedAt, Comparator.nullsLast(Comparator.reverseOrder())));
         return result;
     }
 

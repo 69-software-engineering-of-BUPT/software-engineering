@@ -25,13 +25,7 @@ public class ApplicationRepository {
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        String canonical = dataDir.resolve("APP_" + app.getApplicationId() + ".json").toString();
-        Application existing = findById(app.getApplicationId());
-        if (existing != null) {
-            JsonUtil.saveToJsonFile(app, canonical);
-            return;
-        }
-        JsonUtil.saveToJsonFile(app, canonical);
+        JsonUtil.saveToJsonFile(app, dataDir.resolve("APP_" + app.getApplicationId() + ".json").toString());
     }
 
     public Application findById(String applicationId) throws Exception {
@@ -45,17 +39,9 @@ public class ApplicationRepository {
                 return app;
             }
         }
-        File dir = dataDir.toFile();
-        if (!dir.exists()) {
-            return null;
-        }
-        File[] files = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".json"));
-        if (files != null) {
-            for (File file : files) {
-                Application app = JsonUtil.readFromJsonFile(file.getAbsolutePath(), Application.class);
-                if (app != null && applicationId.equals(app.getApplicationId())) {
-                    return app;
-                }
+        for (Application app : getAll()) {
+            if (applicationId.equals(app.getApplicationId())) {
+                return app;
             }
         }
         return null;
@@ -106,5 +92,9 @@ public class ApplicationRepository {
             }
         }
         return result;
+    }
+
+    public List<Application> findAll() throws Exception {
+        return getAll();
     }
 }

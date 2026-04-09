@@ -1,7 +1,10 @@
 package com.bupt.tarecruit.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Job {
     private String jobId;
+    @SerializedName(value = "moId", alternate = {"mdId"})
     private String moId;
     private String mdName;
     private String moduleName;
@@ -18,6 +21,9 @@ public class Job {
 
     public String getMoId() { return moId; }
     public void setMoId(String moId) { this.moId = moId; }
+
+    public String getMdId() { return moId; }
+    public void setMdId(String mdId) { this.moId = mdId; }
 
     public String getMdName() { return mdName; }
     public void setMdName(String mdName) { this.mdName = mdName; }

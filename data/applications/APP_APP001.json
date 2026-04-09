@@ -2,8 +2,11 @@
   "applicationId": "APP001",
   "jobId": "JOB001",
   "taId": "TA001",
-  "status": "PENDING",
+  "status": "REJECTED",
   "appliedAt": "2026-03-31T11:00:00Z",
   "statement": "I have strong background in Java and Spring, very interested in this role.\n[2026-04-07 13:42 TA]: I am happy.",
-  "feedback": ""
+  "feedback": "",
+  "mdId": "MO001",
+  "markTime": "2026-04-07 20:28:01",
+  "cvAttached": false
 }

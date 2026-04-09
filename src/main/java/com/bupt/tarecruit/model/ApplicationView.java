@@ -12,6 +12,8 @@ public class ApplicationView {
     private String statement;
     private String studentId;
     private String studentName;
+    private boolean cvAttached;
+    private String cvFilePath;
 
     public String getJobId() { return jobId; }
     public void setJobId(String jobId) { this.jobId = jobId; }
@@ -45,4 +47,13 @@ public class ApplicationView {
 
     public String getStudentName() { return studentName; }
     public void setStudentName(String studentName) { this.studentName = studentName; }
+
+    public String getTaId() { return studentId; }
+    public void setTaId(String taId) { this.studentId = taId; }
+
+    public boolean isCvAttached() { return cvAttached; }
+    public void setCvAttached(boolean cvAttached) { this.cvAttached = cvAttached; }
+
+    public String getCvFilePath() { return cvFilePath; }
+    public void setCvFilePath(String cvFilePath) { this.cvFilePath = cvFilePath; }
 }
