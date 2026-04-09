@@ -28,10 +28,17 @@ public class AuthService {
         if (!password.equals(user.getPassword())) {
             throw new AuthenticationException("Incorrect password.");
         }
+        if (!isSupportedRole(user.getRole())) {
+            throw new AuthenticationException("Unsupported user role.");
+        }
         return new AuthenticatedUser(user.getUserId(), user.getRole(), user.getName());
     }
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private boolean isSupportedRole(String role) {
+        return "TA".equals(role) || "MO".equals(role) || "ADMIN".equals(role);
     }
 }

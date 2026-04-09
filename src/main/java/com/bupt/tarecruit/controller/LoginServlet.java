@@ -48,6 +48,9 @@ public class LoginServlet extends HttpServlet {
         if ("MO".equals(role)) {
             return "/mo/home";
         }
-        return "/ad/accounts";
+        if ("ADMIN".equals(role)) {
+            return "/ad/accounts";
+        }
+        throw new AuthenticationException("Unsupported user role.");
     }
 }
