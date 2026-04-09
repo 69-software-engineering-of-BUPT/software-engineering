@@ -1,10 +1,10 @@
 package com.bupt.tarecruit.service;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import com.bupt.tarecruit.model.Application;
 import com.bupt.tarecruit.model.ApplicationView;
@@ -13,156 +13,214 @@ import com.bupt.tarecruit.model.User;
 import com.bupt.tarecruit.repository.ApplicationRepository;
 import com.bupt.tarecruit.repository.JobRepository;
 import com.bupt.tarecruit.repository.UserRepository;
+import com.bupt.tarecruit.util.IdGenerator;
+import com.bupt.tarecruit.util.TimeUtil;
 
 public class ApplicationService {
-    final private ApplicationRepository appRepo = new ApplicationRepository();
-    final private JobRepository jobRepo = new JobRepository();
-    final private UserRepository userRepo = new UserRepository();
     private static final int MAX_WORD_LIMIT = 500;
+
+    private final ApplicationRepository appRepo;
+    private final JobRepository jobRepo;
+    private final UserRepository userRepo;
+    private final NotificationService notificationService;
+
+    public ApplicationService() {
+        this(Paths.get("."));
+    }
+
+    public ApplicationService(Path root) {
+        this.appRepo = new ApplicationRepository(root);
+        this.jobRepo = new JobRepository(root);
+        this.userRepo = new UserRepository(root);
+        this.notificationService = new NotificationService(root);
+    }
+
     public void submitApplication(Application app) throws Exception {
+        if (app == null) {
+            throw new ApplicationException("Application is required.");
+        }
+        if (isBlank(app.getStudentId()) || isBlank(app.getJobId())) {
+            throw new ApplicationException("Student ID and job ID are required.");
+        }
         if (app.getStatement() != null && app.getStatement().length() > MAX_WORD_LIMIT) {
-            throw new RuntimeException("Statement exceeds the " + MAX_WORD_LIMIT + " character limit.");
+            throw new ApplicationException("Statement exceeds the 500 character limit.");
         }
 
-        // Check for duplicate application to the same job
-        List<Application> existing = appRepo.findByStudentId(app.getStudentId());
-        for (Application e : existing) {
-            if (app.getJobId().equals(e.getJobId())) {
-                throw new RuntimeException("You have already applied for this position.");
-            }
+        Job job = jobRepo.findById(app.getJobId());
+        if (job == null) {
+            throw new ApplicationException("Job not found.");
+        }
+        if (!"OPEN".equalsIgnoreCase(job.getStatus()) || TimeUtil.isExpired(job.getDeadline())) {
+            throw new ApplicationException("This job is no longer accepting applications.");
+        }
+        if (appRepo.existsByStudentIdAndJobId(app.getStudentId(), app.getJobId())) {
+            throw new ApplicationException("You have already applied for this job.");
         }
 
-        app.setApplicationId(UUID.randomUUID().toString());
-        app.setApplyTime(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        app.setStatus("PENDING"); 
-        
+        if (isBlank(app.getApplicationId())) {
+            app.setApplicationId(IdGenerator.newId("APP"));
+        }
+        if (isBlank(app.getApplyTime())) {
+            app.setApplyTime(TimeUtil.nowDateTime());
+        }
+        if (isBlank(app.getStatus())) {
+            app.setStatus("PENDING");
+        }
+        if (isBlank(app.getApplicationType())) {
+            app.setApplicationType("Standard");
+        }
         appRepo.save(app);
     }
 
     public List<ApplicationView> getTAApplicationList(String studentId) throws Exception {
-        List<ApplicationView> viewList = new ArrayList<>();
+        List<ApplicationView> viewList = new ArrayList<ApplicationView>();
         List<Application> apps = appRepo.findByStudentId(studentId);
-
         for (Application app : apps) {
-            ApplicationView view = new ApplicationView();
-            // Fetch associated job details
-            Job job = jobRepo.findById(app.getJobId());
-            
-            view.setApplicationId(app.getApplicationId());
-            view.setFeedback(app.getFeedback());
-            view.setJobId(app.getJobId());
-            view.setStatus(app.getStatus());
-            view.setApplyTime(app.getApplyTime());
-            view.setApplicationType(app.getApplicationType());
-            view.setStatement(app.getStatement());
-
-            if (job != null) {
-                view.setModuleName(job.getModuleName());
-                view.setMdName(job.getMdName());
-            }
-            viewList.add(view);
+            viewList.add(toView(app));
         }
-        viewList.sort(Comparator.comparing(ApplicationView::getApplyTime, Comparator.nullsLast(Comparator.reverseOrder())));
+        sortByApplyTimeDesc(viewList);
         return viewList;
+    }
+
+    public List<ApplicationView> getApplicationsForJob(String jobId) throws Exception {
+        List<ApplicationView> viewList = new ArrayList<ApplicationView>();
+        for (Application app : appRepo.findByJobId(jobId)) {
+            viewList.add(toView(app));
+        }
+        sortByApplyTimeDesc(viewList);
+        return viewList;
+    }
+
+    public List<ApplicationView> getApplicationsForMO(String moId) throws Exception {
+        List<ApplicationView> viewList = new ArrayList<ApplicationView>();
+        for (Application app : appRepo.getAll()) {
+            Job job = jobRepo.findById(app.getJobId());
+            if (job == null || !ownsJob(moId, job)) {
+                continue;
+            }
+            viewList.add(toView(app, job));
+        }
+        sortByApplyTimeDesc(viewList);
+        return viewList;
+    }
+
+    public void reviewApplication(String applicationId, String reviewerId, String decision, String feedback) throws Exception {
+        updateApplicationStatus(applicationId, decision, feedback, reviewerId);
+        Application app = appRepo.findById(applicationId);
+        if (app != null) {
+            String normalizedDecision = normalizeDecision(decision);
+            String message = "Application " + app.getApplicationId() + " was " + normalizedDecision
+                + (isBlank(app.getFeedback()) ? "." : ": " + app.getFeedback());
+            notificationService.createStatusUpdate(app.getStudentId(), app.getApplicationId(), message);
+        }
+    }
+
+    public void updateApplicationStatus(String applicationId, String newStatus, String feedback, String reviewerId) throws Exception {
+        Application app = appRepo.findById(applicationId);
+        if (app == null) {
+            throw new ApplicationException("Application record not found.");
+        }
+
+        String previousStatus = app.getStatus();
+        String normalizedDecision = normalizeDecision(newStatus);
+        app.setStatus(normalizedDecision);
+        app.setFeedback(feedback == null ? "" : feedback.trim());
+        app.setMarkedBy(reviewerId);
+        app.setMarkTime(TimeUtil.nowDateTime());
+        appRepo.save(app);
+
+        if ("REJECTED".equals(normalizedDecision) && !"REJECTED".equalsIgnoreCase(previousStatus)) {
+            adjustActiveJobsCount(app.getStudentId(), -1);
+        }
     }
 
     public void updateStatementFromChat(String appId, String newMessage) throws Exception {
+        appendMessage(appId, "TA", newMessage);
+    }
+
+    public void appendMOMessage(String appId, String moId, String message) throws Exception {
+        appendMessage(appId, "MO", message);
+    }
+
+    private void appendMessage(String appId, String sender, String message) throws Exception {
         Application app = appRepo.findById(appId);
-        if (app == null) throw new RuntimeException("Application record not found");
-        
-        if (newMessage.length() > MAX_WORD_LIMIT) {
-            throw new RuntimeException("Message exceeds the " + MAX_WORD_LIMIT + " word limit");
+        if (app == null) {
+            throw new ApplicationException("Application record not found");
         }
-        
-        // Format the appended message so the frontend can parse it as a conversation flow
-        String timestamp = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(new java.util.Date());
-        String formattedMessage = "\n[" + timestamp + " TA]: " + newMessage;
-        
+        if (isBlank(message)) {
+            return;
+        }
+        if (message.trim().length() > MAX_WORD_LIMIT) {
+            throw new ApplicationException("Message exceeds the 500 character limit.");
+        }
+        String formattedMessage = "\n[" + TimeUtil.nowDateTime().substring(0, 16) + " " + sender + "]: " + message.trim();
         String currentStatement = app.getStatement() == null ? "" : app.getStatement();
         app.setStatement(currentStatement + formattedMessage);
-        
         appRepo.save(app);
     }
 
-    /**
-     * Load all applications for jobs owned by the given MO (for MO review view).
-     */
-    public List<ApplicationView> getApplicationsForMO(String moId) throws Exception {
-        List<ApplicationView> viewList = new ArrayList<>();
-        List<Application> apps = appRepo.findAll();
-        for (Application app : apps) {
-            Job job = jobRepo.findById(app.getJobId());
-            if (job == null || !moId.equals(job.getMdId())) continue;
-            ApplicationView view = new ApplicationView();
-            view.setApplicationId(app.getApplicationId());
-            view.setJobId(app.getJobId());
-            view.setStatus(app.getStatus());
-            view.setApplyTime(app.getApplyTime());
-            view.setFeedback(app.getFeedback());
-            view.setStatement(app.getStatement());
-            view.setApplicationType(app.getApplicationType());
-            view.setTaId(app.getStudentId());
-            view.setCvAttached(app.isCvAttached());
-            // Load TA's actual CV path so MO can open the file
-            if (app.isCvAttached()) {
-                try {
-                    User ta = userRepo.getUserById(app.getStudentId());
-                    if (ta != null) view.setCvFilePath(ta.getCvFilePath());
-                } catch (Exception ignored) { }
-            }
+    private ApplicationView toView(Application app) throws Exception {
+        return toView(app, jobRepo.findById(app.getJobId()));
+    }
+
+    private ApplicationView toView(Application app, Job job) throws Exception {
+        ApplicationView view = new ApplicationView();
+        User student = userRepo.getUserById(app.getStudentId());
+        view.setApplicationId(app.getApplicationId());
+        view.setFeedback(app.getFeedback());
+        view.setJobId(app.getJobId());
+        view.setStatus(app.getStatus());
+        view.setApplyTime(app.getApplyTime());
+        view.setApplicationType(app.getApplicationType());
+        view.setStatement(app.getStatement());
+        view.setStudentId(app.getStudentId());
+        view.setStudentName(student != null ? student.getName() : app.getStudentId());
+        view.setCvAttached(app.isCvAttached());
+        if (app.isCvAttached() && student != null) {
+            view.setCvFilePath(student.getCvFilePath());
+        }
+        if (job != null) {
             view.setModuleName(job.getModuleName());
-            view.setMdName(job.getMdName());
-            viewList.add(view);
+            view.setMdName(!isBlank(job.getMdName()) ? job.getMdName() : resolveMoName(job.getMoId()));
         }
+        return view;
+    }
+
+    private String resolveMoName(String moId) throws Exception {
+        if (isBlank(moId)) {
+            return null;
+        }
+        User mo = userRepo.getUserById(moId);
+        return mo != null ? mo.getName() : moId;
+    }
+
+    private boolean ownsJob(String moId, Job job) {
+        return !isBlank(moId) && (moId.equals(job.getMoId()) || moId.equals(job.getMdId()));
+    }
+
+    private void adjustActiveJobsCount(String taId, int delta) throws Exception {
+        User ta = userRepo.getUserById(taId);
+        if (ta == null) {
+            return;
+        }
+        int next = ta.getActiveJobsCount() + delta;
+        ta.setActiveJobsCount(next < 0 ? 0 : next);
+        userRepo.saveUser(ta);
+    }
+
+    private String normalizeDecision(String decision) {
+        String normalized = decision == null ? "" : decision.trim().toUpperCase();
+        if ("APPROVED".equals(normalized) || "REJECTED".equals(normalized) || "INTERVIEW".equals(normalized)) {
+            return normalized;
+        }
+        throw new ApplicationException("Unsupported review decision.");
+    }
+
+    private void sortByApplyTimeDesc(List<ApplicationView> viewList) {
         viewList.sort(Comparator.comparing(ApplicationView::getApplyTime, Comparator.nullsLast(Comparator.reverseOrder())));
-        return viewList;
     }
 
-    /**
-     * MO updates status and optionally adds feedback. Persists change.
-     * REJECTED: restores the TA's activeJobsCount (only if previous status was not already REJECTED).
-     * APPROVED / INTERVIEW: no change to count (position still occupied or in-progress).
-     */
-    public void updateApplicationStatus(String appId, String newStatus, String feedback, String moId) throws Exception {
-        Application app = appRepo.findById(appId);
-        if (app == null) throw new RuntimeException("Application not found: " + appId);
-
-        String previousStatus = app.getStatus();
-
-        app.setStatus(newStatus);
-        if (feedback != null && !feedback.trim().isEmpty()) {
-            app.setFeedback(feedback.trim());
-        }
-        app.setMarkedBy(moId);
-        app.setMarkTime(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()));
-        appRepo.save(app);
-
-        // Restore TA's quota when rejected (but not if it was already rejected before)
-        if ("REJECTED".equalsIgnoreCase(newStatus) && !"REJECTED".equalsIgnoreCase(previousStatus)) {
-            String taId = app.getStudentId();
-            User ta = userRepo.getUserById(taId);
-            if (ta != null && ta.getActiveJobsCount() > 0) {
-                ta.setActiveJobsCount(ta.getActiveJobsCount() - 1);
-                userRepo.saveUser(ta);
-            }
-        }
-    }
-
-    /**
-     * MO appends a chat message to the application's statement thread.
-     * Format: "\n[yyyy-MM-dd HH:mm MO]: message"
-     */
-    public void appendMOMessage(String appId, String moId, String message) throws Exception {
-        if (message == null || message.trim().isEmpty()) return;
-        if (message.trim().length() > MAX_WORD_LIMIT) {
-            throw new RuntimeException("Message exceeds the " + MAX_WORD_LIMIT + " character limit.");
-        }
-        Application app = appRepo.findById(appId);
-        if (app == null) throw new RuntimeException("Application not found: " + appId);
-        String timestamp = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(new java.util.Date());
-        String formatted = "\n[" + timestamp + " MO]: " + message.trim();
-        String current = app.getStatement() == null ? "" : app.getStatement();
-        app.setStatement(current + formatted);
-        appRepo.save(app);
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

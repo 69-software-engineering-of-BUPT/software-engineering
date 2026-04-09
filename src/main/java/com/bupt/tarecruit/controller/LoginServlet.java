@@ -9,79 +9,61 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.bupt.tarecruit.model.User;
-import com.bupt.tarecruit.repository.UserRepository;
+import com.bupt.tarecruit.service.AuthService;
+import com.bupt.tarecruit.service.AuthenticatedUser;
+import com.bupt.tarecruit.service.AuthenticationException;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
-    private final UserRepository userRepo = new UserRepository();
+    private final AuthService authService = new AuthService();
 
-    /** Show the login page. If already signed in, redirect straight to the role home. */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
         if (session != null && session.getAttribute("userAccount") != null) {
-            redirectByRole((String) session.getAttribute("userRole"), req, resp);
+            try {
+                resp.sendRedirect(req.getContextPath() + targetFor((String) session.getAttribute("userRole")));
+            } catch (AuthenticationException ex) {
+                session.invalidate();
+                resp.sendRedirect(req.getContextPath() + "/login");
+            }
             return;
         }
         req.getRequestDispatcher("/jsp/login.jsp").forward(req, resp);
     }
 
-    /** Process login form submission. */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
-        String userId   = req.getParameter("userId");
-        String password = req.getParameter("password");
-
-        if (userId == null || userId.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-            req.setAttribute("loginError", "Please enter both User ID and password.");
-            req.getRequestDispatcher("/jsp/login.jsp").forward(req, resp);
-            return;
-        }
-
-        userId = userId.trim();
+        String userId = req.getParameter("userId");
         try {
-            User user = userRepo.getUserById(userId);
-            if (user == null || !password.equals(user.getPassword())) {
-                req.setAttribute("loginError", "Invalid User ID or password.");
-                req.setAttribute("inputUserId", userId);
-                req.getRequestDispatcher("/jsp/login.jsp").forward(req, resp);
-                return;
-            }
-
-            // Credentials valid — create session
+            AuthenticatedUser user = authService.authenticate(userId, req.getParameter("password"));
             HttpSession session = req.getSession(true);
             session.setAttribute("userAccount", user.getUserId());
-            session.setAttribute("userRole",    user.getRole());
-            session.setAttribute("userName",    user.getName());
-
-            redirectByRole(user.getRole(), req, resp);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            req.setAttribute("loginError", "System error. Please try again.");
+            session.setAttribute("userRole", user.getRole());
+            session.setAttribute("userName", user.getName());
+            resp.sendRedirect(req.getContextPath() + targetFor(user.getRole()));
+        } catch (AuthenticationException ex) {
+            String inputUserId = userId == null ? "" : userId.trim();
+            req.setAttribute("loginError", ex.getMessage());
+            req.setAttribute("loginUserId", inputUserId);
+            req.setAttribute("inputUserId", inputUserId);
             req.getRequestDispatcher("/jsp/login.jsp").forward(req, resp);
+        } catch (Exception ex) {
+            throw new ServletException("Login failed", ex);
         }
     }
 
-    private void redirectByRole(String role, HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (role == null) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
+    private String targetFor(String role) {
+        if ("TA".equals(role)) {
+            return "/ta/home";
         }
-        switch (role.toUpperCase()) {
-            case "TA":
-                resp.sendRedirect(req.getContextPath() + "/ta/home");
-                break;
-            case "MO":
-                resp.sendRedirect(req.getContextPath() + "/mo/home");
-                break;
-            case "ADMIN":
-                resp.sendRedirect(req.getContextPath() + "/ad/home");
-                break;
-            default:
-                resp.sendRedirect(req.getContextPath() + "/login");
+        if ("MO".equals(role)) {
+            return "/mo/home";
         }
+        if ("ADMIN".equals(role)) {
+            return "/ad/accounts";
+        }
+        throw new AuthenticationException("Unsupported user role.");
     }
 }

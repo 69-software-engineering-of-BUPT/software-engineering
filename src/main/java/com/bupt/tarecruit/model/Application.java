@@ -2,28 +2,22 @@ package com.bupt.tarecruit.model;
 
 import com.google.gson.annotations.SerializedName;
 
-/**
- * Entity class for TA Job Application.
- * This model represents the raw data stored in data/applications/ JSON files.
- */
 public class Application {
-    private String applicationId; // Unique ID (UUID)
-    private String jobId;         // Reference to the Job position
-    @SerializedName("taId")
-    private String studentId;     // Reference to the Applicant (Student ID)
-    private String status;        // PENDING, APPROVED, REJECTED, INTERVIEW
-    @SerializedName("appliedAt")
-    private String applyTime;     // Timestamp of submission (ISO or yyyy-MM-dd HH:mm:ss)
-    private String statement;     // Personal statement or cover letter
-    private String feedback;      // Comments from the Module Organizer
-    private String mdId;      // ID of the person who updated the status
-    private String markTime;      // Timestamp of the last status update
-    private String applicationType; // Type of application (leader/non-leader)
-    private boolean cvAttached;      // Whether TA chose to attach CV
+    private String applicationId;
+    private String jobId;
+    @SerializedName(value = "studentId", alternate = {"taId"})
+    private String studentId;
+    private String status;
+    @SerializedName(value = "applyTime", alternate = {"appliedAt"})
+    private String applyTime;
+    private String statement;
+    private String feedback;
+    @SerializedName(value = "markedBy", alternate = {"mdId"})
+    private String markedBy;
+    private String markTime;
+    private String applicationType;
+    private boolean cvAttached;
 
-    public Application() {}
-
-    // Getters and Setters
     public String getApplicationId() { return applicationId; }
     public void setApplicationId(String applicationId) { this.applicationId = applicationId; }
 
@@ -45,8 +39,8 @@ public class Application {
     public String getFeedback() { return feedback; }
     public void setFeedback(String feedback) { this.feedback = feedback; }
 
-    public String getMarkedBy() { return mdId; }
-    public void setMarkedBy(String markedBy) { this.mdId = markedBy; }
+    public String getMarkedBy() { return markedBy; }
+    public void setMarkedBy(String markedBy) { this.markedBy = markedBy; }
 
     public String getMarkTime() { return markTime; }
     public void setMarkTime(String markTime) { this.markTime = markTime; }

@@ -1,11 +1,4 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%
-    String _adRole = (String) session.getAttribute("userRole");
-    if (session.getAttribute("userAccount") == null || !"ADMIN".equalsIgnoreCase(_adRole)) {
-        response.sendRedirect(request.getContextPath() + "/login");
-        return;
-    }
-%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -20,14 +13,14 @@
             <div class="brand-icon">TR</div>
             <div>
                 <div class="brand-title">TA Recruitment Portal</div>
-                <div class="brand-subtitle">Spring 2026 · Role based prototype</div>
+                <div class="brand-subtitle">Spring 2026 | Role-based prototype</div>
             </div>
         </div>
         <div class="top-actions">
-            <button class="chip-button" data-action="reset-demo">Reset demo</button>
-            <a class="chip-button" href="${pageContext.request.contextPath}/logout">Sign out</a>
+            <button class="chip-button" data-action="switch-role">Sign out</button>
+            <button class="chip-button" data-action="reset-demo">Go to sign-in</button>
             <div class="user-pill">
-                <span class="avatar">AD</span>
+                <span class="avatar">SA</span>
                 <span>
                     <strong>System Admin</strong>
                     <small>Administrator</small>
@@ -139,19 +132,19 @@
                              data-status-class="success"
                              data-live-days="6"
                              data-requirements="Strong writing skills;Academic English background;Clear communication"
-                             data-details="Support tutorial preparation, attendance checks and assignment rubric support."
+                             data-details="Support tutorial preparation, attendance checks, and assignment rubric support."
                              data-approved-tas="Mia Wang|mia.wang@campus.edu|3.9 GPA;Daniel Gu|daniel.gu@campus.edu|2.0 yrs TA exp"
                              data-pending-tas="">
                         <div>
                             <strong>Academic Writing Workshop TA</strong>
-                            <small>LAN4005 · 6 day(s) live</small>
+                            <small>LAN4005 | 6 day(s) live</small>
                         </div>
                         <span>Dr. Zhao</span>
                         <span>14 Mar 2026</span>
                         <span>2</span>
                         <span>2</span>
                         <span>0</span>
-                        <span class="status success">● Filled</span>
+                        <span class="status success">Filled</span>
                         <div class="row-actions">
                             <button data-action="project-remind">Remind MO</button>
                             <button data-action="project-view">View</button>
@@ -171,19 +164,19 @@
                              data-status-class="warning"
                              data-live-days="8"
                              data-requirements="Machine learning background;Python;Clear written communication"
-                             data-details="Support lab preparation, attendance checks and experiment record reviews."
+                             data-details="Support lab preparation, attendance checks, and experiment record reviews."
                              data-approved-tas="Mia Wang|mia.wang@campus.edu|3.8 GPA"
                              data-pending-tas="Leo Li|leo.li@campus.edu|Data Mining focus;Sara Xu|sara.xu@campus.edu|5 failed logins">
                         <div>
                             <strong>Advanced Data Analytics TA</strong>
-                            <small>DATA6021 · 8 day(s) live</small>
+                            <small>DATA6021 | 8 day(s) live</small>
                         </div>
                         <span>Dr. Chen</span>
                         <span>12 Mar 2026</span>
                         <span>2</span>
                         <span>1</span>
                         <span>1</span>
-                        <span class="status warning">● Action Needed</span>
+                        <span class="status warning">Action Needed</span>
                         <div class="row-actions">
                             <button data-action="project-remind">Remind MO</button>
                             <button data-action="project-view">View</button>
@@ -203,19 +196,19 @@
                              data-status-class="warning"
                              data-live-days="10"
                              data-requirements="UX research experience;Figma prototyping;Workshop facilitation"
-                             data-details="Assist with studio workshops, prototype critique sessions and rubric reviews."
+                             data-details="Assist with studio workshops, prototype critique sessions, and rubric reviews."
                              data-approved-tas=""
                              data-pending-tas="Lin Yu|yu.ta@campus.edu|Portfolio under review;Tina Zhou|tina.zhou@campus.edu|Strong UX writing">
                         <div>
                             <strong>Human Computer Interaction Studio TA</strong>
-                            <small>DES5032 · 10 day(s) live</small>
+                            <small>DES5032 | 10 day(s) live</small>
                         </div>
                         <span>Prof. Morgan</span>
                         <span>10 Mar 2026</span>
                         <span>1</span>
                         <span>0</span>
                         <span>1</span>
-                        <span class="status warning">● Action Needed</span>
+                        <span class="status warning">Action Needed</span>
                         <div class="row-actions">
                             <button data-action="project-remind">Remind MO</button>
                             <button data-action="project-view">View</button>
@@ -235,19 +228,19 @@
                              data-status-class="warning"
                              data-live-days="15"
                              data-requirements="Economics major preferred;SPSS basic skills;Reliable attendance"
-                             data-details="Support tutorial Q&A, midterm prep sessions and marking assistance."
+                             data-details="Support tutorial Q&A, midterm prep sessions, and marking assistance."
                              data-approved-tas="Mia Wang|mia.wang@campus.edu|Macroeconomics A"
                              data-pending-tas="Daniel Gu|daniel.gu@campus.edu|2/3 load;Nora Lin|nora.lin@campus.edu|First-time applicant">
                         <div>
                             <strong>Foundation Economics TA</strong>
-                            <small>ECO1010 · 15 day(s) live</small>
+                            <small>ECO1010 | 15 day(s) live</small>
                         </div>
                         <span>Dr. Chen</span>
                         <span>05 Mar 2026</span>
                         <span>3</span>
                         <span>1</span>
                         <span>2</span>
-                        <span class="status warning">● Action Needed</span>
+                        <span class="status warning">Action Needed</span>
                         <div class="row-actions">
                             <button data-action="project-remind">Remind MO</button>
                             <button data-action="project-view">View</button>
@@ -259,16 +252,16 @@
                     <div class="detail-head">
                         <div>
                             <h2 id="project-detail-name">Academic Writing Workshop TA</h2>
-                            <p id="project-detail-code">LAN4005 · 6 day(s) live</p>
+                            <p id="project-detail-code">LAN4005 | 6 day(s) live</p>
                         </div>
-                        <span class="status success" id="project-detail-status">● Filled</span>
+                        <span class="status success" id="project-detail-status">Filled</span>
                     </div>
 
                     <section class="project-detail-block">
-                        <h3>Course basic information</h3>
+                        <h3>Course details</h3>
                         <div class="project-basic-grid">
                             <div class="detail-kv">
-                                <small>MODULE ORGANISER</small>
+                                <small>MODULE ORGANIZER</small>
                                 <strong id="project-detail-mo">Dr. Zhao</strong>
                             </div>
                             <div class="detail-kv">
@@ -285,11 +278,11 @@
                             </div>
                             <div class="detail-kv detail-kv-full">
                                 <small>REQUIREMENTS</small>
-                                <strong id="project-detail-req">Strong writing skills · Academic English background · Clear communication</strong>
+                                <strong id="project-detail-req">Strong writing skills | Academic English background | Clear communication</strong>
                             </div>
                             <div class="detail-kv detail-kv-full">
                                 <small>POSITION DETAILS</small>
-                                <strong id="project-detail-desc">Support tutorial preparation, attendance checks and assignment rubric support.</strong>
+                                <strong id="project-detail-desc">Support tutorial preparation, attendance checks, and assignment rubric support.</strong>
                             </div>
                         </div>
                     </section>

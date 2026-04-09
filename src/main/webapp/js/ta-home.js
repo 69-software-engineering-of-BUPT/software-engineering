@@ -65,10 +65,10 @@
     function normalizeApproveType(applicationType) {
         var raw = (applicationType || '').toString().trim().toUpperCase();
         if (!raw) return '';
-        if (raw.indexOf('NON') >= 0 && raw.indexOf('LEADER') >= 0) return 'Non-leader approve';
-        if (raw.indexOf('LEADER') >= 0) return 'Leader approve';
-        if (raw === 'NL') return 'Non-leader approve';
-        if (raw === 'L') return 'Leader approve';
+        if (raw.indexOf('NON') >= 0 && raw.indexOf('LEADER') >= 0) return 'Non-leader approval';
+        if (raw.indexOf('LEADER') >= 0) return 'Leader approval';
+        if (raw === 'NL') return 'Non-leader approval';
+        if (raw === 'L') return 'Leader approval';
         return applicationType;
     }
 
@@ -82,7 +82,7 @@
 
         var bubble = document.createElement('div');
         bubble.className = 'ta-chat-bubble ta-chat-bubble--' + kind;
-        bubble.appendChild(document.createTextNode(text && text.trim() ? text : '—'));
+        bubble.appendChild(document.createTextNode(text && text.trim() ? text : '-'));
 
         row.appendChild(meta);
         row.appendChild(bubble);
@@ -94,46 +94,27 @@
         var chat = document.getElementById('ta-dialog-chat-thread');
         clearEl(chat);
 
-        // Initial statement is always from TA
-        addChatBubble(chat, 'You (initial statement)', parts.base || 'No statement content.', 'ta');
-
-        // Thread lines: detect [date MO]: vs [date TA]:
+        addChatBubble(chat, 'You (statement)', parts.base || 'No statement content.', 'ta');
         if (parts.replies.length > 0) {
             parts.replies.forEach(function (line) {
-                var isMO = / MO\]:/.test(line);
-                var text = line.replace(/^\[.*?\]\s*/, '').trim();
-                if (isMO) {
-                    addChatBubble(chat, 'Module organiser', text || line, 'mo');
-                } else {
-                    addChatBubble(chat, 'You (follow-up)', text || line, 'ta');
-                }
+                addChatBubble(chat, 'You (follow-up)', line, 'ta');
             });
         }
 
-        // Separate decision feedback (not part of chat thread)
         var fb = (app.feedback || '').trim();
-        if (fb) {
-            var divider = document.createElement('div');
-            divider.style.cssText = 'margin:10px 0 6px;font-size:11px;color:#9197a0;text-align:center;letter-spacing:.5px;';
-            divider.textContent = '— MO DECISION NOTE —';
-            chat.appendChild(divider);
-            addChatBubble(chat, 'Module organiser (decision note)', fb, 'mo');
-        }
-
-        // Scroll to bottom
-        chat.scrollTop = chat.scrollHeight;
+        addChatBubble(chat, 'Module organizer', fb.length ? fb : 'No instructor feedback yet.', 'mo');
 
         document.getElementById('ta-dialog-app-id').value = app.applicationId || '';
         document.getElementById('ta-dialog-reply').value = '';
 
-        var ph = 'Add a response for the module organiser.';
+        var ph = 'Add a response for the module organizer.';
         if (fb.length) {
-            ph = 'Reply to: "' + fb.substring(0, 120) + (fb.length > 120 ? '\u2026' : '') + '"';
+            ph = 'Reply to: "' + fb.substring(0, 120) + (fb.length > 120 ? '...' : '') + '"';
         }
         document.getElementById('ta-dialog-reply').setAttribute('placeholder', ph);
 
         document.getElementById('ta-feedback-meta').textContent =
-            (app.moduleName || '\u2014') + ' \u00b7 ' + (app.jobId || '') + ' \u00b7 ' + (app.applicationId || '');
+            (app.moduleName || '-') + ' | ' + (app.jobId || '') + ' | ' + (app.applicationId || '');
     }
 
     function openOverlay(app) {
@@ -191,7 +172,7 @@
             function cell(text, isHtml) {
                 var span = document.createElement('span');
                 if (isHtml) span.innerHTML = text;
-                else span.appendChild(document.createTextNode(text == null || text === '' ? '—' : String(text)));
+                else span.appendChild(document.createTextNode(text == null || text === '' ? '-' : String(text)));
                 return span;
             }
 
@@ -201,7 +182,7 @@
             var stSpan = document.createElement('span');
             var badge = document.createElement('span');
             badge.className = statusPill(app.status);
-            badge.textContent = app.status || '—';
+            badge.textContent = app.status || '-';
             stSpan.appendChild(badge);
             if (st === 'APPROVED') {
                 var approveType = normalizeApproveType(app.applicationType);

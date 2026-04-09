@@ -1,35 +1,60 @@
 package com.bupt.tarecruit.service;
 
-import java.text.SimpleDateFormat;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import com.bupt.tarecruit.model.Job;
 import com.bupt.tarecruit.repository.JobRepository;
+import com.bupt.tarecruit.util.IdGenerator;
+import com.bupt.tarecruit.util.TimeUtil;
 
 public class JobService {
-    private final JobRepository jobRepo = new JobRepository();
+    private final JobRepository jobRepository;
 
-    /**
-     * Return only OPEN jobs whose deadline has not passed.
-     */
-    public List<Job> getOpenJobs() throws Exception {
-        List<Job> all = jobRepo.getAllJobs();
-        List<Job> open = new ArrayList<>();
-        String today = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+    public JobService() {
+        this(Paths.get("."));
+    }
 
-        for (Job job : all) {
-            if (!"OPEN".equalsIgnoreCase(job.getStatus())) continue;
-            if (job.getDeadline() != null && job.getDeadline().compareTo(today) < 0) continue;
-            open.add(job);
+    public JobService(Path root) {
+        this.jobRepository = new JobRepository(root);
+    }
+
+    public void createJob(Job job) throws Exception {
+        if (job.getJobId() == null || job.getJobId().trim().isEmpty()) {
+            job.setJobId(IdGenerator.newId("JOB"));
         }
-        open.sort(Comparator.comparing(Job::getPublishedAt, Comparator.nullsLast(Comparator.reverseOrder())));
-        return open;
+        if (job.getStatus() == null || job.getStatus().trim().isEmpty()) {
+            job.setStatus("OPEN");
+        }
+        if (job.getPublishedAt() == null || job.getPublishedAt().trim().isEmpty()) {
+            job.setPublishedAt(TimeUtil.nowDateTime());
+        }
+        jobRepository.save(job);
+    }
+
+    public Job findById(String jobId) throws Exception {
+        return jobRepository.findById(jobId);
     }
 
     public Job getJobById(String jobId) throws Exception {
-        return jobRepo.findById(jobId);
+        return findById(jobId);
+    }
+
+    public List<Job> getOpenJobs() throws Exception {
+        List<Job> result = new ArrayList<Job>();
+        for (Job job : jobRepository.getAllJobs()) {
+            if ("OPEN".equalsIgnoreCase(job.getStatus()) && !TimeUtil.isExpired(job.getDeadline())) {
+                result.add(job);
+            }
+        }
+        result.sort(Comparator.comparing(Job::getPublishedAt, Comparator.nullsLast(Comparator.reverseOrder())));
+        return result;
+    }
+
+    public List<Job> getJobsByMoId(String moId) throws Exception {
+        return jobRepository.findByMoId(moId);
     }
 }

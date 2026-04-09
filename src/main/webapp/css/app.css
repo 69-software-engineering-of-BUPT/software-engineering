@@ -10,11 +10,19 @@ h1 {
 .ad-page {
     background: #f4f4f2;
     color: #3d4148;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    box-sizing: border-box;
 }
 
 .ad-shell {
     max-width: 1120px;
-    margin: 18px auto;
+    width: min(1120px, 100%);
+    margin: 0;
+    flex: 0 0 auto;
     border: 1px solid #d8d3ca;
     border-radius: 18px;
     overflow: hidden;
