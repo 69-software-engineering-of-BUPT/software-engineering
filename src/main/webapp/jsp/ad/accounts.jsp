@@ -113,7 +113,7 @@
                 <div class="account-filter-grid">
                     <label class="filter-field filter-search">
                         <small>SEARCH</small>
-                        <input id="account-filter-search" type="text" placeholder="Name, email or department" />
+                        <input id="account-filter-search" type="text" placeholder="Name or department" />
                     </label>
 
                     <label class="filter-field">

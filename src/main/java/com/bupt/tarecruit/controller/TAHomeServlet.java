@@ -11,21 +11,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 import com.bupt.tarecruit.model.ApplicationView;
-import com.bupt.tarecruit.model.TAProfile;
 import com.bupt.tarecruit.model.User;
 import com.bupt.tarecruit.repository.UserRepository;
 import com.bupt.tarecruit.service.ApplicationService;
 import com.bupt.tarecruit.service.NotificationService;
-import com.bupt.tarecruit.service.TAProfileService;
 
 /**
  * TA personal home: profile + application history (prototype: session attribute {@code userAccount}).
  */
 @WebServlet("/ta/home")
 public class TAHomeServlet extends HttpServlet {
-    private final TAProfileService profileService = new TAProfileService();
-    private final ApplicationService applicationService = new ApplicationService();
     private final UserRepository userRepo = new UserRepository();
+    private final ApplicationService applicationService = new ApplicationService();
     private final NotificationService notificationService = new NotificationService();
     private final Gson gson = new Gson();
 
@@ -47,12 +44,10 @@ public class TAHomeServlet extends HttpServlet {
                 req.setAttribute("profileErrorMsg", req.getSession().getAttribute("profileErrorMsg"));
                 req.getSession().removeAttribute("profileErrorMsg");
             }
-            TAProfile profile = profileService.getProfile(studentId);
-            List<ApplicationView> applications = applicationService.getTAApplicationList(studentId);
             User currentUser = userRepo.getUserById(studentId);
+            List<ApplicationView> applications = applicationService.getTAApplicationList(studentId);
             int unreadCount = notificationService.getUnreadCount(studentId);
             req.setAttribute("studentId", studentId);
-            req.setAttribute("profile", profile);
             req.setAttribute("currentUser", currentUser);
             req.setAttribute("unreadCount", unreadCount);
             req.setAttribute("applicationList", applications);

@@ -1,8 +1,12 @@
 {
-  "studentId": "TA002",
-  "fullName": "Dongting Ge",
-  "email": "3227875700@qq.com",
-  "phoneNumber": "18129229280",
-  "researchArea": "computer science",
-  "cet6Grade": "655"
+  "userId": "TA002",
+  "password": "123456",
+  "role": "TA",
+  "name": "5555",
+  "cvFilePath": "uploads/cv_TA002.pdf",
+  "activeJobsCount": 1,
+  "email": "5555",
+  "phoneNumber": "5555",
+  "researchArea": "555",
+  "cet6Grade": "5555"
 }
