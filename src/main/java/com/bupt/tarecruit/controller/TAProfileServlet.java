@@ -9,26 +9,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.bupt.tarecruit.model.TAProfile;
-import com.bupt.tarecruit.service.TAProfileService;
+import com.bupt.tarecruit.model.User;
+import com.bupt.tarecruit.repository.UserRepository;
 
 @WebServlet("/ta/profile")
 public class TAProfileServlet extends HttpServlet {
-    final private TAProfileService service = new TAProfileService();
+    private final UserRepository userRepo = new UserRepository();
 
-    /**
-     * Load existing profile data to the form
-     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession();
-        String loggedInId = (String) session.getAttribute("userAccount");
-
-        if (loggedInId == null) {
+        if (session.getAttribute("userAccount") == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
-
         resp.sendRedirect(req.getContextPath() + "/ta/home");
     }
 
@@ -38,35 +32,44 @@ public class TAProfileServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
-        
-        // Securely retrieve student ID from the session (Login Account = Student ID)
         String loggedInId = (String) req.getSession().getAttribute("userAccount");
-
         if (loggedInId == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
-
         try {
-            TAProfile profile = new TAProfile();
-            // Bind the profile to the current session user
-            profile.setStudentId(loggedInId); 
-            
-            // Map parameters from the request form
-            profile.setFullName(req.getParameter("fullName"));
-            profile.setEmail(req.getParameter("email"));
-            profile.setPhoneNumber(req.getParameter("phoneNumber"));
-            profile.setResearchArea(req.getParameter("researchArea"));
-            profile.setCet6Grade(req.getParameter("cet6Grade"));
+            String fullName = req.getParameter("fullName");
+            String email    = req.getParameter("email");
+            String phone    = req.getParameter("phoneNumber");
+            String research = req.getParameter("researchArea");
+            String cet6     = req.getParameter("cet6Grade");
 
-            // Call service to validate and save
-            service.updateProfile(profile);
+            if (isEmpty(fullName))  throw new RuntimeException("Full Name is mandatory");
+            if (isEmpty(email))     throw new RuntimeException("Email is mandatory");
+            if (isEmpty(phone))     throw new RuntimeException("Phone Number is mandatory");
+            if (isEmpty(research))  throw new RuntimeException("Research Area is mandatory");
+            if (isEmpty(cet6))      throw new RuntimeException("CET6 Grade is mandatory");
+
+            User user = userRepo.getUserById(loggedInId);
+            if (user == null) throw new RuntimeException("User not found");
+
+            user.setName(fullName);
+            user.setEmail(email);
+            user.setPhoneNumber(phone);
+            user.setResearchArea(research);
+            user.setCet6Grade(cet6);
+
+            userRepo.saveUser(user);
+            req.getSession().setAttribute("userName", fullName);
 
             resp.sendRedirect(req.getContextPath() + "/ta/home");
-
         } catch (Exception e) {
             req.getSession().setAttribute("profileErrorMsg", e.getMessage());
             resp.sendRedirect(req.getContextPath() + "/ta/home");
         }
+    }
+
+    private boolean isEmpty(String s) {
+        return s == null || s.trim().isEmpty();
     }
 }

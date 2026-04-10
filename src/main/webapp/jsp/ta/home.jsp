@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="com.bupt.tarecruit.model.TAProfile" %>
+<%@ page import="com.bupt.tarecruit.model.User" %>
 <%
-    TAProfile profile = (TAProfile) request.getAttribute("profile");
+    User currentUser = (User) request.getAttribute("currentUser");
     String studentId = (String) request.getAttribute("studentId");
     String profileErr = (String) request.getAttribute("profileErrorMsg");
     if (studentId == null) studentId = "";
@@ -32,7 +32,7 @@
             <div class="user-pill">
                 <span class="avatar"><%= studentId.length() >= 2 ? studentId.substring(0, 2).toUpperCase() : "TA" %></span>
                 <span>
-                    <strong><%= profile != null && profile.getFullName() != null && !profile.getFullName().isEmpty() ? profile.getFullName() : "Teaching Assistant" %></strong>
+                    <strong><%= currentUser != null && currentUser.getName() != null && !currentUser.getName().isEmpty() ? currentUser.getName() : "Teaching Assistant" %></strong>
                     <small><%= studentId.isEmpty() ? "Not signed in" : studentId %></small>
                 </span>
             </div>
@@ -99,23 +99,29 @@
                         </label>
                         <label class="filter-field">
                             <small>FULL NAME</small>
-                            <input type="text" name="fullName" value="<%= profile != null && profile.getFullName() != null ? profile.getFullName() : "" %>" readonly />
+                            <%
+                                String fullNameVal = (currentUser != null && currentUser.getName() != null)
+                                    ? currentUser.getName()
+                                    : (String) session.getAttribute("userName");
+                                if (fullNameVal == null) fullNameVal = "";
+                            %>
+                            <input type="text" name="fullName" value="<%= fullNameVal %>" />
                         </label>
                         <label class="filter-field">
                             <small>EMAIL</small>
-                            <input type="email" name="email" value="<%= profile != null && profile.getEmail() != null ? profile.getEmail() : "" %>" />
+                            <input type="email" name="email" value="<%= currentUser != null && currentUser.getEmail() != null ? currentUser.getEmail() : "" %>" />
                         </label>
                         <label class="filter-field">
                             <small>PHONE</small>
-                            <input type="text" name="phoneNumber" value="<%= profile != null && profile.getPhoneNumber() != null ? profile.getPhoneNumber() : "" %>" />
+                            <input type="text" name="phoneNumber" value="<%= currentUser != null && currentUser.getPhoneNumber() != null ? currentUser.getPhoneNumber() : "" %>" />
                         </label>
                         <label class="filter-field">
                             <small>RESEARCH AREA</small>
-                            <input type="text" name="researchArea" value="<%= profile != null && profile.getResearchArea() != null ? profile.getResearchArea() : "" %>" />
+                            <input type="text" name="researchArea" value="<%= currentUser != null && currentUser.getResearchArea() != null ? currentUser.getResearchArea() : "" %>" />
                         </label>
                         <label class="filter-field">
                             <small>CET6 GRADE</small>
-                            <input type="text" name="cet6Grade" value="<%= profile != null && profile.getCet6Grade() != null ? profile.getCet6Grade() : "" %>" />
+                            <input type="text" name="cet6Grade" value="<%= currentUser != null && currentUser.getCet6Grade() != null ? currentUser.getCet6Grade() : "" %>" />
                         </label>
                     </div>
                     <div class="ta-profile-actions">
