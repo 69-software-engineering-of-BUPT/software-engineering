@@ -590,27 +590,31 @@ function renderAccountDetail(row) {
 	var nameNode = document.getElementById('detail-name');
 	var emailNode = document.getElementById('detail-email');
 	var roleNode = document.getElementById('detail-role');
-	var deptNode = document.getElementById('detail-department');
-	var loadNode = document.getElementById('detail-load');
-	var lastLoginNode = document.getElementById('detail-last-login');
-	var flagNode = document.getElementById('detail-flag');
+	var studentIdNode = document.getElementById('detail-student-id');
+	var fullNameNode = document.getElementById('detail-full-name');
+	var profileEmailNode = document.getElementById('detail-email-field');
+	var phoneNode = document.getElementById('detail-phone');
+	var researchAreaNode = document.getElementById('detail-research-area');
+	var cet6Node = document.getElementById('detail-cet6-grade');
 	var badgeNode = document.getElementById('detail-flag-badge');
 	var assignmentListNode = document.getElementById('detail-assignment-list');
 
-	if (!nameNode || !emailNode || !roleNode || !deptNode || !loadNode || !lastLoginNode || !flagNode || !badgeNode || !assignmentListNode) {
+	if (!nameNode || !emailNode || !roleNode || !studentIdNode || !fullNameNode || !profileEmailNode || !phoneNode || !researchAreaNode || !cet6Node || !badgeNode || !assignmentListNode) {
 		return;
 	}
 
 	var data = row.dataset;
 	var statusClass = data.statusClass === 'warning' ? 'warning' : 'success';
 
-	nameNode.textContent = data.name || '-';
-	emailNode.textContent = data.email || '-';
+	nameNode.textContent = data.fullName || data.name || '-';
+	emailNode.textContent = data.studentId || '-';
 	roleNode.textContent = data.role || '-';
-	deptNode.textContent = data.department || '-';
-	loadNode.textContent = data.load || '-';
-	lastLoginNode.textContent = data.lastLogin || '-';
-	flagNode.textContent = data.flag || '-';
+	studentIdNode.textContent = data.studentId || '-';
+	fullNameNode.textContent = data.fullName || data.name || '-';
+	profileEmailNode.textContent = data.email || '-';
+	phoneNode.textContent = data.phone || '-';
+	researchAreaNode.textContent = data.researchArea || data.department || '-';
+	cet6Node.textContent = data.cet6Grade || '-';
 	badgeNode.textContent = '● ' + (data.statusText || 'Active');
 	badgeNode.classList.remove('success', 'warning');
 	badgeNode.classList.add(statusClass);
@@ -710,24 +714,28 @@ function renderEmptyAccountDetail() {
 	var nameNode = document.getElementById('detail-name');
 	var emailNode = document.getElementById('detail-email');
 	var roleNode = document.getElementById('detail-role');
-	var deptNode = document.getElementById('detail-department');
-	var loadNode = document.getElementById('detail-load');
-	var lastLoginNode = document.getElementById('detail-last-login');
-	var flagNode = document.getElementById('detail-flag');
+	var studentIdNode = document.getElementById('detail-student-id');
+	var fullNameNode = document.getElementById('detail-full-name');
+	var profileEmailNode = document.getElementById('detail-email-field');
+	var phoneNode = document.getElementById('detail-phone');
+	var researchAreaNode = document.getElementById('detail-research-area');
+	var cet6Node = document.getElementById('detail-cet6-grade');
 	var badgeNode = document.getElementById('detail-flag-badge');
 	var assignmentListNode = document.getElementById('detail-assignment-list');
 
-	if (!nameNode || !emailNode || !roleNode || !deptNode || !loadNode || !lastLoginNode || !flagNode || !badgeNode || !assignmentListNode) {
+	if (!nameNode || !emailNode || !roleNode || !studentIdNode || !fullNameNode || !profileEmailNode || !phoneNode || !researchAreaNode || !cet6Node || !badgeNode || !assignmentListNode) {
 		return;
 	}
 
 	nameNode.textContent = 'No account selected';
 	emailNode.textContent = '-';
 	roleNode.textContent = '-';
-	deptNode.textContent = '-';
-	loadNode.textContent = '-';
-	lastLoginNode.textContent = '-';
-	flagNode.textContent = '-';
+	studentIdNode.textContent = '-';
+	fullNameNode.textContent = '-';
+	profileEmailNode.textContent = '-';
+	phoneNode.textContent = '-';
+	researchAreaNode.textContent = '-';
+	cet6Node.textContent = '-';
 	badgeNode.textContent = '● -';
 	badgeNode.classList.remove('success', 'warning');
 	assignmentListNode.innerHTML = '<li><span>No matching account</span></li>';

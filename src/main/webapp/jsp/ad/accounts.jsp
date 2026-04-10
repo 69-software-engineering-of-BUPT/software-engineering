@@ -195,20 +195,28 @@
                             <strong id="detail-role">MO</strong>
                         </div>
                         <div class="detail-kv">
-                            <small>DEPARTMENT</small>
-                            <strong id="detail-department">Language Center</strong>
+                            <small>STUDENT ID</small>
+                            <strong id="detail-student-id">TA001</strong>
                         </div>
                         <div class="detail-kv">
-                            <small>COURSE LOAD</small>
-                            <strong id="detail-load">1/3</strong>
+                            <small>FULL NAME</small>
+                            <strong id="detail-full-name">Dongting Ge</strong>
                         </div>
                         <div class="detail-kv">
-                            <small>LAST LOGIN</small>
-                            <strong id="detail-last-login">Today</strong>
+                            <small>EMAIL</small>
+                            <strong id="detail-email-field">3227875700@qq.com</strong>
                         </div>
-                        <div class="detail-kv detail-kv-full">
-                            <small>FLAG</small>
-                            <strong id="detail-flag">Current user</strong>
+                        <div class="detail-kv">
+                            <small>PHONE</small>
+                            <strong id="detail-phone">18129229280</strong>
+                        </div>
+                        <div class="detail-kv">
+                            <small>RESEARCH AREA</small>
+                            <strong id="detail-research-area">computer science</strong>
+                        </div>
+                        <div class="detail-kv">
+                            <small>CET6 GRADE</small>
+                            <strong id="detail-cet6-grade">655</strong>
                         </div>
                     </div>
 
@@ -265,16 +273,21 @@
         var load       = isTA ? (activeJobs + '/3') : '—';
         var statusText = upperLimit ? 'Reached Upper Limit' : 'Active';
         var statusCls  = upperLimit ? 'warning' : 'success';
-        var dept       = u.major || '—';
+        var dept       = u.researchArea || u.major || '—';
         var flag       = upperLimit ? 'Reached Upper Limit' : '';
-        var displayId  = escHtml(u.userId || '');
-        var displayName = escHtml(u.name || u.userId || '');
+        var studentId  = u.studentId || u.userId || '';
+        var fullName   = u.fullName || u.name || u.userId || '';
+        var email      = u.email || u.userId || '';
+        var phone      = u.phoneNumber || '—';
+        var cet6       = u.cet6Grade || '—';
+        var displayId  = escHtml(studentId);
+        var displayName = escHtml(fullName || u.userId || '');
 
         var art = document.createElement('article');
         art.className = 'list-row account-grid account-row' + (upperLimit ? ' warn' : '') + (idx === 0 ? ' active' : '');
         art.tabIndex = 0;
-        art.dataset.name       = u.name || u.userId || '';
-        art.dataset.email      = u.userId || '';
+        art.dataset.name       = fullName;
+        art.dataset.email      = email;
         art.dataset.role       = role;
         art.dataset.department = dept;
         art.dataset.statusText = statusText;
@@ -283,6 +296,11 @@
         art.dataset.load       = load;
         art.dataset.flag       = flag;
         art.dataset.assignments = '';
+        art.dataset.studentId = studentId;
+        art.dataset.fullName = fullName;
+        art.dataset.phone = phone;
+        art.dataset.researchArea = dept;
+        art.dataset.cet6Grade = cet6;
 
         art.innerHTML =
             '<div><strong>' + displayName + '</strong><small>' + displayId + '</small></div>' +
@@ -302,7 +320,7 @@
     }
 }());
 </script>
-<script src="${pageContext.request.contextPath}/js/app.js?v=20260406-6"></script>
+<script src="${pageContext.request.contextPath}/js/app.js?v=20260410-1"></script>
 <script>
 (function () {
     var el = document.getElementById('ta-users-json');
