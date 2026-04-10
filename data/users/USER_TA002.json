@@ -2,7 +2,11 @@
   "userId": "TA002",
   "password": "123456",
   "role": "TA",
-  "name": "é«æ°",
+  "name": "5555",
   "cvFilePath": "uploads/cv_TA002.pdf",
-  "activeJobsCount": 1
+  "activeJobsCount": 1,
+  "email": "5555",
+  "phoneNumber": "5555",
+  "researchArea": "555",
+  "cet6Grade": "5555"
 }

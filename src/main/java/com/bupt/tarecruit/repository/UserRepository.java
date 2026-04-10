@@ -25,7 +25,7 @@ public class UserRepository {
         List<User> users = new ArrayList<>();
         File dir = new File(DATA_DIR);
         if (dir.exists() && dir.isDirectory()) {
-            File[] files = dir.listFiles((d, name) -> name.endsWith(".json"));
+            File[] files = dir.listFiles((d, name) -> name.startsWith("USER_") && name.endsWith(".json"));
             if (files != null) {
                 for (File file : files) {
                     User user = JsonUtil.readFromJsonFile(file.getAbsolutePath(), User.class);
