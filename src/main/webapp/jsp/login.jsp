@@ -13,7 +13,7 @@
 </head>
 <body class="auth-page auth-page--login">
 <video class="login-bg-video" autoplay muted loop playsinline>
-    <source src="${pageContext.request.contextPath}/uploads/login-bg.mp4" type="video/mp4" />
+    <source src="${pageContext.request.contextPath}/assets/login-bg.mp4" type="video/mp4" />
 </video>
 <div class="auth-shell auth-shell--login">
     <section class="auth-side">
