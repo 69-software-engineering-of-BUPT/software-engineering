@@ -12,7 +12,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>AD - Account Management</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260406-5" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260410-2" />
 </head>
 <body class="ad-page">
 <div class="ad-shell">

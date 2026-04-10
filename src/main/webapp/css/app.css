@@ -597,6 +597,10 @@ h1 {
     gap: 12px;
 }
 
+.account-detail-card * {
+    box-sizing: border-box;
+}
+
 .detail-head {
     display: flex;
     justify-content: space-between;
@@ -606,8 +610,12 @@ h1 {
 
 .detail-head h2 {
     margin: 0;
-    font-size: 30px;
+    font-size: clamp(30px, 3.5vw, 48px);
+    line-height: 1.1;
     color: #27303b;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .detail-head p {
@@ -676,6 +684,7 @@ h1 {
     border-radius: 14px;
     background: #f7f4ef;
     padding: 10px 12px;
+    min-width: 0;
 }
 
 .detail-kv small {
@@ -689,7 +698,11 @@ h1 {
     display: block;
     margin-top: 6px;
     font-size: 25px;
+    line-height: 1.2;
     color: #2e3947;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .detail-kv-full {
