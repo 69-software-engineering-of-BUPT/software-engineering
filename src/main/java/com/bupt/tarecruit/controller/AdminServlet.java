@@ -13,16 +13,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.bupt.tarecruit.model.TAProfile;
 import com.bupt.tarecruit.model.User;
-import com.bupt.tarecruit.repository.TAProfileRepository;
 import com.bupt.tarecruit.repository.UserRepository;
 import com.google.gson.Gson;
 
 @WebServlet("/ad/accounts")
 public class AdminServlet extends HttpServlet {
     private final UserRepository userRepo = new UserRepository();
-    private final TAProfileRepository taProfileRepo = new TAProfileRepository();
     private final Gson gson = new Gson();
 
     @Override
@@ -52,34 +49,15 @@ public class AdminServlet extends HttpServlet {
                 view.put("userId", u.getUserId());
                 view.put("role", u.getRole());
                 view.put("name", u.getName());
-                view.put("major", u.getMajor());
                 view.put("cvFilePath", u.getCvFilePath());
                 view.put("activeJobsCount", u.getActiveJobsCount());
 
-                TAProfile profile = null;
-                if ("TA".equalsIgnoreCase(u.getRole()) && u.getUserId() != null) {
-                    try {
-                        profile = taProfileRepo.findById(u.getUserId());
-                    } catch (Exception ignored) {
-                        profile = null;
-                    }
-                }
-
                 String studentId = u.getUserId();
                 String fullName = u.getName();
-                String email = u.getUserId();
-                String phoneNumber = "—";
-                String researchArea = (u.getMajor() == null || u.getMajor().trim().isEmpty()) ? "—" : u.getMajor();
-                String cet6Grade = "—";
-
-                if (profile != null) {
-                    studentId = (profile.getStudentId() == null || profile.getStudentId().trim().isEmpty()) ? studentId : profile.getStudentId();
-                    fullName = (profile.getFullName() == null || profile.getFullName().trim().isEmpty()) ? fullName : profile.getFullName();
-                    email = (profile.getEmail() == null || profile.getEmail().trim().isEmpty()) ? email : profile.getEmail();
-                    phoneNumber = (profile.getPhoneNumber() == null || profile.getPhoneNumber().trim().isEmpty()) ? "—" : profile.getPhoneNumber();
-                    researchArea = (profile.getResearchArea() == null || profile.getResearchArea().trim().isEmpty()) ? researchArea : profile.getResearchArea();
-                    cet6Grade = (profile.getCet6Grade() == null || profile.getCet6Grade().trim().isEmpty()) ? "—" : profile.getCet6Grade();
-                }
+                String email = (u.getEmail() == null || u.getEmail().trim().isEmpty()) ? u.getUserId() : u.getEmail();
+                String phoneNumber = (u.getPhoneNumber() == null || u.getPhoneNumber().trim().isEmpty()) ? "—" : u.getPhoneNumber();
+                String researchArea = (u.getResearchArea() == null || u.getResearchArea().trim().isEmpty()) ? "—" : u.getResearchArea();
+                String cet6Grade = (u.getCet6Grade() == null || u.getCet6Grade().trim().isEmpty()) ? "—" : u.getCet6Grade();
 
                 view.put("studentId", studentId);
                 view.put("fullName", fullName);
@@ -91,7 +69,7 @@ public class AdminServlet extends HttpServlet {
             }
             req.setAttribute("allUsersJson", gson.toJson(accountViews));
             req.setAttribute("taUsersJson",  gson.toJson(taUsers));
-        } catch (Exception e) {
+        } catch (IOException e) {
             req.setAttribute("allUsersJson", "[]");
             req.setAttribute("taUsersJson",  "[]");
         }
