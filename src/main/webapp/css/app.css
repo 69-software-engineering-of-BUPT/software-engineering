@@ -1071,7 +1071,7 @@ h1 {
 }
 
 .auth-page--login {
-    background: #0a0a10 url('../uploads/login-bg.webp') center/cover no-repeat;
+    background: #0a0a10;
     position: relative;
     overflow: hidden;
 }
