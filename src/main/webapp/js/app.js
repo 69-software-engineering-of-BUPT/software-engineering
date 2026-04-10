@@ -562,26 +562,6 @@ function filterLogRows(showRiskOnly) {
 	updateVisibleCount(listCard);
 }
 
-function parseAccountAssignments(raw) {
-	if (!raw) {
-		return [];
-	}
-
-	return raw
-		.split(';')
-		.map(function (item) {
-			var parts = item.split('|');
-			return {
-				course: normalizeText(parts[0]),
-				teacher: normalizeText(parts[1]),
-				date: normalizeText(parts[2])
-			};
-		})
-		.filter(function (item) {
-			return item.course;
-		});
-}
-
 function renderAccountDetail(row) {
 	if (!row) {
 		return;
@@ -590,51 +570,45 @@ function renderAccountDetail(row) {
 	var nameNode = document.getElementById('detail-name');
 	var emailNode = document.getElementById('detail-email');
 	var roleNode = document.getElementById('detail-role');
+	var studentIdLabelNode = document.getElementById('detail-student-id-label');
 	var studentIdNode = document.getElementById('detail-student-id');
 	var fullNameNode = document.getElementById('detail-full-name');
 	var profileEmailNode = document.getElementById('detail-email-field');
 	var phoneNode = document.getElementById('detail-phone');
+	var researchAreaLabelNode = document.getElementById('detail-research-area-label');
+	var researchAreaCardNode = document.getElementById('detail-research-area-card');
 	var researchAreaNode = document.getElementById('detail-research-area');
+	var cet6CardNode = document.getElementById('detail-cet6-card');
 	var cet6Node = document.getElementById('detail-cet6-grade');
 	var badgeNode = document.getElementById('detail-flag-badge');
-	var assignmentListNode = document.getElementById('detail-assignment-list');
 
-	if (!nameNode || !emailNode || !roleNode || !studentIdNode || !fullNameNode || !profileEmailNode || !phoneNode || !researchAreaNode || !cet6Node || !badgeNode || !assignmentListNode) {
+	if (!nameNode || !emailNode || !roleNode || !studentIdLabelNode || !studentIdNode || !fullNameNode || !profileEmailNode || !phoneNode || !researchAreaLabelNode || !researchAreaCardNode || !researchAreaNode || !cet6CardNode || !cet6Node || !badgeNode) {
 		return;
 	}
 
 	var data = row.dataset;
+	var role = normalizeText((data.role || '').toUpperCase());
 	var statusClass = data.statusClass === 'warning' ? 'warning' : 'success';
+	var isTA = role === 'TA';
+	var isMO = role === 'MO';
+	var isAdmin = role === 'ADMIN';
 
 	nameNode.textContent = data.fullName || data.name || '-';
 	emailNode.textContent = data.studentId || '-';
-	roleNode.textContent = data.role || '-';
+	roleNode.textContent = role || '-';
+	studentIdLabelNode.textContent = isTA ? 'STUDENT ID' : 'ID';
 	studentIdNode.textContent = data.studentId || '-';
 	fullNameNode.textContent = data.fullName || data.name || '-';
 	profileEmailNode.textContent = data.email || '-';
 	phoneNode.textContent = data.phone || '-';
+	researchAreaLabelNode.textContent = isMO ? 'MODULES' : 'RESEARCH AREA';
+	researchAreaCardNode.style.display = isAdmin ? 'none' : '';
+	cet6CardNode.style.display = isTA ? '' : 'none';
 	researchAreaNode.textContent = data.researchArea || data.department || '-';
 	cet6Node.textContent = data.cet6Grade || '-';
 	badgeNode.textContent = '● ' + (data.statusText || 'Active');
 	badgeNode.classList.remove('success', 'warning');
 	badgeNode.classList.add(statusClass);
-
-	var assignments = parseAccountAssignments(data.assignments || '');
-	assignmentListNode.innerHTML = '';
-
-	if (assignments.length === 0) {
-		var emptyItem = document.createElement('li');
-		emptyItem.innerHTML = '<span>No active assignments</span>';
-		assignmentListNode.appendChild(emptyItem);
-		return;
-	}
-
-	assignments.forEach(function (item) {
-		var li = document.createElement('li');
-		var rightMeta = [item.teacher, item.date].filter(Boolean).join(' · ');
-		li.innerHTML = '<span>' + item.course + '</span><small>' + rightMeta + '</small>';
-		assignmentListNode.appendChild(li);
-	});
 }
 
 function initAccountDetailInteraction() {
@@ -714,31 +688,37 @@ function renderEmptyAccountDetail() {
 	var nameNode = document.getElementById('detail-name');
 	var emailNode = document.getElementById('detail-email');
 	var roleNode = document.getElementById('detail-role');
+	var studentIdLabelNode = document.getElementById('detail-student-id-label');
 	var studentIdNode = document.getElementById('detail-student-id');
 	var fullNameNode = document.getElementById('detail-full-name');
 	var profileEmailNode = document.getElementById('detail-email-field');
 	var phoneNode = document.getElementById('detail-phone');
+	var researchAreaLabelNode = document.getElementById('detail-research-area-label');
+	var researchAreaCardNode = document.getElementById('detail-research-area-card');
 	var researchAreaNode = document.getElementById('detail-research-area');
+	var cet6CardNode = document.getElementById('detail-cet6-card');
 	var cet6Node = document.getElementById('detail-cet6-grade');
 	var badgeNode = document.getElementById('detail-flag-badge');
-	var assignmentListNode = document.getElementById('detail-assignment-list');
 
-	if (!nameNode || !emailNode || !roleNode || !studentIdNode || !fullNameNode || !profileEmailNode || !phoneNode || !researchAreaNode || !cet6Node || !badgeNode || !assignmentListNode) {
+	if (!nameNode || !emailNode || !roleNode || !studentIdLabelNode || !studentIdNode || !fullNameNode || !profileEmailNode || !phoneNode || !researchAreaLabelNode || !researchAreaCardNode || !researchAreaNode || !cet6CardNode || !cet6Node || !badgeNode) {
 		return;
 	}
 
 	nameNode.textContent = 'No account selected';
 	emailNode.textContent = '-';
 	roleNode.textContent = '-';
+	studentIdLabelNode.textContent = 'STUDENT ID';
 	studentIdNode.textContent = '-';
 	fullNameNode.textContent = '-';
 	profileEmailNode.textContent = '-';
 	phoneNode.textContent = '-';
+	researchAreaLabelNode.textContent = 'RESEARCH AREA';
+	researchAreaCardNode.style.display = '';
 	researchAreaNode.textContent = '-';
+	cet6CardNode.style.display = '';
 	cet6Node.textContent = '-';
 	badgeNode.textContent = '● -';
 	badgeNode.classList.remove('success', 'warning');
-	assignmentListNode.innerHTML = '<li><span>No matching account</span></li>';
 	updateAccountActionButtonsState(null);
 }
 

@@ -195,7 +195,7 @@
                             <strong id="detail-role">MO</strong>
                         </div>
                         <div class="detail-kv">
-                            <small>STUDENT ID</small>
+                            <small id="detail-student-id-label">STUDENT ID</small>
                             <strong id="detail-student-id">TA001</strong>
                         </div>
                         <div class="detail-kv">
@@ -210,20 +210,15 @@
                             <small>PHONE</small>
                             <strong id="detail-phone">18129229280</strong>
                         </div>
-                        <div class="detail-kv">
-                            <small>RESEARCH AREA</small>
+                        <div class="detail-kv" id="detail-research-area-card">
+                            <small id="detail-research-area-label">RESEARCH AREA</small>
                             <strong id="detail-research-area">computer science</strong>
                         </div>
-                        <div class="detail-kv">
+                        <div class="detail-kv" id="detail-cet6-card">
                             <small>CET6 GRADE</small>
                             <strong id="detail-cet6-grade">655</strong>
                         </div>
                     </div>
-
-                    <section class="detail-assignment">
-                        <h3>Active assignments</h3>
-                        <ul id="detail-assignment-list"></ul>
-                    </section>
 
                     <div class="detail-actions">
                         <button id="account-freeze-btn" class="detail-action-btn" type="button">Freeze account</button>
@@ -233,24 +228,9 @@
                 </aside>
             </section>
 
-            <!-- TA CV Files Section -->
-            <section class="list-card" style="margin-top:16px;">
-                <div class="list-title-row">
-                    <h2>TA CV Files</h2>
-                    <span id="ta-cv-badge">—</span>
-                </div>
-                <div class="list-head account-grid" style="grid-template-columns:120px 160px 120px 1fr;">
-                    <span>USER ID</span>
-                    <span>NAME</span>
-                    <span>ACTIVE JOBS</span>
-                    <span>CV FILE</span>
-                </div>
-                <div id="ta-cv-list"></div>
-            </section>
         </main>
     </div>
 </div>
-<script type="application/json" id="ta-users-json"><%= request.getAttribute("taUsersJson") != null ? request.getAttribute("taUsersJson") : "[]" %></script>
 <script type="application/json" id="all-users-json"><%= request.getAttribute("allUsersJson") != null ? request.getAttribute("allUsersJson") : "[]" %></script>
 <script>
 (function () {
@@ -320,37 +300,6 @@
     }
 }());
 </script>
-<script src="${pageContext.request.contextPath}/js/app.js?v=20260410-1"></script>
-<script>
-(function () {
-    var el = document.getElementById('ta-users-json');
-    if (!el) return;
-    var users;
-    try { users = JSON.parse(el.textContent || '[]'); } catch (e) { return; }
-    var list = document.getElementById('ta-cv-list');
-    var badge = document.getElementById('ta-cv-badge');
-    if (badge) badge.textContent = users.length + ' TA(s)';
-    var ctx = '${pageContext.request.contextPath}';
-    users.forEach(function (u) {
-        var row = document.createElement('div');
-        row.className = 'list-row';
-        row.style.cssText = 'display:grid;grid-template-columns:120px 160px 120px 1fr;gap:8px;padding:10px 14px;border-bottom:1px solid #f0ece4;align-items:center;';
-        var cvHtml = u.cvFilePath
-            ? '<a href="' + ctx + '/' + u.cvFilePath + '" target="_blank" style="color:#5870b3;text-decoration:underline;font-size:12px;">' + u.cvFilePath + '</a>'
-            : '<span style="color:#aaa;font-size:12px;">No CV uploaded</span>';
-        row.innerHTML = '<span style="font-size:13px;">' + (u.userId || '') + '</span>'
-            + '<span style="font-size:13px;">' + (u.name || '') + '</span>'
-            + '<span style="font-size:13px;">' + (u.activeJobsCount || 0) + ' / 3</span>'
-            + '<span>' + cvHtml + '</span>';
-        list.appendChild(row);
-    });
-    if (users.length === 0) {
-        var empty = document.createElement('p');
-        empty.style.cssText = 'padding:14px;color:#aaa;font-size:13px;';
-        empty.textContent = 'No TA accounts found.';
-        list.appendChild(empty);
-    }
-}());
-</script>
+<script src="${pageContext.request.contextPath}/js/app.js?v=20260410-4"></script>
 </body>
 </html>
