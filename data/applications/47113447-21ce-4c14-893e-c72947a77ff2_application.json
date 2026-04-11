@@ -1,0 +1,12 @@
+{
+  "applicationId": "47113447-21ce-4c14-893e-c72947a77ff2",
+  "jobId": "JOB003",
+  "taId": "TA002",
+  "status": "APPROVED",
+  "appliedAt": "2026-04-09 00:37:35",
+  "statement": "111111\n[2026-04-09 00:52 TA]: 111111\n[2026-04-09 00:53 MO]: hhhhh\n[2026-04-09 00:53 TA]: hhhh\n[2026-04-09 00:54 TA]: 11111\n[2026-04-09 00:59 MO]: hhhhh",
+  "mdId": "MO001",
+  "markTime": "2026-04-09 01:08:55",
+  "applicationType": "L",
+  "cvAttached": true
+}

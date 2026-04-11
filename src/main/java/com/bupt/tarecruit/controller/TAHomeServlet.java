@@ -1,0 +1,61 @@
+package com.bupt.tarecruit.controller;
+
+import java.io.IOException;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.google.gson.Gson;
+import com.bupt.tarecruit.model.ApplicationView;
+import com.bupt.tarecruit.model.User;
+import com.bupt.tarecruit.repository.UserRepository;
+import com.bupt.tarecruit.service.ApplicationService;
+import com.bupt.tarecruit.service.NotificationService;
+
+/**
+ * TA personal home: profile + application history (prototype: session attribute {@code userAccount}).
+ */
+@WebServlet("/ta/home")
+public class TAHomeServlet extends HttpServlet {
+    private final UserRepository userRepo = new UserRepository();
+    private final ApplicationService applicationService = new ApplicationService();
+    private final NotificationService notificationService = new NotificationService();
+    private final Gson gson = new Gson();
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String studentId = (String) req.getSession().getAttribute("userAccount");
+        if (studentId == null) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+        String role = (String) req.getSession().getAttribute("userRole");
+        if (role != null && !"TA".equalsIgnoreCase(role)) {
+            resp.sendError(403, "Access denied: TA role required.");
+            return;
+        }
+
+        try {
+            if (req.getSession().getAttribute("profileErrorMsg") != null) {
+                req.setAttribute("profileErrorMsg", req.getSession().getAttribute("profileErrorMsg"));
+                req.getSession().removeAttribute("profileErrorMsg");
+            }
+            User currentUser = userRepo.getUserById(studentId);
+            List<ApplicationView> applications = applicationService.getTAApplicationList(studentId);
+            int unreadCount = notificationService.getUnreadCount(studentId);
+            req.setAttribute("studentId", studentId);
+            req.setAttribute("currentUser", currentUser);
+            req.setAttribute("unreadCount", unreadCount);
+            req.setAttribute("applicationList", applications);
+            req.setAttribute("applicationListJson", gson.toJson(applications));
+            req.getRequestDispatcher("/jsp/ta/home.jsp").forward(req, resp);
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.sendError(500, "Failed to load TA home");
+        }
+    }
+}

@@ -1,0 +1,12 @@
+{
+  "userId": "TA001",
+  "password": "password123",
+  "role": "TA",
+  "name": "Dongting Ge",
+  "email": "3227875700@qq.com",
+  "phoneNumber": "18129229280",
+  "researchArea": "computer science",
+  "cet6Grade": "655",
+  "cvFilePath": "uploads/cv_TA001.pdf",
+  "activeJobsCount": 1
+}
