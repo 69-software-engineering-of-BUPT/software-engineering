@@ -1,0 +1,11 @@
+{
+  "applicationId": "77f03160-c76f-479d-a178-9f5cfa04c654",
+  "jobId": "ee021c24-0cf5-4129-9fd5-0827e74c7285",
+  "taId": "TA002",
+  "status": "PENDING",
+  "appliedAt": "2026-04-12 13:06:35",
+  "statement": "11111\n[2026-04-12 13:08 MO]: 444444\n[2026-04-12 13:08 MO]: hhhhh\n[2026-04-12 13:09 TA]: 555555",
+  "markTime": "2026-04-12 13:08:50",
+  "applicationType": "L",
+  "cvAttached": true
+}
