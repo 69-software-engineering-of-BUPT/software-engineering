@@ -1,7 +1,7 @@
 package com.bupt.tarecruit.controller;
 
-import com.bupt.tarecruit.model.Application;
-import com.bupt.tarecruit.service.MoApplyService;
+import com.bupt.tarecruit.model.Job;
+import com.bupt.tarecruit.service.MoJobService;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -11,15 +11,14 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 
-// 左侧导航 Applications 对应路由
-@WebServlet("/mo/applications")
-public class MOApplicationListServlet extends HttpServlet {
-    private final MoApplyService applyService = new MoApplyService();
+@WebServlet("/mo/positions")
+public class MoJobListServlet extends HttpServlet {
+    private final MoJobService moJobService = new MoJobService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // 统一登录校验（和项目完全一致）
+        // ===================== 完全照搬 MOHomeServlet 登录校验 =====================
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("userAccount") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -27,32 +26,28 @@ public class MOApplicationListServlet extends HttpServlet {
         }
         String role = (String) session.getAttribute("userRole");
         if (!"MO".equalsIgnoreCase(role)) {
-            response.sendError(403, "Access denied");
+            response.sendError(403, "Access denied: MO role required.");
             return;
         }
-
-        // 获取登录用户信息
+        // 从Session获取标准登录信息
         String moId = (String) session.getAttribute("userAccount");
         String moName = (String) session.getAttribute("userName");
 
+        // ===================== 业务逻辑（修复空指针） =====================
         try {
-            // ✅ 核心：加载当前MO的【所有申请】，已按时间倒序
-            List<Application> allApplications = applyService.getApplicationsForMO(moId);
-            int totalCount = allApplications.size();
+            List<Job> jobList = moJobService.getJobsByMoId(moId);
 
-            // 传递参数
+            // 赋值给JSP
             request.setAttribute("userId", moId);
             request.setAttribute("userName", moName);
-            request.setAttribute("applicationList", allApplications);
-            request.setAttribute("totalCount", totalCount);
+            request.setAttribute("jobList", jobList);
 
-            // 跳转到 applications.jsp
-            request.getRequestDispatcher("/jsp/mo/applications.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/mo/positions.jsp").forward(request, response);
 
         } catch (Exception e) {
             e.printStackTrace();
-            request.getSession().setAttribute("moActionError", "加载申请失败：" + e.getMessage());
-            response.sendRedirect(request.getContextPath() + "/mo/positions");
+            request.getSession().setAttribute("moActionError", "获取岗位列表失败：" + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/mo/home");
         }
     }
 }

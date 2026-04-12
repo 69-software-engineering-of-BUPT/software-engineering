@@ -11,15 +11,14 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 
-// 左侧导航 Applications 对应路由
-@WebServlet("/mo/applications")
-public class MOApplicationListServlet extends HttpServlet {
+@WebServlet("/mo/job/applicants")
+public class MoJobApplicantsServlet extends HttpServlet {
     private final MoApplyService applyService = new MoApplyService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // 统一登录校验（和项目完全一致）
+        // 统一登录校验
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("userAccount") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -31,27 +30,35 @@ public class MOApplicationListServlet extends HttpServlet {
             return;
         }
 
-        // 获取登录用户信息
+        // ===================== 核心：正确接收jobId =====================
+        String jobId = request.getParameter("jobId");
+        // 空值校验（更严谨）
+        if (jobId == null || jobId.trim().isEmpty()) {
+            request.getSession().setAttribute("moActionError", "Job ID 不能为空，请从岗位列表点击Applicants按钮");
+            response.sendRedirect(request.getContextPath() + "/mo/positions");
+            return;
+        }
+
+        // 登录用户信息
         String moId = (String) session.getAttribute("userAccount");
         String moName = (String) session.getAttribute("userName");
 
         try {
-            // ✅ 核心：加载当前MO的【所有申请】，已按时间倒序
-            List<Application> allApplications = applyService.getApplicationsForMO(moId);
-            int totalCount = allApplications.size();
+            // 查询当前岗位的申请
+            List<Application> applicantList = applyService.getApplicationsByJobId(jobId);
 
-            // 传递参数
+            // 强制传递参数到页面
             request.setAttribute("userId", moId);
             request.setAttribute("userName", moName);
-            request.setAttribute("applicationList", allApplications);
-            request.setAttribute("totalCount", totalCount);
+            request.setAttribute("jobId", jobId);
+            request.setAttribute("applicantList", applicantList);
 
-            // 跳转到 applications.jsp
-            request.getRequestDispatcher("/jsp/mo/applications.jsp").forward(request, response);
+            // 跳转页面
+            request.getRequestDispatcher("/jsp/mo/applicants.jsp").forward(request, response);
 
         } catch (Exception e) {
             e.printStackTrace();
-            request.getSession().setAttribute("moActionError", "加载申请失败：" + e.getMessage());
+            request.getSession().setAttribute("moActionError", "加载申请者失败：" + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/mo/positions");
         }
     }

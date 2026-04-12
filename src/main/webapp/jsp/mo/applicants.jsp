@@ -2,20 +2,26 @@
 <%@ page import="java.util.List" %>
 <%@ page import="com.bupt.tarecruit.model.Application" %>
 <%
+    // ===================== 修复：强制从 request 获取 jobId =====================
     String userId   = (String) request.getAttribute("userId");
     String userName = (String) request.getAttribute("userName");
+    String jobId    = (String) request.getAttribute("jobId");
+    
+    // 空值保护
     if (userId == null) userId = "";
     if (userName == null) userName = "Module Organiser";
-    String avatarText = userName.length() >= 2 ? userName.substring(0, 2).toUpperCase() : "MO";
+    if (jobId == null) jobId = "Unknown Job"; // 修复点
 
-    List<Application> applicationList = (List<Application>) request.getAttribute("applicationList");
-    int totalCount = applicationList == null ? 0 : applicationList.size();
+    String avatarText = userName.length() >= 2 ? userName.substring(0, 2).toUpperCase() : "MO";
+    
+    List<Application> applicantList = (List<Application>) request.getAttribute("applicantList");
+    int totalCount = applicantList == null ? 0 : applicantList.size();
 %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>MO · All Applications</title>
+    <title>MO · Applicants | <%= jobId %></title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css" />
     <style>
         .app-table { width:100%; border-collapse: collapse; margin-top:12px; }
@@ -62,7 +68,7 @@
                     <span class="nav-icon">HM</span>
                     <span><strong>Home</strong><small>Overview</small></span>
                 </a>
-                <a class="nav-item" href="${pageContext.request.contextPath}/mo/positions">
+                <a class="nav-item active" href="${pageContext.request.contextPath}/mo/positions">
                     <span class="nav-icon">PO</span>
                     <span><strong>Positions</strong><small>Manage jobs</small></span>
                 </a>
@@ -70,8 +76,7 @@
                     <span class="nav-icon">PU</span>
                     <span><strong>Publish</strong><small>Post position</small></span>
                 </a>
-                <!-- ✅ Applications 高亮（与Positions并列） -->
-                <a class="nav-item active" href="${pageContext.request.contextPath}/mo/applications">
+                <a class="nav-item" href="${pageContext.request.contextPath}/mo/applications">
                     <span class="nav-icon">AP</span>
                     <span><strong>Applications</strong><small>All applications</small></span>
                 </a>
@@ -81,32 +86,32 @@
         <main class="ad-main">
             <section class="page-head">
                 <div>
-                    <h1 style="font-size:38px;">All Applications</h1>
-                    <p>Sorted by applied time (newest first) | Total: <%= totalCount %></p>
+                    <!-- 修复：正常显示 jobId -->
+                    <h1 style="font-size:38px;">Applicants | Job: <%= jobId %></h1>
+                    <p>View all students who applied for this position</p>
                 </div>
             </section>
 
             <section class="list-card">
                 <div class="list-title-row">
-                    <h2>Application List</h2>
+                    <h2>Total Applicants: <%= totalCount %></h2>
                 </div>
-                <p style="margin:0 0 12px;color:#69707a;">View all applications for your positions</p>
+                <p style="margin:0 0 12px;color:#69707a;">Only applications for this job are shown</p>
 
                 <table class="app-table">
                     <thead>
                         <tr>
-                            <th>Job ID</th>
                             <th>Student ID</th>
                             <th>Type</th>
                             <th>Status</th>
                             <th>Applied Time</th>
-                            <th>CV</th>
+                            <th>CV Attached</th>
                         </tr>
                     </thead>
                     <tbody>
                         <%
-                            if (applicationList != null && !applicationList.isEmpty()) {
-                                for (Application app : applicationList) {
+                            if (applicantList != null && !applicantList.isEmpty()) {
+                                for (Application app : applicantList) {
                                     String type = "L".equals(app.getApplicationType()) ? "Leader" : "Member";
                                     String status = app.getStatus();
                                     String badgeClass = "";
@@ -116,7 +121,6 @@
                                     String cv = app.isCvAttached() ? "Yes" : "No";
                         %>
                         <tr>
-    <td><%= app.getJobId() %></td>
     <td><%= app.getStudentId() %></td>
     <td><%= type %></td>
     <td><span class="badge <%= badgeClass %>"><%= status %></span></td>
@@ -132,7 +136,7 @@
                             } else {
                         %>
                         <tr>
-                            <td colspan="6" style="text-align:center;padding:24px;color:#69707a;">No applications yet</td>
+                            <td colspan="5" style="text-align:center;padding:24px;color:#69707a;">No applicants yet</td>
                         </tr>
                         <%
                             }

@@ -22,7 +22,10 @@ public class Application {
     private boolean cvAttached;      // Whether TA chose to attach CV
 
     public Application() {}
-
+    public String getTaId() { return studentId; }
+    public void setTaId(String taId) { this.studentId = taId; }
+    public String getAppliedAt() { return applyTime; }
+    public void setAppliedAt(String appliedAt) { this.applyTime = appliedAt; }
     // Getters and Setters
     public String getApplicationId() { return applicationId; }
     public void setApplicationId(String applicationId) { this.applicationId = applicationId; }
