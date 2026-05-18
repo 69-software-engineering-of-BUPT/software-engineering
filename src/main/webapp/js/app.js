@@ -180,7 +180,7 @@ function recordOperationLog(actionKey, target, options) {
 	var opts = options || {};
 	var logs = getStoredOperationLogs();
 	var now = new Date();
-	logs.push({
+	var entry = {
 		id: 'log-' + now.getTime() + '-' + Math.floor(Math.random() * 10000),
 		time: formatDateTime(now),
 		actor: opts.actor || 'System Admin',
@@ -190,12 +190,41 @@ function recordOperationLog(actionKey, target, options) {
 		target: target || '-',
 		result: (opts.result || resultStyleFromAction(actionKey).text),
 		resultClass: (opts.resultClass || resultStyleFromAction(actionKey).css)
-	});
+	};
+
+	logs.push(entry);
 
 	if (logs.length > 200) {
 		logs = logs.slice(logs.length - 200);
 	}
 	setStoredOperationLogs(logs);
+	postOperationLog(entry, opts);
+}
+
+function postOperationLog(entry, options) {
+	if (!window.fetch || !entry) {
+		return;
+	}
+
+	var opts = options || {};
+	var body = new URLSearchParams();
+	body.set('actionType', entry.actionKey || '');
+	body.set('targetType', opts.targetType || 'GENERAL');
+	body.set('targetId', opts.targetId || entry.target || '-');
+	body.set('targetName', opts.targetName || entry.target || '-');
+	body.set('result', entry.result || '');
+	body.set('message', opts.message || (entry.actionLabel + ': ' + entry.target));
+
+	fetch(getContextPath() + '/ad/logs/record', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+		},
+		body: body.toString(),
+		credentials: 'same-origin'
+	}).catch(function () {
+		// localStorage keeps a prototype fallback if the JSON repository write fails
+	});
 }
 
 function readLogRowsFromDom() {
@@ -249,6 +278,10 @@ function createLogRowNode(entry) {
 }
 
 function renderOperationLogRows() {
+	if (document.getElementById('server-operation-logs')) {
+		return;
+	}
+
 	var logListCard = document.querySelector('.ad-main .list-card');
 	if (!logListCard || document.querySelectorAll('.log-row').length === 0) {
 		return;
@@ -1135,7 +1168,7 @@ function handleCommonAction(action, button) {
 			window.location.href = contextPath + '/jsp/ad/project-view.jsp';
 			return;
 		case 'log-details':
-			showToast('Showing log details');
+			showToast(button.getAttribute('data-log-message') || 'Showing log details');
 			return;
 		default:
 			return;
@@ -1143,8 +1176,10 @@ function handleCommonAction(action, button) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-	ensureOperationLogSeeded();
-	renderOperationLogRows();
+	if (!document.getElementById('server-operation-logs')) {
+		ensureOperationLogSeeded();
+		renderOperationLogRows();
+	}
 
 	initAccountDetailInteraction();
 	initAccountDetailActions();

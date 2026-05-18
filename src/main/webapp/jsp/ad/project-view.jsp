@@ -60,7 +60,7 @@
                         <small>Vacancy monitor</small>
                     </span>
                 </a>
-                <a class="nav-item" href="${pageContext.request.contextPath}/jsp/ad/logs.jsp">
+                <a class="nav-item" href="${pageContext.request.contextPath}/ad/logs">
                     <span class="nav-icon">LG</span>
                     <span>
                         <strong>Operation Log</strong>
@@ -137,6 +137,6 @@
         </main>
     </div>
 </div>
-<script src="${pageContext.request.contextPath}/js/app.js?v=20260406-8"></script>
+<script src="${pageContext.request.contextPath}/js/app.js?v=20260518-oplog"></script>
 </body>
 </html>
