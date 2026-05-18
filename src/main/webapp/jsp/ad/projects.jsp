@@ -11,9 +11,9 @@
 <head>
     <meta charset="UTF-8" />
     <title>AD - Project Management</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260406-8" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260518-ad-bg-2" />
 </head>
-<body class="ad-page">
+<body class="ad-page ad-page--admin">
 <div class="ad-shell">
     <header class="ad-topbar">
         <div class="brand-group">
