@@ -898,9 +898,10 @@ function updateAccountActionButtonsState(row) {
 	}
 
 	var locked = row.dataset.locked === 'true';
-	freezeBtn.disabled = locked;
-	unfreezeBtn.disabled = !locked;
-	deleteBtn.disabled = false;
+	var isAdmin = (row.dataset.role || '').toUpperCase() === 'ADMIN';
+	freezeBtn.disabled = locked || isAdmin;
+	unfreezeBtn.disabled = !locked || isAdmin;
+	deleteBtn.disabled = isAdmin;
 }
 
 function updateAccountRowStatusView(row) {
@@ -924,6 +925,41 @@ function updateAccountRowStatusView(row) {
 	statusNode.textContent = '● ' + (row.dataset.statusText || 'Active');
 }
 
+function postAccountAction(action, row) {
+	if (!window.fetch) {
+		showToast('This browser cannot submit the action');
+		return;
+	}
+
+	var userId = row && (row.dataset.userId || row.dataset.studentId);
+	if (!userId) {
+		showToast('Missing account id');
+		return;
+	}
+
+	var body = new URLSearchParams();
+	body.set('action', action);
+	body.set('userId', userId);
+
+	fetch(getContextPath() + '/ad/accounts/action', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+		},
+		body: body.toString(),
+		credentials: 'same-origin'
+	}).then(function (response) {
+		if (!response.ok) {
+			return response.text().then(function (text) {
+				throw new Error(text || ('Action failed: ' + response.status));
+			});
+		}
+		window.location.href = getContextPath() + '/ad/accounts';
+	}).catch(function (error) {
+		showToast(error.message || 'Account action failed');
+	});
+}
+
 function freezeSelectedAccount() {
 	var row = document.querySelector('.account-row.active');
 	if (!row) {
@@ -936,19 +972,8 @@ function freezeSelectedAccount() {
 		return;
 	}
 
-	row.dataset.prevStatusText = row.dataset.statusText || 'Active';
-	row.dataset.prevStatusClass = row.dataset.statusClass || 'success';
-	row.dataset.prevFlag = row.dataset.flag || '-';
-	row.dataset.locked = 'true';
-	row.dataset.statusText = 'Warning';
-	row.dataset.statusClass = 'warning';
-	row.dataset.flag = 'Account locked by administrator';
-	updateAccountRowStatusView(row);
-	renderAccountDetail(row);
-	updateAccountActionButtonsState(row);
-	recordOperationLog('account-frozen', row.dataset.email || row.dataset.name || '-');
-	applyAccountFilters(false);
-	showToast('Account locked: ' + (row.dataset.name || '')); 
+	showToast('Freezing account...');
+	postAccountAction('freeze', row);
 }
 
 function unfreezeSelectedAccount() {
@@ -963,19 +988,8 @@ function unfreezeSelectedAccount() {
 		return;
 	}
 
-	row.dataset.locked = 'false';
-	row.dataset.statusText = row.dataset.prevStatusText || 'Active';
-	row.dataset.statusClass = row.dataset.prevStatusClass || 'success';
-	row.dataset.flag = row.dataset.prevFlag || '-';
-	delete row.dataset.prevStatusText;
-	delete row.dataset.prevStatusClass;
-	delete row.dataset.prevFlag;
-
-	updateAccountRowStatusView(row);
-	renderAccountDetail(row);
-	updateAccountActionButtonsState(row);
-	applyAccountFilters(false);
-	showToast('Account unlocked: ' + (row.dataset.name || ''));
+	showToast('Unfreezing account...');
+	postAccountAction('unfreeze', row);
 }
 
 function deleteSelectedAccount() {
@@ -986,11 +1000,11 @@ function deleteSelectedAccount() {
 	}
 
 	var deletedName = row.dataset.name || 'Selected account';
-	var deletedTarget = row.dataset.email || deletedName;
-	row.remove();
-	recordOperationLog('account-deleted', deletedTarget);
-	applyAccountFilters(false);
-	showToast('Account deleted: ' + deletedName);
+	if (!window.confirm('Delete account: ' + deletedName + '?')) {
+		return;
+	}
+	showToast('Deleting account...');
+	postAccountAction('delete', row);
 }
 
 function initAccountDetailActions() {

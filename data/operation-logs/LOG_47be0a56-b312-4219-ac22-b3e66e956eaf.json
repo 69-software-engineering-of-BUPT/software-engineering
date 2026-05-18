@@ -1,0 +1,15 @@
+{
+  "logId": "47be0a56-b312-4219-ac22-b3e66e956eaf",
+  "createdAt": "2026-05-19 00:32",
+  "actorId": "ADMIN001",
+  "actorName": "System Admin",
+  "actorRole": "ADMIN",
+  "actionType": "ACCOUNT_FROZEN",
+  "actionLabel": "Account Frozen",
+  "targetType": "USER",
+  "targetId": "MO001",
+  "targetName": "Dr. Smith",
+  "result": "WARNING",
+  "resultClass": "warning",
+  "message": "Administrator froze account MO001"
+}

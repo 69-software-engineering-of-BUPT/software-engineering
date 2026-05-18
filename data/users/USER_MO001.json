@@ -2,5 +2,7 @@
   "userId": "MO001",
   "password": "password123",
   "role": "MO",
-  "name": "Dr. Smith"
+  "name": "Dr. Smith",
+  "activeJobsCount": 0,
+  "status": "ACTIVE"
 }

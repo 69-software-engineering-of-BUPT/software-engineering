@@ -8,6 +8,7 @@ public class User {
 
     private String cvFilePath;
     private int activeJobsCount;
+    private String status; // "ACTIVE" or "FROZEN"
 
     // TA profile fields
     private String email;
@@ -29,6 +30,8 @@ public class User {
     public void setCvFilePath(String cvFilePath) { this.cvFilePath = cvFilePath; }
     public int getActiveJobsCount() { return activeJobsCount; }
     public void setActiveJobsCount(int activeJobsCount) { this.activeJobsCount = activeJobsCount; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     public String getPhoneNumber() { return phoneNumber; }

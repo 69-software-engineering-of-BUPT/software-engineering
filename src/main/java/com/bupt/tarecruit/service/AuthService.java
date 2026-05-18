@@ -21,6 +21,9 @@ public class AuthService {
         if (!password.equals(user.getPassword())) {
             throw new AuthenticationException("Incorrect password.");
         }
+        if ("FROZEN".equalsIgnoreCase(user.getStatus())) {
+            throw new AuthenticationException("This account has been frozen by the administrator.");
+        }
         if (!isSupportedRole(user.getRole())) {
             throw new AuthenticationException("Unsupported user role.");
         }

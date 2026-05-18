@@ -1,0 +1,15 @@
+{
+  "logId": "6647969f-f59a-45d9-901b-cb3f77b64bab",
+  "createdAt": "2026-05-19 00:32",
+  "actorId": "ADMIN001",
+  "actorName": "System Admin",
+  "actorRole": "ADMIN",
+  "actionType": "ACCOUNT_UNFROZEN",
+  "actionLabel": "Account Unfrozen",
+  "targetType": "USER",
+  "targetId": "MO001",
+  "targetName": "Dr. Smith",
+  "result": "SUCCESS",
+  "resultClass": "success",
+  "message": "Administrator unfroze account MO001"
+}
