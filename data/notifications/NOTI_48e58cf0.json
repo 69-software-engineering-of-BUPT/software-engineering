@@ -1,0 +1,9 @@
+{
+  "notificationId": "48e58cf0",
+  "taId": "TA001",
+  "type": "STATUS_UPDATE",
+  "content": "Your application for EBU7140 Machine Learning has not been successful at this time.",
+  "relatedApplicationId": "02dbc1b8-5ac9-40c4-98ff-3f0a45ea140b",
+  "createdAt": "2026-04-07 20:28:02",
+  "isRead": true
+}

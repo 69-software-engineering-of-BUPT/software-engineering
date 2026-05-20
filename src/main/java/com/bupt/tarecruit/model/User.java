@@ -1,21 +1,20 @@
 package com.bupt.tarecruit.model;
 
-import java.util.List;
-
 public class User {
     private String userId; // e.g., "231225959"
     private String password;
     private String role; // "TA", "MO", "ADMIN"
     private String name;
-    
-    // TA specific fields
-    private String major;
-    private String grade;
-    private List<String> completedModules;
-    private String gpa;
-    private String experience;
+
     private String cvFilePath;
-    private int activeJobsCount; // For AD001: limit to 3
+    private int activeJobsCount;
+    private String status; // "ACTIVE" or "FROZEN"
+
+    // TA profile fields
+    private String email;
+    private String phoneNumber;
+    private String researchArea;
+    private String cet6Grade;
 
     public User() {}
 
@@ -27,18 +26,18 @@ public class User {
     public void setRole(String role) { this.role = role; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
-    public String getMajor() { return major; }
-    public void setMajor(String major) { this.major = major; }
-    public String getGrade() { return grade; }
-    public void setGrade(String grade) { this.grade = grade; }
-    public List<String> getCompletedModules() { return completedModules; }
-    public void setCompletedModules(List<String> completedModules) { this.completedModules = completedModules; }
-    public String getGpa() { return gpa; }
-    public void setGpa(String gpa) { this.gpa = gpa; }
-    public String getExperience() { return experience; }
-    public void setExperience(String experience) { this.experience = experience; }
     public String getCvFilePath() { return cvFilePath; }
     public void setCvFilePath(String cvFilePath) { this.cvFilePath = cvFilePath; }
     public int getActiveJobsCount() { return activeJobsCount; }
     public void setActiveJobsCount(int activeJobsCount) { this.activeJobsCount = activeJobsCount; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    public String getResearchArea() { return researchArea; }
+    public void setResearchArea(String researchArea) { this.researchArea = researchArea; }
+    public String getCet6Grade() { return cet6Grade; }
+    public void setCet6Grade(String cet6Grade) { this.cet6Grade = cet6Grade; }
 }

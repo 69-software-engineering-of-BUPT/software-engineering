@@ -1,0 +1,12 @@
+{
+  "applicationId": "02dbc1b8-5ac9-40c4-98ff-3f0a45ea1419",
+  "jobId": "15d569c0-4231-4441-bdc2-aeeab2fa1ebc",
+  "taId": "TA001",
+  "status": "REJECTED",
+  "appliedAt": "2026-04-07 17:14:43",
+  "statement": "111111\n[2026-04-09 12:53 TA]: 111\n[2026-04-11 16:57 MO]: LLL",
+  "mdId": "MO001",
+  "markTime": "2026-04-11 16:57:17",
+  "applicationType": "L",
+  "cvAttached": false
+}

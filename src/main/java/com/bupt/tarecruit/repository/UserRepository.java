@@ -16,6 +16,13 @@ public class UserRepository {
         JsonUtil.saveToJsonFile(user, filePath);
     }
 
+    public void deleteUser(String userId) throws IOException {
+        File file = new File(DATA_DIR + "USER_" + userId + ".json");
+        if (file.exists() && !file.delete()) {
+            throw new IOException("Failed to delete user file: " + file.getPath());
+        }
+    }
+
     public User getUserById(String userId) throws IOException {
         String filePath = DATA_DIR + "USER_" + userId + ".json";
         return JsonUtil.readFromJsonFile(filePath, User.class);
@@ -25,7 +32,7 @@ public class UserRepository {
         List<User> users = new ArrayList<>();
         File dir = new File(DATA_DIR);
         if (dir.exists() && dir.isDirectory()) {
-            File[] files = dir.listFiles((d, name) -> name.endsWith(".json"));
+            File[] files = dir.listFiles((d, name) -> name.startsWith("USER_") && name.endsWith(".json"));
             if (files != null) {
                 for (File file : files) {
                     User user = JsonUtil.readFromJsonFile(file.getAbsolutePath(), User.class);

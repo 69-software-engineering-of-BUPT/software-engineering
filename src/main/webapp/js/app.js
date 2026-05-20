@@ -180,7 +180,7 @@ function recordOperationLog(actionKey, target, options) {
 	var opts = options || {};
 	var logs = getStoredOperationLogs();
 	var now = new Date();
-	logs.push({
+	var entry = {
 		id: 'log-' + now.getTime() + '-' + Math.floor(Math.random() * 10000),
 		time: formatDateTime(now),
 		actor: opts.actor || 'System Admin',
@@ -190,12 +190,41 @@ function recordOperationLog(actionKey, target, options) {
 		target: target || '-',
 		result: (opts.result || resultStyleFromAction(actionKey).text),
 		resultClass: (opts.resultClass || resultStyleFromAction(actionKey).css)
-	});
+	};
+
+	logs.push(entry);
 
 	if (logs.length > 200) {
 		logs = logs.slice(logs.length - 200);
 	}
 	setStoredOperationLogs(logs);
+	postOperationLog(entry, opts);
+}
+
+function postOperationLog(entry, options) {
+	if (!window.fetch || !entry) {
+		return;
+	}
+
+	var opts = options || {};
+	var body = new URLSearchParams();
+	body.set('actionType', entry.actionKey || '');
+	body.set('targetType', opts.targetType || 'GENERAL');
+	body.set('targetId', opts.targetId || entry.target || '-');
+	body.set('targetName', opts.targetName || entry.target || '-');
+	body.set('result', entry.result || '');
+	body.set('message', opts.message || (entry.actionLabel + ': ' + entry.target));
+
+	fetch(getContextPath() + '/ad/logs/record', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+		},
+		body: body.toString(),
+		credentials: 'same-origin'
+	}).catch(function () {
+		// localStorage keeps a prototype fallback if the JSON repository write fails
+	});
 }
 
 function readLogRowsFromDom() {
@@ -249,6 +278,10 @@ function createLogRowNode(entry) {
 }
 
 function renderOperationLogRows() {
+	if (document.getElementById('server-operation-logs')) {
+		return;
+	}
+
 	var logListCard = document.querySelector('.ad-main .list-card');
 	if (!logListCard || document.querySelectorAll('.log-row').length === 0) {
 		return;
@@ -562,26 +595,6 @@ function filterLogRows(showRiskOnly) {
 	updateVisibleCount(listCard);
 }
 
-function parseAccountAssignments(raw) {
-	if (!raw) {
-		return [];
-	}
-
-	return raw
-		.split(';')
-		.map(function (item) {
-			var parts = item.split('|');
-			return {
-				course: normalizeText(parts[0]),
-				teacher: normalizeText(parts[1]),
-				date: normalizeText(parts[2])
-			};
-		})
-		.filter(function (item) {
-			return item.course;
-		});
-}
-
 function renderAccountDetail(row) {
 	if (!row) {
 		return;
@@ -590,47 +603,45 @@ function renderAccountDetail(row) {
 	var nameNode = document.getElementById('detail-name');
 	var emailNode = document.getElementById('detail-email');
 	var roleNode = document.getElementById('detail-role');
-	var deptNode = document.getElementById('detail-department');
-	var loadNode = document.getElementById('detail-load');
-	var lastLoginNode = document.getElementById('detail-last-login');
-	var flagNode = document.getElementById('detail-flag');
+	var studentIdLabelNode = document.getElementById('detail-student-id-label');
+	var studentIdNode = document.getElementById('detail-student-id');
+	var fullNameNode = document.getElementById('detail-full-name');
+	var profileEmailNode = document.getElementById('detail-email-field');
+	var phoneNode = document.getElementById('detail-phone');
+	var researchAreaLabelNode = document.getElementById('detail-research-area-label');
+	var researchAreaCardNode = document.getElementById('detail-research-area-card');
+	var researchAreaNode = document.getElementById('detail-research-area');
+	var cet6CardNode = document.getElementById('detail-cet6-card');
+	var cet6Node = document.getElementById('detail-cet6-grade');
 	var badgeNode = document.getElementById('detail-flag-badge');
-	var assignmentListNode = document.getElementById('detail-assignment-list');
 
-	if (!nameNode || !emailNode || !roleNode || !deptNode || !loadNode || !lastLoginNode || !flagNode || !badgeNode || !assignmentListNode) {
+	if (!nameNode || !emailNode || !roleNode || !studentIdLabelNode || !studentIdNode || !fullNameNode || !profileEmailNode || !phoneNode || !researchAreaLabelNode || !researchAreaCardNode || !researchAreaNode || !cet6CardNode || !cet6Node || !badgeNode) {
 		return;
 	}
 
 	var data = row.dataset;
+	var role = normalizeText((data.role || '').toUpperCase());
 	var statusClass = data.statusClass === 'warning' ? 'warning' : 'success';
+	var isTA = role === 'TA';
+	var isMO = role === 'MO';
+	var isAdmin = role === 'ADMIN';
 
-	nameNode.textContent = data.name || '-';
-	emailNode.textContent = data.email || '-';
-	roleNode.textContent = data.role || '-';
-	deptNode.textContent = data.department || '-';
-	loadNode.textContent = data.load || '-';
-	lastLoginNode.textContent = data.lastLogin || '-';
-	flagNode.textContent = data.flag || '-';
+	nameNode.textContent = data.fullName || data.name || '-';
+	emailNode.textContent = data.studentId || '-';
+	roleNode.textContent = role || '-';
+	studentIdLabelNode.textContent = isTA ? 'STUDENT ID' : 'ID';
+	studentIdNode.textContent = data.studentId || '-';
+	fullNameNode.textContent = data.fullName || data.name || '-';
+	profileEmailNode.textContent = data.email || '-';
+	phoneNode.textContent = data.phone || '-';
+	researchAreaLabelNode.textContent = isMO ? 'MODULES' : 'RESEARCH AREA';
+	researchAreaCardNode.style.display = isAdmin ? 'none' : '';
+	cet6CardNode.style.display = isTA ? '' : 'none';
+	researchAreaNode.textContent = data.researchArea || data.department || '-';
+	cet6Node.textContent = data.cet6Grade || '-';
 	badgeNode.textContent = '● ' + (data.statusText || 'Active');
 	badgeNode.classList.remove('success', 'warning');
 	badgeNode.classList.add(statusClass);
-
-	var assignments = parseAccountAssignments(data.assignments || '');
-	assignmentListNode.innerHTML = '';
-
-	if (assignments.length === 0) {
-		var emptyItem = document.createElement('li');
-		emptyItem.innerHTML = '<span>No active assignments</span>';
-		assignmentListNode.appendChild(emptyItem);
-		return;
-	}
-
-	assignments.forEach(function (item) {
-		var li = document.createElement('li');
-		var rightMeta = [item.teacher, item.date].filter(Boolean).join(' · ');
-		li.innerHTML = '<span>' + item.course + '</span><small>' + rightMeta + '</small>';
-		assignmentListNode.appendChild(li);
-	});
 }
 
 function initAccountDetailInteraction() {
@@ -710,27 +721,37 @@ function renderEmptyAccountDetail() {
 	var nameNode = document.getElementById('detail-name');
 	var emailNode = document.getElementById('detail-email');
 	var roleNode = document.getElementById('detail-role');
-	var deptNode = document.getElementById('detail-department');
-	var loadNode = document.getElementById('detail-load');
-	var lastLoginNode = document.getElementById('detail-last-login');
-	var flagNode = document.getElementById('detail-flag');
+	var studentIdLabelNode = document.getElementById('detail-student-id-label');
+	var studentIdNode = document.getElementById('detail-student-id');
+	var fullNameNode = document.getElementById('detail-full-name');
+	var profileEmailNode = document.getElementById('detail-email-field');
+	var phoneNode = document.getElementById('detail-phone');
+	var researchAreaLabelNode = document.getElementById('detail-research-area-label');
+	var researchAreaCardNode = document.getElementById('detail-research-area-card');
+	var researchAreaNode = document.getElementById('detail-research-area');
+	var cet6CardNode = document.getElementById('detail-cet6-card');
+	var cet6Node = document.getElementById('detail-cet6-grade');
 	var badgeNode = document.getElementById('detail-flag-badge');
-	var assignmentListNode = document.getElementById('detail-assignment-list');
 
-	if (!nameNode || !emailNode || !roleNode || !deptNode || !loadNode || !lastLoginNode || !flagNode || !badgeNode || !assignmentListNode) {
+	if (!nameNode || !emailNode || !roleNode || !studentIdLabelNode || !studentIdNode || !fullNameNode || !profileEmailNode || !phoneNode || !researchAreaLabelNode || !researchAreaCardNode || !researchAreaNode || !cet6CardNode || !cet6Node || !badgeNode) {
 		return;
 	}
 
 	nameNode.textContent = 'No account selected';
 	emailNode.textContent = '-';
 	roleNode.textContent = '-';
-	deptNode.textContent = '-';
-	loadNode.textContent = '-';
-	lastLoginNode.textContent = '-';
-	flagNode.textContent = '-';
+	studentIdLabelNode.textContent = 'STUDENT ID';
+	studentIdNode.textContent = '-';
+	fullNameNode.textContent = '-';
+	profileEmailNode.textContent = '-';
+	phoneNode.textContent = '-';
+	researchAreaLabelNode.textContent = 'RESEARCH AREA';
+	researchAreaCardNode.style.display = '';
+	researchAreaNode.textContent = '-';
+	cet6CardNode.style.display = '';
+	cet6Node.textContent = '-';
 	badgeNode.textContent = '● -';
 	badgeNode.classList.remove('success', 'warning');
-	assignmentListNode.innerHTML = '<li><span>No matching account</span></li>';
 	updateAccountActionButtonsState(null);
 }
 
@@ -877,9 +898,10 @@ function updateAccountActionButtonsState(row) {
 	}
 
 	var locked = row.dataset.locked === 'true';
-	freezeBtn.disabled = locked;
-	unfreezeBtn.disabled = !locked;
-	deleteBtn.disabled = false;
+	var isAdmin = (row.dataset.role || '').toUpperCase() === 'ADMIN';
+	freezeBtn.disabled = locked || isAdmin;
+	unfreezeBtn.disabled = !locked || isAdmin;
+	deleteBtn.disabled = isAdmin;
 }
 
 function updateAccountRowStatusView(row) {
@@ -903,6 +925,41 @@ function updateAccountRowStatusView(row) {
 	statusNode.textContent = '● ' + (row.dataset.statusText || 'Active');
 }
 
+function postAccountAction(action, row) {
+	if (!window.fetch) {
+		showToast('This browser cannot submit the action');
+		return;
+	}
+
+	var userId = row && (row.dataset.userId || row.dataset.studentId);
+	if (!userId) {
+		showToast('Missing account id');
+		return;
+	}
+
+	var body = new URLSearchParams();
+	body.set('action', action);
+	body.set('userId', userId);
+
+	fetch(getContextPath() + '/ad/accounts/action', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+		},
+		body: body.toString(),
+		credentials: 'same-origin'
+	}).then(function (response) {
+		if (!response.ok) {
+			return response.text().then(function (text) {
+				throw new Error(text || ('Action failed: ' + response.status));
+			});
+		}
+		window.location.href = getContextPath() + '/ad/accounts';
+	}).catch(function (error) {
+		showToast(error.message || 'Account action failed');
+	});
+}
+
 function freezeSelectedAccount() {
 	var row = document.querySelector('.account-row.active');
 	if (!row) {
@@ -915,19 +972,8 @@ function freezeSelectedAccount() {
 		return;
 	}
 
-	row.dataset.prevStatusText = row.dataset.statusText || 'Active';
-	row.dataset.prevStatusClass = row.dataset.statusClass || 'success';
-	row.dataset.prevFlag = row.dataset.flag || '-';
-	row.dataset.locked = 'true';
-	row.dataset.statusText = 'Warning';
-	row.dataset.statusClass = 'warning';
-	row.dataset.flag = 'Account locked by administrator';
-	updateAccountRowStatusView(row);
-	renderAccountDetail(row);
-	updateAccountActionButtonsState(row);
-	recordOperationLog('account-frozen', row.dataset.email || row.dataset.name || '-');
-	applyAccountFilters(false);
-	showToast('Account locked: ' + (row.dataset.name || '')); 
+	showToast('Freezing account...');
+	postAccountAction('freeze', row);
 }
 
 function unfreezeSelectedAccount() {
@@ -942,19 +988,8 @@ function unfreezeSelectedAccount() {
 		return;
 	}
 
-	row.dataset.locked = 'false';
-	row.dataset.statusText = row.dataset.prevStatusText || 'Active';
-	row.dataset.statusClass = row.dataset.prevStatusClass || 'success';
-	row.dataset.flag = row.dataset.prevFlag || '-';
-	delete row.dataset.prevStatusText;
-	delete row.dataset.prevStatusClass;
-	delete row.dataset.prevFlag;
-
-	updateAccountRowStatusView(row);
-	renderAccountDetail(row);
-	updateAccountActionButtonsState(row);
-	applyAccountFilters(false);
-	showToast('Account unlocked: ' + (row.dataset.name || ''));
+	showToast('Unfreezing account...');
+	postAccountAction('unfreeze', row);
 }
 
 function deleteSelectedAccount() {
@@ -965,11 +1000,11 @@ function deleteSelectedAccount() {
 	}
 
 	var deletedName = row.dataset.name || 'Selected account';
-	var deletedTarget = row.dataset.email || deletedName;
-	row.remove();
-	recordOperationLog('account-deleted', deletedTarget);
-	applyAccountFilters(false);
-	showToast('Account deleted: ' + deletedName);
+	if (!window.confirm('Delete account: ' + deletedName + '?')) {
+		return;
+	}
+	showToast('Deleting account...');
+	postAccountAction('delete', row);
 }
 
 function initAccountDetailActions() {
@@ -1116,12 +1151,12 @@ function handleCommonAction(action, button) {
 
 	switch (action) {
 		case 'switch-role':
-			showToast('Switching role...');
-			window.location.href = contextPath + '/jsp/role-select.jsp';
+			showToast('Signing out...');
+			window.location.href = contextPath + '/logout';
 			return;
 		case 'reset-demo':
-			showToast('Returning to login...');
-			window.location.href = contextPath + '/jsp/login.jsp';
+			showToast('Signing out...');
+			window.location.href = contextPath + '/logout';
 			return;
 		case 'import-csv':
 			showToast('Import feature is in progress');
@@ -1147,7 +1182,7 @@ function handleCommonAction(action, button) {
 			window.location.href = contextPath + '/jsp/ad/project-view.jsp';
 			return;
 		case 'log-details':
-			showToast('Showing log details');
+			showToast(button.getAttribute('data-log-message') || 'Showing log details');
 			return;
 		default:
 			return;
@@ -1155,8 +1190,10 @@ function handleCommonAction(action, button) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-	ensureOperationLogSeeded();
-	renderOperationLogRows();
+	if (!document.getElementById('server-operation-logs')) {
+		ensureOperationLogSeeded();
+		renderOperationLogRows();
+	}
 
 	initAccountDetailInteraction();
 	initAccountDetailActions();

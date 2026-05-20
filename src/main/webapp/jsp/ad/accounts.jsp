@@ -1,29 +1,37 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%
+    String adUserId   = (String) request.getAttribute("userId");
+    String adUserName = (String) request.getAttribute("userName");
+    if (adUserId == null)   adUserId   = (String) session.getAttribute("userAccount");
+    if (adUserName == null) adUserName = (String) session.getAttribute("userName");
+    if (adUserId == null)   adUserId   = "";
+    if (adUserName == null) adUserName = "System Admin";
+%>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8" />
     <title>AD - Account Management</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260406-5" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260518-ad-bg-2" />
 </head>
-<body class="ad-page">
+<body class="ad-page ad-page--admin">
 <div class="ad-shell">
     <header class="ad-topbar">
         <div class="brand-group">
             <div class="brand-icon">TR</div>
             <div>
                 <div class="brand-title">TA Recruitment Portal</div>
-                <div class="brand-subtitle">Spring 2026 · Role based prototype</div>
+                <div class="brand-subtitle">Spring 2026 · Admin panel</div>
             </div>
         </div>
         <div class="top-actions">
-            <button class="chip-button" data-action="switch-role">Switch role</button>
             <button class="chip-button" data-action="reset-demo">Reset demo</button>
+            <a class="chip-button" href="${pageContext.request.contextPath}/logout">Sign out</a>
             <div class="user-pill">
-                <span class="avatar">SA</span>
+                <span class="avatar">AD</span>
                 <span>
-                    <strong>System Admin</strong>
-                    <small>Administrator</small>
+                    <strong><%= adUserName %></strong>
+                    <small><%= adUserId %></small>
                 </span>
             </div>
         </div>
@@ -39,7 +47,7 @@
 
             <section class="side-block">
                 <p class="side-title">NAVIGATION</p>
-                <a class="nav-item active" href="${pageContext.request.contextPath}/jsp/ad/accounts.jsp">
+                <a class="nav-item active" href="${pageContext.request.contextPath}/ad/accounts">
                     <span class="nav-icon">AC</span>
                     <span>
                         <strong>Account Management</strong>
@@ -53,7 +61,7 @@
                         <small>Vacancy monitor</small>
                     </span>
                 </a>
-                <a class="nav-item" href="${pageContext.request.contextPath}/jsp/ad/logs.jsp">
+                <a class="nav-item" href="${pageContext.request.contextPath}/ad/logs">
                     <span class="nav-icon">LG</span>
                     <span>
                         <strong>Operation Log</strong>
@@ -97,6 +105,7 @@
                 <div class="filter-actions">
                     <button class="chip-button" data-action="import-csv">Import CSV</button>
                     <button class="chip-button" data-export-csv="true" data-export-filename="accounts">Export CSV</button>
+                    <a class="chip-button active" href="${pageContext.request.contextPath}/register">+ Create TA account</a>
                 </div>
             </section>
 
@@ -104,7 +113,7 @@
                 <div class="account-filter-grid">
                     <label class="filter-field filter-search">
                         <small>SEARCH</small>
-                        <input id="account-filter-search" type="text" placeholder="Name, email or department" />
+                        <input id="account-filter-search" type="text" placeholder="Name or department" />
                     </label>
 
                     <label class="filter-field">
@@ -154,89 +163,21 @@
                         <span>LAST LOGIN</span>
                     </div>
 
-                    <article class="list-row account-grid account-row active" tabindex="0"
-                             data-name="Dr. Zhao"
-                             data-email="zhao.mo@campus.edu"
-                             data-role="MO"
-                             data-department="Language Center"
-                             data-status-text="Active"
-                             data-status-class="success"
-                             data-last-login="Today"
-                             data-load="1/3"
-                             data-flag="Current user"
-                             data-assignments="Academic Writing|Dr. Zhao|03 Apr 2026;English Training|Dr. Zhao|08 Apr 2026">
-                        <div>
-                            <strong>Dr. Zhao</strong>
-                            <small>zhao.mo@campus.edu</small>
-                        </div>
-                        <span>MO</span>
-                        <span>Language Center</span>
-                        <span class="status success">● Active</span>
-                        <span>Today</span>
-                    </article>
-
                     <article class="list-row account-grid account-row" tabindex="0"
-                             data-name="Dr. Chen"
-                             data-email="chen.mo@campus.edu"
-                             data-role="MO"
-                             data-department="Data Science"
+                             data-name="Loading…"
+                             data-email=""
+                             data-role=""
+                             data-department=""
                              data-status-text="Active"
                              data-status-class="success"
-                             data-last-login="Today"
-                             data-load="2/3"
-                             data-flag="Owns 2 published positions"
-                             data-assignments="Data Mining|Dr. Chen|05 Apr 2026;Machine Learning|Dr. Chen|11 Apr 2026">
-                        <div>
-                            <strong>Dr. Chen</strong>
-                            <small>chen.mo@campus.edu</small>
-                        </div>
-                        <span>MO</span>
-                        <span>Data Science</span>
-                        <span class="status success">● Active</span>
-                        <span>Today</span>
+                             data-last-login="—"
+                             data-load="—"
+                             data-flag=""
+                             data-assignments=""
+                             style="display:none;">
+                        <div><!-- placeholder --></div>
                     </article>
-
-                    <article class="list-row warn account-grid account-row" tabindex="0"
-                             data-name="Prof. Morgan"
-                             data-email="morgan.mo@campus.edu"
-                             data-role="MO"
-                             data-department="Design School"
-                             data-status-text="Warning"
-                             data-status-class="warning"
-                             data-last-login="2 days ago"
-                             data-load="0/3"
-                             data-flag="5 failed logins"
-                             data-assignments="Studio Design|Prof. Morgan|06 Apr 2026;Visual Design|Prof. Morgan|09 Apr 2026">
-                        <div>
-                            <strong>Prof. Morgan</strong>
-                            <small>morgan.mo@campus.edu</small>
-                        </div>
-                        <span>MO</span>
-                        <span>Design School</span>
-                            <span class="status warning">● Warning</span>
-                        <span>2 days ago</span>
-                    </article>
-
-                    <article class="list-row warn account-grid account-row" tabindex="0"
-                             data-name="Lin Yu"
-                             data-email="yu.ta@campus.edu"
-                             data-role="TA"
-                             data-department="Economics"
-                                data-status-text="Reached Upper Limit"
-                             data-status-class="warning"
-                             data-last-login="Never"
-                             data-load="3/3"
-                             data-flag="Reached Upper Limit"
-                             data-assignments="Microeconomics|Dr. Chen|05 Apr 2026;Statistics|Prof. Allen|08 Apr 2026;Econometrics|Dr. Stone|10 Apr 2026">
-                        <div>
-                            <strong>Lin Yu</strong>
-                            <small>yu.ta@campus.edu</small>
-                        </div>
-                        <span>TA</span>
-                        <span>Economics</span>
-                        <span class="status warning">● Reached Upper Limit</span>
-                        <span>Never</span>
-                    </article>
+                    <div id="account-list-body"></div>
                 </section>
 
                 <aside class="list-card account-detail-card" id="account-detail-panel">
@@ -254,27 +195,30 @@
                             <strong id="detail-role">MO</strong>
                         </div>
                         <div class="detail-kv">
-                            <small>DEPARTMENT</small>
-                            <strong id="detail-department">Language Center</strong>
+                            <small id="detail-student-id-label">STUDENT ID</small>
+                            <strong id="detail-student-id">TA001</strong>
                         </div>
                         <div class="detail-kv">
-                            <small>COURSE LOAD</small>
-                            <strong id="detail-load">1/3</strong>
+                            <small>FULL NAME</small>
+                            <strong id="detail-full-name">Dongting Ge</strong>
                         </div>
                         <div class="detail-kv">
-                            <small>LAST LOGIN</small>
-                            <strong id="detail-last-login">Today</strong>
+                            <small>EMAIL</small>
+                            <strong id="detail-email-field">3227875700@qq.com</strong>
                         </div>
-                        <div class="detail-kv detail-kv-full">
-                            <small>FLAG</small>
-                            <strong id="detail-flag">Current user</strong>
+                        <div class="detail-kv">
+                            <small>PHONE</small>
+                            <strong id="detail-phone">18129229280</strong>
+                        </div>
+                        <div class="detail-kv" id="detail-research-area-card">
+                            <small id="detail-research-area-label">RESEARCH AREA</small>
+                            <strong id="detail-research-area">computer science</strong>
+                        </div>
+                        <div class="detail-kv" id="detail-cet6-card">
+                            <small>CET6 GRADE</small>
+                            <strong id="detail-cet6-grade">655</strong>
                         </div>
                     </div>
-
-                    <section class="detail-assignment">
-                        <h3>Active assignments</h3>
-                        <ul id="detail-assignment-list"></ul>
-                    </section>
 
                     <div class="detail-actions">
                         <button id="account-freeze-btn" class="detail-action-btn" type="button">Freeze account</button>
@@ -283,9 +227,83 @@
                     </div>
                 </aside>
             </section>
+
         </main>
     </div>
 </div>
-<script src="${pageContext.request.contextPath}/js/app.js?v=20260406-6"></script>
+<script type="application/json" id="all-users-json"><%= request.getAttribute("allUsersJson") != null ? request.getAttribute("allUsersJson") : "[]" %></script>
+<script>
+(function () {
+    var raw = document.getElementById('all-users-json');
+    if (!raw) return;
+    var users;
+    try { users = JSON.parse(raw.textContent || '[]'); } catch (e) { return; }
+    var container = document.getElementById('account-list-body');
+    if (!container) return;
+
+    function escHtml(s) {
+        return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    users.forEach(function (u, idx) {
+        var role = (u.role || '').toUpperCase();
+        var isTA  = role === 'TA';
+        var accountStatus = String(u.status || 'ACTIVE').toUpperCase();
+        var locked = accountStatus === 'FROZEN';
+        var activeJobs = u.activeJobsCount || 0;
+        var upperLimit = isTA && activeJobs >= 3;
+        var load       = isTA ? (activeJobs + '/3') : '—';
+        var statusText = locked ? 'Frozen' : (upperLimit ? 'Reached Upper Limit' : 'Active');
+        var statusCls  = locked || upperLimit ? 'warning' : 'success';
+        var dept       = u.researchArea || u.major || '—';
+        var flag       = locked ? 'Account locked by administrator' : (upperLimit ? 'Reached Upper Limit' : '');
+        var studentId  = u.studentId || u.userId || '';
+        var fullName   = u.fullName || u.name || u.userId || '';
+        var email      = u.email || u.userId || '';
+        var phone      = u.phoneNumber || '—';
+        var cet6       = u.cet6Grade || '—';
+        var displayId  = escHtml(studentId);
+        var displayName = escHtml(fullName || u.userId || '');
+
+        var art = document.createElement('article');
+        art.className = 'list-row account-grid account-row' + (upperLimit ? ' warn' : '') + (idx === 0 ? ' active' : '');
+        art.tabIndex = 0;
+        art.dataset.name       = fullName;
+        art.dataset.userId     = u.userId || studentId;
+        art.dataset.email      = email;
+        art.dataset.role       = role;
+        art.dataset.department = dept;
+        art.dataset.statusText = statusText;
+        art.dataset.statusClass = statusCls;
+        art.dataset.lastLogin  = '—';
+        art.dataset.load       = load;
+        art.dataset.flag       = flag;
+        art.dataset.assignments = '';
+        art.dataset.studentId = studentId;
+        art.dataset.fullName = fullName;
+        art.dataset.phone = phone;
+        art.dataset.researchArea = dept;
+        art.dataset.cet6Grade = cet6;
+        art.dataset.locked = locked ? 'true' : 'false';
+
+        art.innerHTML =
+            '<div><strong>' + displayName + '</strong><small>' + displayId + '</small></div>' +
+            '<span>' + escHtml(role) + '</span>' +
+            '<span>' + escHtml(dept) + '</span>' +
+            '<span class="status ' + statusCls + '">● ' + escHtml(statusText) + '</span>' +
+            '<span>—</span>';
+
+        container.appendChild(art);
+    });
+
+    if (users.length === 0) {
+        var p = document.createElement('p');
+        p.style.cssText = 'padding:14px;color:#aaa;font-size:13px;';
+        p.textContent = 'No user accounts found.';
+        container.appendChild(p);
+    }
+}());
+</script>
+<script src="${pageContext.request.contextPath}/js/app.js?v=20260518-account-actions"></script>
 </body>
 </html>

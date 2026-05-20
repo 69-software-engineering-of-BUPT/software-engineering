@@ -1,0 +1,13 @@
+{
+  "jobId": "JOB004",
+  "mdId": "MO001",
+  "mdName": "Dr. Smith",
+  "moduleName": "EBU7140 Machine Learning",
+  "jobType": "Teaching Assistant",
+  "requirements": "Experience with Python, NumPy, scikit-learn; strong math background",
+  "introduction": "Assist the instructor with grading assignments, running office hours, and preparing tutorial materials.",
+  "weeklyWorkload": 12,
+  "deadline": "2026-05-15",
+  "status": "OPEN",
+  "publishedAt": "2026-04-05T08:00:00Z"
+}

@@ -22,8 +22,8 @@ public class ApplicationRepositoryTest {
     }
 
     @Test
-    public void getApplicationsByTaIdLoadsApplicationsForTaWorkloadReview() throws IOException {
-        List<Application> applications = applicationRepository.getApplicationsByTaId("TA001");
+    public void findByStudentIdLoadsApplicationsForTaWorkloadReview() throws Exception {
+        List<Application> applications = applicationRepository.findByStudentId("TA001");
 
         assertFalse(applications.isEmpty());
         assertEquals("TA001", applications.get(0).getTaId());

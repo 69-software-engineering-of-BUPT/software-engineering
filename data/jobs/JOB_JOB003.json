@@ -1,0 +1,13 @@
+{
+  "jobId": "JOB003",
+  "mdId": "MO001",
+  "mdName": "Dr. Smith",
+  "moduleName": "EBU6305 Computer Networks",
+  "jobType": "Teaching Assistant",
+  "requirements": "Familiarity with TCP/IP, Wireshark, and network programming",
+  "introduction": "Grade coursework and run tutorial sessions for the Computer Networks module.",
+  "weeklyWorkload": 6,
+  "deadline": "2026-04-20",
+  "status": "OPEN",
+  "publishedAt": "2026-04-02T14:30:00Z"
+}

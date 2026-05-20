@@ -1,12 +1,46 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.Collections" %>
+<%@ page import="com.bupt.tarecruit.model.OperationLog" %>
+<%!
+    private String esc(String value) {
+        if (value == null) return "";
+        return value.replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+                    .replace("\"", "&quot;");
+    }
+
+    private String actionKey(String actionType) {
+        if (actionType == null || actionType.trim().isEmpty()) return "reminder-sent";
+        return actionType.trim().toLowerCase().replace('_', '-');
+    }
+%>
+<%
+    String _adRole = (String) session.getAttribute("userRole");
+    if (session.getAttribute("userAccount") == null || !"ADMIN".equalsIgnoreCase(_adRole)) {
+        response.sendRedirect(request.getContextPath() + "/login");
+        return;
+    }
+    List<OperationLog> operationLogs = (List<OperationLog>) request.getAttribute("operationLogs");
+    if (operationLogs == null) {
+        operationLogs = Collections.emptyList();
+    }
+    int warningCount = 0;
+    for (OperationLog log : operationLogs) {
+        if ("warning".equalsIgnoreCase(log.getResultClass())) {
+            warningCount++;
+        }
+    }
+%>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8" />
     <title>AD - Operation Logs</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260406-3" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260518-ad-bg-2" />
 </head>
-<body class="ad-page">
+<body class="ad-page ad-page--admin">
 <div class="ad-shell">
     <header class="ad-topbar">
         <div class="brand-group">
@@ -17,10 +51,10 @@
             </div>
         </div>
         <div class="top-actions">
-            <button class="chip-button" data-action="switch-role">Switch role</button>
             <button class="chip-button" data-action="reset-demo">Reset demo</button>
+            <a class="chip-button" href="${pageContext.request.contextPath}/logout">Sign out</a>
             <div class="user-pill">
-                <span class="avatar">SA</span>
+                <span class="avatar">AD</span>
                 <span>
                     <strong>System Admin</strong>
                     <small>Administrator</small>
@@ -39,7 +73,7 @@
 
             <section class="side-block">
                 <p class="side-title">NAVIGATION</p>
-                <a class="nav-item" href="${pageContext.request.contextPath}/jsp/ad/accounts.jsp">
+                <a class="nav-item" href="${pageContext.request.contextPath}/ad/accounts">
                     <span class="nav-icon">AC</span>
                     <span>
                         <strong>Account Management</strong>
@@ -53,7 +87,7 @@
                         <small>Vacancy monitor</small>
                     </span>
                 </a>
-                <a class="nav-item active" href="${pageContext.request.contextPath}/jsp/ad/logs.jsp">
+                <a class="nav-item active" href="${pageContext.request.contextPath}/ad/logs">
                     <span class="nav-icon">LG</span>
                     <span>
                         <strong>Operation Log</strong>
@@ -67,21 +101,21 @@
                 <div class="summary-item">
                     <span>
                         <small>LOGS TODAY</small>
-                        <strong>6</strong>
+                        <strong><%= operationLogs.size() %></strong>
                     </span>
                     <em>LG</em>
                 </div>
                 <div class="summary-item">
                     <span>
                         <small>WARNINGS</small>
-                        <strong>2</strong>
+                        <strong><%= warningCount %></strong>
                     </span>
                     <em>WR</em>
                 </div>
                 <div class="summary-item">
                     <span>
                         <small>EXPORTS</small>
-                        <strong>1</strong>
+                        <strong>0</strong>
                     </span>
                     <em>EX</em>
                 </div>
@@ -92,7 +126,7 @@
             <section class="page-head">
                 <div>
                     <h1>Operation Log</h1>
-                    <p id="log-filter-summary">4 log entry or entries match the current filters</p>
+                    <p id="log-filter-summary"><%= operationLogs.size() %> log entry or entries match the current filters</p>
                 </div>
                 <div class="filter-actions">
                     <button class="chip-button" data-export-csv="true" data-export-filename="operation-logs">Export CSV</button>
@@ -137,7 +171,7 @@
 
                     <div class="filter-field">
                         <small>ENTRIES</small>
-                        <div class="upper-limit-chip"><span id="log-filter-entry-count">4</span></div>
+                        <div class="upper-limit-chip"><span id="log-filter-entry-count"><%= operationLogs.size() %></span></div>
                     </div>
                 </div>
 
@@ -150,7 +184,7 @@
             <section class="list-card">
                 <div class="list-title-row">
                     <h2>Log entries</h2>
-                    <span>4 item(s)</span>
+                    <span><%= operationLogs.size() %> item(s)</span>
                 </div>
 
                 <div class="list-head log-grid">
@@ -162,65 +196,32 @@
                     <span>ACTION</span>
                 </div>
 
-                <article class="list-row log-grid log-row"
-                         data-role="AD"
-                         data-action-key="reminder-sent"
-                         data-time="2026-04-01 10:22">
-                    <span>2026-04-01 10:22</span>
-                    <span>System Admin</span>
-                    <span>Reminder Sent</span>
-                    <span>Human Computer Interaction Studio TA</span>
-                    <span class="status success">● Success</span>
-                    <div class="row-actions">
-                        <button data-action="log-details">Details</button>
-                    </div>
-                </article>
+                <% if (operationLogs.isEmpty()) { %>
+                    <p class="ta-empty-hint">No operation logs yet.</p>
+                <% } %>
 
-                <article class="list-row log-grid log-row"
-                         data-role="AD"
-                         data-action-key="csv-export"
-                         data-time="2026-04-01 09:58">
-                    <span>2026-04-01 09:58</span>
-                    <span>System Admin</span>
-                    <span>CSV Export</span>
-                    <span>Operation log list</span>
-                    <span class="status success">● Success</span>
+                <% for (OperationLog log : operationLogs) {
+                    String resultClass = "warning".equalsIgnoreCase(log.getResultClass()) ? "warning" : "success";
+                %>
+                <article class="list-row <%= "warning".equals(resultClass) ? "warn " : "" %>log-grid log-row"
+                         data-role="<%= esc(log.getActorRole()) %>"
+                         data-action-key="<%= esc(actionKey(log.getActionType())) %>"
+                         data-time="<%= esc(log.getCreatedAt()) %>">
+                    <span><%= esc(log.getCreatedAt()) %></span>
+                    <span><%= esc(log.getActorName()) %></span>
+                    <span><%= esc(log.getActionLabel()) %></span>
+                    <span><%= esc(log.getTargetName()) %></span>
+                    <span class="status <%= resultClass %>">● <%= "warning".equals(resultClass) ? "Warning" : "Success" %></span>
                     <div class="row-actions">
-                        <button data-action="log-details">Details</button>
+                        <button data-action="log-details" data-log-message="<%= esc(log.getMessage()) %>">Details</button>
                     </div>
                 </article>
-
-                <article class="list-row warn log-grid log-row"
-                         data-role="AD"
-                         data-action-key="account-deleted"
-                         data-time="2026-04-01 09:35">
-                    <span>2026-04-01 09:35</span>
-                    <span>System Admin</span>
-                    <span>Account Deleted</span>
-                    <span>morgan.mo@campus.edu</span>
-                    <span class="status warning">● Warning</span>
-                    <div class="row-actions">
-                        <button data-action="log-details">Details</button>
-                    </div>
-                </article>
-
-                <article class="list-row warn log-grid log-row"
-                         data-role="AD"
-                         data-action-key="account-frozen"
-                         data-time="2026-04-01 08:47">
-                    <span>2026-04-01 08:47</span>
-                    <span>System Admin</span>
-                    <span>Account Frozen</span>
-                    <span>chen.mo@campus.edu</span>
-                    <span class="status warning">● Warning</span>
-                    <div class="row-actions">
-                        <button data-action="log-details">Details</button>
-                    </div>
-                </article>
+                <% } %>
             </section>
         </main>
     </div>
 </div>
-<script src="${pageContext.request.contextPath}/js/app.js?v=20260406-6"></script>
+<script type="application/json" id="server-operation-logs"><%= request.getAttribute("operationLogsJson") != null ? request.getAttribute("operationLogsJson") : "[]" %></script>
+<script src="${pageContext.request.contextPath}/js/app.js?v=20260518-oplog"></script>
 </body>
 </html>

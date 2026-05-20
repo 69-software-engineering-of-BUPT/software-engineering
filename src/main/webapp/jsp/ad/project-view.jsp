@@ -1,12 +1,19 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%
+    String _adRole = (String) session.getAttribute("userRole");
+    if (session.getAttribute("userAccount") == null || !"ADMIN".equalsIgnoreCase(_adRole)) {
+        response.sendRedirect(request.getContextPath() + "/login");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8" />
     <title>AD - Project View</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260406-8" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260518-ad-bg-2" />
 </head>
-<body class="ad-page" id="project-view-page">
+<body class="ad-page ad-page--admin" id="project-view-page">
 <div class="ad-shell">
     <header class="ad-topbar">
         <div class="brand-group">
@@ -39,7 +46,7 @@
 
             <section class="side-block">
                 <p class="side-title">NAVIGATION</p>
-                <a class="nav-item" href="${pageContext.request.contextPath}/jsp/ad/accounts.jsp">
+                <a class="nav-item" href="${pageContext.request.contextPath}/ad/accounts">
                     <span class="nav-icon">AC</span>
                     <span>
                         <strong>Account Management</strong>
@@ -53,7 +60,7 @@
                         <small>Vacancy monitor</small>
                     </span>
                 </a>
-                <a class="nav-item" href="${pageContext.request.contextPath}/jsp/ad/logs.jsp">
+                <a class="nav-item" href="${pageContext.request.contextPath}/ad/logs">
                     <span class="nav-icon">LG</span>
                     <span>
                         <strong>Operation Log</strong>
@@ -130,6 +137,6 @@
         </main>
     </div>
 </div>
-<script src="${pageContext.request.contextPath}/js/app.js?v=20260406-8"></script>
+<script src="${pageContext.request.contextPath}/js/app.js?v=20260518-oplog"></script>
 </body>
 </html>

@@ -20,12 +20,12 @@ public class JobRepositoryTest {
 
         assertNotNull(job);
         assertEquals("JOB001", job.getJobId());
-        assertEquals("MO001", job.getMoId());
+        assertEquals("MO001", job.getMdId());
         assertEquals("OPEN", job.getStatus());
     }
 
     @Test
-    public void getAllJobsLoadsSeedJobs() throws IOException {
+    public void getAllJobsLoadsSeedJobs() throws Exception {
         List<Job> jobs = jobRepository.getAllJobs();
 
         assertFalse(jobs.isEmpty());

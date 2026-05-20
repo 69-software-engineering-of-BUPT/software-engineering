@@ -1,0 +1,9 @@
+{
+  "notificationId": "NOTI0001",
+  "taId": "TA001",
+  "type": "STATUS_UPDATE",
+  "content": "Your application for EBU6304 Software Engineering has been received and is now under review.",
+  "relatedApplicationId": "APP001",
+  "createdAt": "2026-04-01 09:30:00",
+  "isRead": true
+}
