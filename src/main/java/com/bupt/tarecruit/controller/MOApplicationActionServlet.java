@@ -9,16 +9,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.bupt.tarecruit.model.Application;
+import com.bupt.tarecruit.model.Job;
 import com.bupt.tarecruit.service.ApplicationService;
 import com.bupt.tarecruit.service.NotificationService;
+import com.bupt.tarecruit.util.ApplicationNotificationUtil;
 
 /**
- * MO: Approve / reject / mark interview for a TA application and send notification.
+ * Compatibility endpoint for older MO application cards.
+ * It uses the same ApplicationService + NotificationService flow as the detail page.
  */
 @WebServlet("/mo/application/action")
 public class MOApplicationActionServlet extends HttpServlet {
     private final ApplicationService appService = new ApplicationService();
-    private final NotificationService notiService = new NotificationService();
+    private final NotificationService notificationService = new NotificationService();
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -34,50 +38,50 @@ public class MOApplicationActionServlet extends HttpServlet {
             return;
         }
 
-        String moId       = (String) session.getAttribute("userAccount");
-        String appId      = req.getParameter("applicationId");
-        String newStatus  = req.getParameter("status");       // APPROVED / REJECTED / INTERVIEW
-        String feedback   = req.getParameter("feedback");
-        String taId       = req.getParameter("taId");
-        String moduleName = req.getParameter("moduleName");
-
-        if (appId == null || appId.trim().isEmpty() || newStatus == null) {
+        String moId = (String) session.getAttribute("userAccount");
+        String appId = trimToNull(req.getParameter("applicationId"));
+        if (appId == null) {
+            session.setAttribute("moActionError", "Application ID is required.");
             resp.sendRedirect(req.getContextPath() + "/mo/applications");
             return;
         }
 
         try {
-            appService.updateApplicationStatus(appId.trim(), newStatus.trim(), feedback, moId);
+            String status = req.getParameter("status");
+            String feedback = req.getParameter("feedback");
+            String applicationType = req.getParameter("applicationType");
+            String moMessage = req.getParameter("moMessage");
 
-            // Send notification to the TA
-            if (taId != null && !taId.trim().isEmpty()) {
-                String module = moduleName != null ? moduleName : "a position";
-                String content;
-                switch (newStatus.trim().toUpperCase()) {
-                    case "APPROVED":
-                        content = "Congratulations! Your application for " + module + " has been approved.";
-                        break;
-                    case "REJECTED":
-                        content = "Your application for " + module + " has not been successful at this time.";
-                        break;
-                    case "INTERVIEW":
-                        content = "You have been invited to an interview for " + module + ". Please check your email for details.";
-                        break;
-                    default:
-                        content = "Your application status for " + module + " has been updated to " + newStatus + ".";
-                }
-                if (feedback != null && !feedback.trim().isEmpty()) {
-                    content += " Feedback: " + feedback.trim();
-                }
-                notiService.createNotification(taId.trim(), "STATUS_UPDATE", content, appId.trim());
+            Application app = appService.updateApplicationStatus(appId, status, feedback, moId, applicationType);
+
+            if (trimToNull(moMessage) != null) {
+                appService.appendMOMessage(appId, moId, moMessage);
             }
 
-            req.getSession().setAttribute("moActionSuccess", "Application " + newStatus.toLowerCase() + " successfully.");
+            Job job = appService.getJobForApplicationForMO(appId, moId);
+            String moduleName = job == null ? null : job.getModuleName();
+            String content = ApplicationNotificationUtil.buildStatusUpdateContent(
+                    app.getStatus(), moduleName, feedback, moMessage);
+            notificationService.createNotification(
+                    app.getStudentId(), "STATUS_UPDATE", content, app.getApplicationId());
+
+            session.setAttribute("moActionSuccess", "Application review saved and TA notification sent.");
         } catch (Exception e) {
             e.printStackTrace();
-            req.getSession().setAttribute("moActionError", e.getMessage());
+            session.setAttribute("moActionError", "Failed to update application: " + e.getMessage());
         }
 
-        resp.sendRedirect(req.getContextPath() + "/mo/applications");
+        String redirect = trimToNull(req.getParameter("redirect"));
+        if ("detail".equalsIgnoreCase(redirect)) {
+            resp.sendRedirect(req.getContextPath() + "/mo/view/application?applicationId=" + appId);
+        } else {
+            resp.sendRedirect(req.getContextPath() + "/mo/applications");
+        }
+    }
+
+    private String trimToNull(String value) {
+        if (value == null) return null;
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }
