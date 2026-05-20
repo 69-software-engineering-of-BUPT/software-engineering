@@ -4,20 +4,27 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import com.bupt.tarecruit.model.Application;
+import com.bupt.tarecruit.model.Job;
 import com.bupt.tarecruit.model.OperationLog;
 import com.bupt.tarecruit.model.User;
 import com.bupt.tarecruit.repository.OperationLogRepository;
 import com.bupt.tarecruit.repository.UserRepository;
 
 public class AdminService {
+    private static final int TA_ACTIVE_JOB_LIMIT = 3;
+    private static final DateTimeFormatter LOG_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
     private final OperationLogRepository operationLogRepository = new OperationLogRepository();
     private final UserRepository userRepository = new UserRepository();
-    private static final DateTimeFormatter LOG_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public List<Map<String, Object>> getAccountViews() throws IOException {
         List<Map<String, Object>> accountViews = new ArrayList<>();
@@ -105,6 +112,50 @@ public class AdminService {
 
         operationLogRepository.save(log);
         return log;
+    }
+
+    public boolean isTaAtUpperLimit(User user) {
+        return user != null
+                && "TA".equalsIgnoreCase(user.getRole())
+                && user.getActiveJobsCount() >= TA_ACTIVE_JOB_LIMIT;
+    }
+
+    public List<User> filterUsersByRole(List<User> users, String role) {
+        if (users == null || role == null || "all".equalsIgnoreCase(role)) {
+            return users == null ? Collections.emptyList() : users;
+        }
+
+        String expectedRole = role.toUpperCase(Locale.ROOT);
+        return users.stream()
+                .filter(user -> user != null && expectedRole.equalsIgnoreCase(user.getRole()))
+                .collect(Collectors.toList());
+    }
+
+    public List<Job> filterOpenJobs(List<Job> jobs) {
+        if (jobs == null) {
+            return Collections.emptyList();
+        }
+
+        return jobs.stream()
+                .filter(job -> job != null && "OPEN".equalsIgnoreCase(job.getStatus()))
+                .collect(Collectors.toList());
+    }
+
+    public long countApprovedApplications(List<Application> applications) {
+        if (applications == null) {
+            return 0;
+        }
+
+        return applications.stream()
+                .filter(application -> application != null
+                        && "APPROVED".equalsIgnoreCase(application.getStatus()))
+                .count();
+    }
+
+    public boolean isJobActionNeeded(Job job, List<Application> applications) {
+        return job != null
+                && "OPEN".equalsIgnoreCase(job.getStatus())
+                && countApprovedApplications(applications) == 0;
     }
 
     private String normalizeActionType(String actionType) {
