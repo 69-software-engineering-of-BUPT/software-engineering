@@ -82,3 +82,5 @@ software-engineering/
 2. **前后端分层开发**：`controller` 里只做参数获取和页面转发（`request.getRequestDispatcher`），复杂的逻辑判断丢给 `service` 去做。
 3. **测试数据**：目前 `data/` 目录下已经准备了几个测试用的账号和数据，大家写页面的时候可以直接读取这些数据来测试渲染效果。
 
+测试方式：.\mvnw.cmd test
+
