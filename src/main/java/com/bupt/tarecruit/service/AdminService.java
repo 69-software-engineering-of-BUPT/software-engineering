@@ -16,6 +16,8 @@ import com.bupt.tarecruit.model.Application;
 import com.bupt.tarecruit.model.Job;
 import com.bupt.tarecruit.model.OperationLog;
 import com.bupt.tarecruit.model.User;
+import com.bupt.tarecruit.repository.ApplicationRepository;
+import com.bupt.tarecruit.repository.JobRepository;
 import com.bupt.tarecruit.repository.OperationLogRepository;
 import com.bupt.tarecruit.repository.UserRepository;
 
@@ -25,6 +27,8 @@ public class AdminService {
 
     private final OperationLogRepository operationLogRepository = new OperationLogRepository();
     private final UserRepository userRepository = new UserRepository();
+    private final JobRepository jobRepository = new JobRepository();
+    private final ApplicationRepository applicationRepository = new ApplicationRepository();
 
     public List<Map<String, Object>> getAccountViews() throws IOException {
         List<Map<String, Object>> accountViews = new ArrayList<>();
@@ -80,6 +84,58 @@ public class AdminService {
 
     public List<OperationLog> getOperationLogs() throws IOException {
         return operationLogRepository.getAllLogs();
+    }
+
+    public List<Map<String, Object>> getProjectViews() throws Exception {
+        List<Job> jobs = jobRepository.getAllJobs();
+        List<Application> applications = applicationRepository.findAll();
+        List<Map<String, Object>> projectViews = new ArrayList<>();
+
+        for (Job job : jobs) {
+            if (job == null) {
+                continue;
+            }
+
+            List<Application> jobApplications = applications.stream()
+                    .filter(application -> application != null && sameId(job.getJobId(), application.getJobId()))
+                    .collect(Collectors.toList());
+
+            long approvedCount = countApprovedApplications(jobApplications);
+            long leaderFilled = countApprovedApplicationsByType(jobApplications, "L");
+            long memberFilled = countApprovedApplicationsByType(jobApplications, "NL");
+            int leaderSeats = Math.max(job.getLeaderCount(), 0);
+            int memberSeats = Math.max(job.getMemberCount(), 0);
+            int seats = leaderSeats + memberSeats;
+            int vacancies = seats == 0 ? 0 : Math.max(seats - (int) approvedCount, 0);
+            boolean actionNeeded = "OPEN".equalsIgnoreCase(job.getStatus()) && seats > 0 && vacancies > 0;
+
+            Map<String, Object> view = new LinkedHashMap<>();
+            view.put("jobId", defaultIfBlank(job.getJobId(), "-"));
+            view.put("module", defaultIfBlank(job.getModuleName(), "-"));
+            view.put("moduleCode", defaultIfBlank(job.getJobType(), defaultIfBlank(job.getJobId(), "-")));
+            view.put("moId", defaultIfBlank(defaultIfBlank(job.getMdId(), job.getMoId()), "-"));
+            view.put("mo", defaultIfBlank(job.getMdName(), defaultIfBlank(defaultIfBlank(job.getMdId(), job.getMoId()), "-")));
+            view.put("posted", defaultIfBlank(job.getPublishedAt(), "-"));
+            view.put("deadline", defaultIfBlank(job.getDeadline(), "-"));
+            view.put("seats", seats);
+            view.put("leaderSeats", leaderSeats);
+            view.put("memberSeats", memberSeats);
+            view.put("filled", approvedCount);
+            view.put("leaderFilled", leaderFilled);
+            view.put("memberFilled", memberFilled);
+            view.put("vacancies", vacancies);
+            view.put("applicationCount", jobApplications.size());
+            view.put("statusText", actionNeeded ? "Action Needed" : defaultIfBlank(job.getStatus(), "Filled"));
+            view.put("statusClass", actionNeeded ? "warning" : "success");
+            view.put("liveDays", "-");
+            view.put("requirements", defaultIfBlank(job.getRequirements(), "-"));
+            view.put("details", defaultIfBlank(job.getIntroduction(), "-"));
+            view.put("approvedTas", buildApplicationSummary(jobApplications, "APPROVED"));
+            view.put("pendingTas", buildPendingApplicationSummary(jobApplications));
+            projectViews.add(view);
+        }
+
+        return projectViews;
     }
 
     public OperationLog recordOperationLog(
@@ -150,6 +206,40 @@ public class AdminService {
                 .filter(application -> application != null
                         && "APPROVED".equalsIgnoreCase(application.getStatus()))
                 .count();
+    }
+
+    private long countApprovedApplicationsByType(List<Application> applications, String type) {
+        if (applications == null) {
+            return 0;
+        }
+
+        return applications.stream()
+                .filter(application -> application != null
+                        && "APPROVED".equalsIgnoreCase(application.getStatus())
+                        && type.equalsIgnoreCase(defaultIfBlank(application.getApplicationType(), "")))
+                .count();
+    }
+
+    private String buildApplicationSummary(List<Application> applications, String status) {
+        if (applications == null) {
+            return "";
+        }
+
+        return applications.stream()
+                .filter(application -> application != null && status.equalsIgnoreCase(application.getStatus()))
+                .map(application -> defaultIfBlank(application.getStudentId(), "-") + "|-|" + defaultIfBlank(application.getApplicationType(), "-"))
+                .collect(Collectors.joining(";"));
+    }
+
+    private String buildPendingApplicationSummary(List<Application> applications) {
+        if (applications == null) {
+            return "";
+        }
+
+        return applications.stream()
+                .filter(application -> application != null && !"APPROVED".equalsIgnoreCase(application.getStatus()))
+                .map(application -> defaultIfBlank(application.getStudentId(), "-") + "|-|" + defaultIfBlank(application.getStatus(), "PENDING"))
+                .collect(Collectors.joining(";"));
     }
 
     public boolean isJobActionNeeded(Job job, List<Application> applications) {
@@ -241,5 +331,9 @@ public class AdminService {
 
     private String defaultIfBlank(String value, String defaultValue) {
         return isBlank(value) ? defaultValue : value.trim();
+    }
+
+    private boolean sameId(String left, String right) {
+        return !isBlank(left) && !isBlank(right) && left.trim().equals(right.trim());
     }
 }

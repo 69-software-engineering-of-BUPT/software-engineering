@@ -54,7 +54,7 @@
                         <small>TA and MO accounts</small>
                     </span>
                 </a>
-                <a class="nav-item" href="${pageContext.request.contextPath}/jsp/ad/projects.jsp">
+                <a class="nav-item" href="${pageContext.request.contextPath}/ad/projects">
                     <span class="nav-icon">PM</span>
                     <span>
                         <strong>Project Management</strong>

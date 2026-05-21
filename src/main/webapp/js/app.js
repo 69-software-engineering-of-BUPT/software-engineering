@@ -390,6 +390,10 @@ function buildProjectPayloadFromRow(row) {
 		deadline: data.deadline || '',
 		seats: data.seats || '',
 		filled: data.filled || '',
+		leaderSeats: data.leaderSeats || '',
+		leaderFilled: data.leaderFilled || '',
+		memberSeats: data.memberSeats || '',
+		memberFilled: data.memberFilled || '',
 		vacancies: data.vacancies || '',
 		statusText: data.statusText || '',
 		statusClass: data.statusClass || 'warning',
@@ -437,6 +441,8 @@ function renderProjectViewData(payload) {
 	var postedNode = document.getElementById('project-view-posted');
 	var deadlineNode = document.getElementById('project-view-deadline');
 	var capacityNode = document.getElementById('project-view-capacity');
+	var leaderCapacityNode = document.getElementById('project-view-leader-capacity');
+	var memberCapacityNode = document.getElementById('project-view-member-capacity');
 	var reqNode = document.getElementById('project-view-req');
 	var descNode = document.getElementById('project-view-desc');
 
@@ -453,6 +459,12 @@ function renderProjectViewData(payload) {
 	postedNode.textContent = payload.posted || '-';
 	deadlineNode.textContent = payload.deadline || '-';
 	capacityNode.textContent = (payload.seats || '0') + ' / ' + (payload.filled || '0') + ' / ' + (payload.vacancies || '0');
+	if (leaderCapacityNode) {
+		leaderCapacityNode.textContent = (payload.leaderFilled || '0') + ' / ' + (payload.leaderSeats || '0');
+	}
+	if (memberCapacityNode) {
+		memberCapacityNode.textContent = (payload.memberFilled || '0') + ' / ' + (payload.memberSeats || '0');
+	}
 	reqNode.textContent = (payload.requirements || '-').split(';').join(' · ');
 	descNode.textContent = payload.details || '-';
 
@@ -500,6 +512,8 @@ function renderProjectDetail(row) {
 	var postedNode = document.getElementById('project-detail-posted');
 	var deadlineNode = document.getElementById('project-detail-deadline');
 	var capacityNode = document.getElementById('project-detail-capacity');
+	var leaderCapacityNode = document.getElementById('project-detail-leader-capacity');
+	var memberCapacityNode = document.getElementById('project-detail-member-capacity');
 	var reqNode = document.getElementById('project-detail-req');
 	var descNode = document.getElementById('project-detail-desc');
 
@@ -516,6 +530,12 @@ function renderProjectDetail(row) {
 	postedNode.textContent = data.posted || '-';
 	deadlineNode.textContent = data.deadline || '-';
 	capacityNode.textContent = (data.seats || '0') + ' / ' + (data.filled || '0') + ' / ' + (data.vacancies || '0');
+	if (leaderCapacityNode) {
+		leaderCapacityNode.textContent = (data.leaderFilled || '0') + ' / ' + (data.leaderSeats || '0');
+	}
+	if (memberCapacityNode) {
+		memberCapacityNode.textContent = (data.memberFilled || '0') + ' / ' + (data.memberSeats || '0');
+	}
 	reqNode.textContent = (data.requirements || '-').split(';').join(' · ');
 	descNode.textContent = data.details || '-';
 

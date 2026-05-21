@@ -53,7 +53,7 @@
                         <small>TA and MO accounts</small>
                     </span>
                 </a>
-                <a class="nav-item active" href="${pageContext.request.contextPath}/jsp/ad/projects.jsp">
+                <a class="nav-item active" href="${pageContext.request.contextPath}/ad/projects">
                     <span class="nav-icon">PM</span>
                     <span>
                         <strong>Project Management</strong>
@@ -112,147 +112,21 @@
                 <section class="list-card project-list-card">
                     <div class="list-title-row">
                         <h2>Project list</h2>
-                        <span>4 item(s)</span>
+                        <span>0 item(s)</span>
                     </div>
 
                     <div class="list-head">
                         <span>MODULE</span>
                         <span>MO</span>
                         <span>POSTED</span>
-                        <span>SEATS</span>
-                        <span>FILLED</span>
+                        <span>LEADER</span>
+                        <span>MEMBER</span>
                         <span>VACANCIES</span>
                         <span>STATUS</span>
                         <span>ACTION</span>
                     </div>
 
-                    <article class="list-row project-row active"
-                             data-module="Academic Writing Workshop TA"
-                             data-module-code="LAN4005"
-                             data-mo="Dr. Zhao"
-                             data-posted="14 Mar 2026"
-                             data-deadline="20 Apr 2026"
-                             data-seats="2"
-                             data-filled="2"
-                             data-vacancies="0"
-                             data-status-text="Filled"
-                             data-status-class="success"
-                             data-live-days="6"
-                             data-requirements="Strong writing skills;Academic English background;Clear communication"
-                             data-details="Support tutorial preparation, attendance checks and assignment rubric support."
-                             data-approved-tas="Mia Wang|mia.wang@campus.edu|3.9 GPA;Daniel Gu|daniel.gu@campus.edu|2.0 yrs TA exp"
-                             data-pending-tas="">
-                        <div>
-                            <strong>Academic Writing Workshop TA</strong>
-                            <small>LAN4005 · 6 day(s) live</small>
-                        </div>
-                        <span>Dr. Zhao</span>
-                        <span>14 Mar 2026</span>
-                        <span>2</span>
-                        <span>2</span>
-                        <span>0</span>
-                        <span class="status success">● Filled</span>
-                        <div class="row-actions">
-                            <button data-action="project-remind">Remind MO</button>
-                            <button data-action="project-view">View</button>
-                        </div>
-                    </article>
-
-                    <article class="list-row warn project-row"
-                             data-module="Advanced Data Analytics TA"
-                             data-module-code="DATA6021"
-                             data-mo="Dr. Chen"
-                             data-posted="12 Mar 2026"
-                             data-deadline="18 Apr 2026"
-                             data-seats="2"
-                             data-filled="1"
-                             data-vacancies="1"
-                             data-status-text="Action Needed"
-                             data-status-class="warning"
-                             data-live-days="8"
-                             data-requirements="Machine learning background;Python;Clear written communication"
-                             data-details="Support lab preparation, attendance checks and experiment record reviews."
-                             data-approved-tas="Mia Wang|mia.wang@campus.edu|3.8 GPA"
-                             data-pending-tas="Leo Li|leo.li@campus.edu|Data Mining focus;Sara Xu|sara.xu@campus.edu|5 failed logins">
-                        <div>
-                            <strong>Advanced Data Analytics TA</strong>
-                            <small>DATA6021 · 8 day(s) live</small>
-                        </div>
-                        <span>Dr. Chen</span>
-                        <span>12 Mar 2026</span>
-                        <span>2</span>
-                        <span>1</span>
-                        <span>1</span>
-                        <span class="status warning">● Action Needed</span>
-                        <div class="row-actions">
-                            <button data-action="project-remind">Remind MO</button>
-                            <button data-action="project-view">View</button>
-                        </div>
-                    </article>
-
-                    <article class="list-row warn project-row"
-                             data-module="Human Computer Interaction Studio TA"
-                             data-module-code="DES5032"
-                             data-mo="Prof. Morgan"
-                             data-posted="10 Mar 2026"
-                             data-deadline="16 Apr 2026"
-                             data-seats="1"
-                             data-filled="0"
-                             data-vacancies="1"
-                             data-status-text="Action Needed"
-                             data-status-class="warning"
-                             data-live-days="10"
-                             data-requirements="UX research experience;Figma prototyping;Workshop facilitation"
-                             data-details="Assist with studio workshops, prototype critique sessions and rubric reviews."
-                             data-approved-tas=""
-                             data-pending-tas="Lin Yu|yu.ta@campus.edu|Portfolio under review;Tina Zhou|tina.zhou@campus.edu|Strong UX writing">
-                        <div>
-                            <strong>Human Computer Interaction Studio TA</strong>
-                            <small>DES5032 · 10 day(s) live</small>
-                        </div>
-                        <span>Prof. Morgan</span>
-                        <span>10 Mar 2026</span>
-                        <span>1</span>
-                        <span>0</span>
-                        <span>1</span>
-                        <span class="status warning">● Action Needed</span>
-                        <div class="row-actions">
-                            <button data-action="project-remind">Remind MO</button>
-                            <button data-action="project-view">View</button>
-                        </div>
-                    </article>
-
-                    <article class="list-row warn project-row"
-                             data-module="Foundation Economics TA"
-                             data-module-code="ECO1010"
-                             data-mo="Dr. Chen"
-                             data-posted="05 Mar 2026"
-                             data-deadline="22 Apr 2026"
-                             data-seats="3"
-                             data-filled="1"
-                             data-vacancies="2"
-                             data-status-text="Action Needed"
-                             data-status-class="warning"
-                             data-live-days="15"
-                             data-requirements="Economics major preferred;SPSS basic skills;Reliable attendance"
-                             data-details="Support tutorial Q&A, midterm prep sessions and marking assistance."
-                             data-approved-tas="Mia Wang|mia.wang@campus.edu|Macroeconomics A"
-                             data-pending-tas="Daniel Gu|daniel.gu@campus.edu|2/3 load;Nora Lin|nora.lin@campus.edu|First-time applicant">
-                        <div>
-                            <strong>Foundation Economics TA</strong>
-                            <small>ECO1010 · 15 day(s) live</small>
-                        </div>
-                        <span>Dr. Chen</span>
-                        <span>05 Mar 2026</span>
-                        <span>3</span>
-                        <span>1</span>
-                        <span>2</span>
-                        <span class="status warning">● Action Needed</span>
-                        <div class="row-actions">
-                            <button data-action="project-remind">Remind MO</button>
-                            <button data-action="project-view">View</button>
-                        </div>
-                    </article>
+                    <div id="project-list-body"></div>
                 </section>
 
                 <aside class="list-card project-detail-card" id="project-detail-panel">
@@ -283,6 +157,14 @@
                                 <small>SEATS / FILLED / VACANCIES</small>
                                 <strong id="project-detail-capacity">2 / 2 / 0</strong>
                             </div>
+                            <div class="detail-kv">
+                                <small>LEADER FILLED / SEATS</small>
+                                <strong id="project-detail-leader-capacity">0 / 0</strong>
+                            </div>
+                            <div class="detail-kv">
+                                <small>MEMBER FILLED / SEATS</small>
+                                <strong id="project-detail-member-capacity">0 / 0</strong>
+                            </div>
                             <div class="detail-kv detail-kv-full">
                                 <small>REQUIREMENTS</small>
                                 <strong id="project-detail-req">Strong writing skills · Academic English background · Clear communication</strong>
@@ -312,6 +194,85 @@
         </main>
     </div>
 </div>
+<script type="application/json" id="project-views-json"><%= request.getAttribute("projectViewsJson") != null ? request.getAttribute("projectViewsJson") : "[]" %></script>
+<script>
+(function () {
+    var raw = document.getElementById('project-views-json');
+    var container = document.getElementById('project-list-body');
+    var countNode = document.querySelector('.project-list-card .list-title-row span');
+    if (!raw || !container) return;
+
+    function escHtml(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function value(v, fallback) {
+        return v == null || v === '' ? fallback : v;
+    }
+
+    var projects;
+    try {
+        projects = JSON.parse(raw.textContent || '[]');
+    } catch (e) {
+        projects = [];
+    }
+
+    projects.forEach(function (project, index) {
+        var statusClass = project.statusClass === 'warning' ? 'warning' : 'success';
+        var row = document.createElement('article');
+        row.className = 'list-row project-row' + (statusClass === 'warning' ? ' warn' : '') + (index === 0 ? ' active' : '');
+        row.dataset.jobId = value(project.jobId, '');
+        row.dataset.module = value(project.module, '-');
+        row.dataset.moduleCode = value(project.moduleCode, '-');
+        row.dataset.mo = value(project.mo, '-');
+        row.dataset.moId = value(project.moId, '-');
+        row.dataset.posted = value(project.posted, '-');
+        row.dataset.deadline = value(project.deadline, '-');
+        row.dataset.seats = value(project.seats, 0);
+        row.dataset.filled = value(project.filled, 0);
+        row.dataset.leaderSeats = value(project.leaderSeats, 0);
+        row.dataset.leaderFilled = value(project.leaderFilled, 0);
+        row.dataset.memberSeats = value(project.memberSeats, 0);
+        row.dataset.memberFilled = value(project.memberFilled, 0);
+        row.dataset.vacancies = value(project.vacancies, 0);
+        row.dataset.statusText = value(project.statusText, '-');
+        row.dataset.statusClass = statusClass;
+        row.dataset.liveDays = value(project.liveDays, '-');
+        row.dataset.requirements = value(project.requirements, '-');
+        row.dataset.details = value(project.details, '-');
+        row.dataset.approvedTas = value(project.approvedTas, '');
+        row.dataset.pendingTas = value(project.pendingTas, '');
+
+        row.innerHTML =
+            '<div><strong>' + escHtml(value(project.module, '-')) + '</strong><small>' +
+            escHtml(value(project.moduleCode, '-')) + ' · ' + escHtml(value(project.applicationCount, 0)) + ' application(s)</small></div>' +
+            '<span>' + escHtml(value(project.mo, '-')) + '</span>' +
+            '<span>' + escHtml(value(project.posted, '-')) + '</span>' +
+            '<span>' + escHtml(value(project.leaderFilled, 0)) + ' / ' + escHtml(value(project.leaderSeats, 0)) + '</span>' +
+            '<span>' + escHtml(value(project.memberFilled, 0)) + ' / ' + escHtml(value(project.memberSeats, 0)) + '</span>' +
+            '<span>' + escHtml(value(project.vacancies, 0)) + '</span>' +
+            '<span class="status ' + statusClass + '">● ' + escHtml(value(project.statusText, '-')) + '</span>' +
+            '<div class="row-actions"><button data-action="project-remind">Remind MO</button><button data-action="project-view">View</button></div>';
+
+        container.appendChild(row);
+    });
+
+    if (countNode) {
+        countNode.textContent = projects.length + ' item(s)';
+    }
+
+    if (projects.length === 0) {
+        var empty = document.createElement('p');
+        empty.style.cssText = 'padding:14px;color:#aaa;font-size:13px;';
+        empty.textContent = 'No published positions found.';
+        container.appendChild(empty);
+    }
+}());
+</script>
 <script src="${pageContext.request.contextPath}/js/app.js?v=20260518-oplog"></script>
 </body>
 </html>
