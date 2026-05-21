@@ -119,8 +119,8 @@
                         <span>MODULE</span>
                         <span>MO</span>
                         <span>POSTED</span>
-                        <span>SEATS</span>
-                        <span>FILLED</span>
+                        <span>LEADER</span>
+                        <span>MEMBER</span>
                         <span>VACANCIES</span>
                         <span>STATUS</span>
                         <span>ACTION</span>
@@ -156,6 +156,14 @@
                             <div class="detail-kv">
                                 <small>SEATS / FILLED / VACANCIES</small>
                                 <strong id="project-detail-capacity">2 / 2 / 0</strong>
+                            </div>
+                            <div class="detail-kv">
+                                <small>LEADER FILLED / SEATS</small>
+                                <strong id="project-detail-leader-capacity">0 / 0</strong>
+                            </div>
+                            <div class="detail-kv">
+                                <small>MEMBER FILLED / SEATS</small>
+                                <strong id="project-detail-member-capacity">0 / 0</strong>
                             </div>
                             <div class="detail-kv detail-kv-full">
                                 <small>REQUIREMENTS</small>
@@ -226,6 +234,10 @@
         row.dataset.deadline = value(project.deadline, '-');
         row.dataset.seats = value(project.seats, 0);
         row.dataset.filled = value(project.filled, 0);
+        row.dataset.leaderSeats = value(project.leaderSeats, 0);
+        row.dataset.leaderFilled = value(project.leaderFilled, 0);
+        row.dataset.memberSeats = value(project.memberSeats, 0);
+        row.dataset.memberFilled = value(project.memberFilled, 0);
         row.dataset.vacancies = value(project.vacancies, 0);
         row.dataset.statusText = value(project.statusText, '-');
         row.dataset.statusClass = statusClass;
@@ -240,8 +252,8 @@
             escHtml(value(project.moduleCode, '-')) + ' · ' + escHtml(value(project.applicationCount, 0)) + ' application(s)</small></div>' +
             '<span>' + escHtml(value(project.mo, '-')) + '</span>' +
             '<span>' + escHtml(value(project.posted, '-')) + '</span>' +
-            '<span>' + escHtml(value(project.seats, 0)) + '</span>' +
-            '<span>' + escHtml(value(project.filled, 0)) + '</span>' +
+            '<span>' + escHtml(value(project.leaderFilled, 0)) + ' / ' + escHtml(value(project.leaderSeats, 0)) + '</span>' +
+            '<span>' + escHtml(value(project.memberFilled, 0)) + ' / ' + escHtml(value(project.memberSeats, 0)) + '</span>' +
             '<span>' + escHtml(value(project.vacancies, 0)) + '</span>' +
             '<span class="status ' + statusClass + '">● ' + escHtml(value(project.statusText, '-')) + '</span>' +
             '<div class="row-actions"><button data-action="project-remind">Remind MO</button><button data-action="project-view">View</button></div>';
