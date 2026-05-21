@@ -53,7 +53,7 @@
                         <small>TA and MO accounts</small>
                     </span>
                 </a>
-                <a class="nav-item active" href="${pageContext.request.contextPath}/jsp/ad/projects.jsp">
+                <a class="nav-item active" href="${pageContext.request.contextPath}/ad/projects">
                     <span class="nav-icon">PM</span>
                     <span>
                         <strong>Project Management</strong>
@@ -77,7 +77,7 @@
                     <p>Course details and TA information</p>
                 </div>
                 <div class="filter-actions">
-                    <a class="chip-button" href="${pageContext.request.contextPath}/jsp/ad/projects.jsp">Back to project list</a>
+                    <a class="chip-button" href="${pageContext.request.contextPath}/ad/projects">Back to project list</a>
                 </div>
             </section>
 
