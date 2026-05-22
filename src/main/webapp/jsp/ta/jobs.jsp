@@ -148,6 +148,7 @@
 </div>
 
 <script type="application/json" id="ta-jobs-json"><%= request.getAttribute("jobListJson") != null ? request.getAttribute("jobListJson") : "[]" %></script>
+<script type="application/json" id="ta-applied-ids-json"><%= request.getAttribute("appliedJobIdsJson") != null ? request.getAttribute("appliedJobIdsJson") : "[]" %></script>
 <script>
     window.TA_CONTEXT = "${pageContext.request.contextPath}";
 </script>

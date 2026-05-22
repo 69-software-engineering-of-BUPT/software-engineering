@@ -1,5 +1,6 @@
 package com.bupt.tarecruit.controller;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,7 +64,12 @@ public class TAApplyServlet extends HttpServlet {
 
             // AD001: enforce 3-active-job limit
             User user = userRepo.getUserById(studentId);
-            if (user != null && user.getActiveJobsCount() >= 3) {
+            if (user == null) {
+                req.getSession().setAttribute("applyError", "User account not found. Please re-login.");
+                resp.sendRedirect(req.getContextPath() + "/ta/jobs");
+                return;
+            }
+            if (user.getActiveJobsCount() >= 3) {
                 req.getSession().setAttribute("applyError", "You have reached the maximum of 3 active TA positions.");
                 resp.sendRedirect(req.getContextPath() + "/ta/jobs");
                 return;
@@ -74,24 +80,30 @@ public class TAApplyServlet extends HttpServlet {
             Part filePart = req.getPart("cvFile");
             if (filePart != null && filePart.getSize() > 0) {
                 String fileName = getFileName(filePart);
-                if (fileName != null && fileName.toLowerCase().endsWith(".pdf")) {
-                    File uploadDir = new File(getServletContext().getRealPath("/uploads/"));
-                    if (!uploadDir.exists()) uploadDir.mkdirs();
-                    String savedName = "cv_" + studentId + ".pdf";
-                    try (InputStream input = filePart.getInputStream()) {
-                        Files.copy(input, Paths.get(uploadDir.getAbsolutePath(), savedName), StandardCopyOption.REPLACE_EXISTING);
-                    }
-                    String urlPath = "uploads/" + savedName;
-                    if (user != null) {
-                        user.setCvFilePath(urlPath);
-                        userRepo.saveUser(user);
-                    }
-                    cvUploaded = true;
-                } else {
+                if (fileName == null || !fileName.toLowerCase().endsWith(".pdf")) {
                     req.getSession().setAttribute("applyError", "Only PDF files are accepted for CV.");
                     resp.sendRedirect(req.getContextPath() + "/ta/jobs");
                     return;
                 }
+                // Read all bytes first so we can validate magic bytes AND write the file
+                byte[] fileBytes;
+                try (InputStream input = filePart.getInputStream()) {
+                    fileBytes = input.readAllBytes();
+                }
+                if (!isPdfMagicBytes(fileBytes)) {
+                    req.getSession().setAttribute("applyError", "Only valid PDF files are accepted for CV.");
+                    resp.sendRedirect(req.getContextPath() + "/ta/jobs");
+                    return;
+                }
+                File uploadDir = new File(CvFileServlet.UPLOAD_DIR);
+                if (!uploadDir.exists()) uploadDir.mkdirs();
+                String savedName = "cv_" + studentId + ".pdf";
+                try (InputStream input = new ByteArrayInputStream(fileBytes)) {
+                    Files.copy(input, Paths.get(uploadDir.getAbsolutePath(), savedName), StandardCopyOption.REPLACE_EXISTING);
+                }
+                user.setCvFilePath("uploads/" + savedName);
+                userRepo.saveUser(user);
+                cvUploaded = true;
             }
 
             Application app = new Application();
@@ -104,10 +116,8 @@ public class TAApplyServlet extends HttpServlet {
             applicationService.submitApplication(app);
 
             // Increment active jobs counter
-            if (user != null) {
-                user.setActiveJobsCount(user.getActiveJobsCount() + 1);
-                userRepo.saveUser(user);
-            }
+            user.setActiveJobsCount(user.getActiveJobsCount() + 1);
+            userRepo.saveUser(user);
 
             req.getSession().setAttribute("applySuccess", "Application submitted successfully for " + job.getModuleName() + "!");
             resp.sendRedirect(req.getContextPath() + "/ta/jobs");
@@ -129,6 +139,13 @@ public class TAApplyServlet extends HttpServlet {
             is.read(bytes);
             return new String(bytes, "UTF-8");
         }
+    }
+
+    private static boolean isPdfMagicBytes(byte[] bytes) {
+        // PDF files must start with %PDF- (25 50 44 46 2D)
+        return bytes.length >= 5
+            && bytes[0] == '%' && bytes[1] == 'P' && bytes[2] == 'D'
+            && bytes[3] == 'F' && bytes[4] == '-';
     }
 
     private String getFileName(Part part) {
