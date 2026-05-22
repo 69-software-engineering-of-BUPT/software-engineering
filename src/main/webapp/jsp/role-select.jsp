@@ -21,7 +21,7 @@
         <section class="list-card">
             <div class="list-title-row"><h2>Role-based access</h2><span>Protected</span></div>
             <p style="margin:0 0 16px;color:#69707a;line-height:1.6;">This page is informational only. Use the sign-in page with a real user ID and password to enter as TA, MO, or Admin.</p>
-            <a class="chip-button active" href="${pageContext.request.contextPath}/jsp/login.jsp">Go to sign-in</a>
+            <a class="chip-button active" href="${pageContext.request.contextPath}/login">Go to sign-in</a>
         </section>
     </main>
 </div>
