@@ -42,12 +42,20 @@ public class AuthFilter implements Filter {
 
         HttpSession session = httpRequest.getSession(false);
         if (session == null || session.getAttribute("userRole") == null) {
+            if (isAjaxRequest(httpRequest)) {
+                sendJson(httpResponse, HttpServletResponse.SC_UNAUTHORIZED, "{\"error\":\"Login required\"}");
+                return;
+            }
             httpResponse.sendRedirect(contextPath + "/login");
             return;
         }
 
         String actualRole = String.valueOf(session.getAttribute("userRole"));
         if (!requiredRole.equals(actualRole)) {
+            if (isAjaxRequest(httpRequest)) {
+                sendJson(httpResponse, HttpServletResponse.SC_FORBIDDEN, "{\"error\":\"Access denied\"}");
+                return;
+            }
             httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
@@ -83,5 +91,20 @@ public class AuthFilter implements Filter {
             return "ADMIN";
         }
         return null;
+    }
+
+    private boolean isAjaxRequest(HttpServletRequest request) {
+        String requestedWith = request.getHeader("X-Requested-With");
+        String accept = request.getHeader("Accept");
+        return "XMLHttpRequest".equals(requestedWith)
+            || (accept != null && accept.toLowerCase().contains("application/json"));
+    }
+
+    private void sendJson(HttpServletResponse response, int status, String json) throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Cache-Control", "no-store");
+        response.getWriter().write(json);
     }
 }

@@ -1,12 +1,19 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.bupt.tarecruit.model.Application" %>
+<%@ page import="com.bupt.tarecruit.service.MOConversationService" %>
 <%
     String userId   = (String) request.getAttribute("userId");
     String userName = (String) request.getAttribute("userName");
     if (userId == null) userId = "";
     if (userName == null) userName = "Module Organiser";
     String avatarText = userName.length() >= 2 ? userName.substring(0, 2).toUpperCase() : "MO";
+    int conversationUnreadCount = 0;
+    try {
+        if (userId != null && !userId.trim().isEmpty()) {
+            conversationUnreadCount = new MOConversationService().countUnreadThreads(userId);
+        }
+    } catch (Exception ignored) { }
 
     List<Application> applicationList = (List<Application>) request.getAttribute("applicationList");
     int totalCount = applicationList == null ? 0 : applicationList.size();
@@ -74,6 +81,10 @@
                 <a class="nav-item active" href="${pageContext.request.contextPath}/mo/applications">
                     <span class="nav-icon">AP</span>
                     <span><strong>Applications</strong><small>All applications</small></span>
+                </a>
+                <a class="nav-item" href="${pageContext.request.contextPath}/mo/conversations">
+                    <span class="nav-icon">CN</span>
+                    <span><strong>Conversation</strong><small><%= conversationUnreadCount > 0 ? conversationUnreadCount + " new" : "TA messages" %></small></span>
                 </a>
             </section>
         </aside>

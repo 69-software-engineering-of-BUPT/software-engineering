@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.bupt.tarecruit.model.ApplicationView" %>
+<%@ page import="com.bupt.tarecruit.service.MOConversationService" %>
 <%
     String userId   = (String) request.getAttribute("userId");
     String userName = (String) request.getAttribute("userName");
@@ -12,6 +13,12 @@
     List<ApplicationView> latestApps = (List<ApplicationView>) request.getAttribute("latestApps");
     
     if (pendingCount == null) pendingCount = 0;
+    int conversationUnreadCount = 0;
+    try {
+        if (userId != null && !userId.trim().isEmpty()) {
+            conversationUnreadCount = new MOConversationService().countUnreadThreads(userId);
+        }
+    } catch (Exception ignored) { }
 %>
 <!DOCTYPE html>
 <html>
@@ -84,6 +91,10 @@
                 <a class="nav-item" href="${pageContext.request.contextPath}/mo/applications">
                     <span class="nav-icon">AP</span>
                     <span><strong>Applications</strong><small><%= pendingCount %> pending</small></span>
+                </a>
+                <a class="nav-item" href="${pageContext.request.contextPath}/mo/conversations">
+                    <span class="nav-icon">CN</span>
+                    <span><strong>Conversation</strong><small><%= conversationUnreadCount > 0 ? conversationUnreadCount + " new" : "TA messages" %></small></span>
                 </a>
             </section>
         </aside>

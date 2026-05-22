@@ -2,6 +2,7 @@
 <%@ page import="com.bupt.tarecruit.model.Application" %>
 <%@ page import="com.bupt.tarecruit.model.Job" %>
 <%@ page import="com.bupt.tarecruit.model.User" %>
+<%@ page import="com.bupt.tarecruit.service.MOConversationService" %>
 <%!
     private String esc(String value) {
         if (value == null) return "";
@@ -38,6 +39,10 @@
     if (userId == null) userId = "";
     if (userName == null) userName = "Module Organiser";
     String avatarText = userName.length() >= 2 ? userName.substring(0, 2).toUpperCase() : "MO";
+    int conversationUnreadCount = 0;
+    try {
+        if (hasText(userId)) conversationUnreadCount = new MOConversationService().countUnreadThreads(userId);
+    } catch (Exception ignored) { }
 
     Application app = (Application) request.getAttribute("application");
     if (app == null) {
@@ -128,6 +133,9 @@
                 <a class="nav-item active" href="<%= contextPath %>/mo/applications">
                     <span class="nav-icon">AP</span><span><strong>Applications</strong><small>All applications</small></span>
                 </a>
+                <a class="nav-item" href="<%= contextPath %>/mo/conversations">
+                    <span class="nav-icon">CN</span><span><strong>Conversation</strong><small><%= conversationUnreadCount > 0 ? conversationUnreadCount + " new" : "TA messages" %></small></span>
+                </a>
             </section>
         </aside>
 
@@ -192,15 +200,6 @@
                     <div class="detail-item"><small>Research Area</small><strong><%= ta == null ? "-" : show(ta.getResearchArea()) %></strong></div>
                     <div class="detail-item"><small>CET-6 Grade</small><strong><%= ta == null ? "-" : show(ta.getCet6Grade()) %></strong></div>
                     <div class="detail-item"><small>Active Jobs Count</small><strong><%= ta == null ? "-" : String.valueOf(ta.getActiveJobsCount()) %></strong></div>
-                </div>
-            </section>
-
-            <section class="list-card">
-                <div class="list-title-row"><h2>Statement & Conversation</h2></div>
-                <div class="statement-box"><%= hasText(app.getStatement()) ? esc(app.getStatement()) : "No statement submitted." %></div>
-                <div class="detail-item">
-                    <small>Current Feedback</small>
-                    <strong><%= show(app.getFeedback()) %></strong>
                 </div>
             </section>
 
