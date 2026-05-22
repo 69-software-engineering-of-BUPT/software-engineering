@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 import com.bupt.tarecruit.service.AuthService;
 import com.bupt.tarecruit.service.AuthenticatedUser;
 import com.bupt.tarecruit.service.AuthenticationException;
+import com.bupt.tarecruit.util.RoleHomeUtil;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
@@ -22,7 +23,8 @@ public class LoginServlet extends HttpServlet {
         HttpSession session = req.getSession(false);
         if (session != null && session.getAttribute("userAccount") != null) {
             try {
-                resp.sendRedirect(req.getContextPath() + targetFor((String) session.getAttribute("userRole")));
+                resp.sendRedirect(req.getContextPath()
+                        + RoleHomeUtil.resolveHomePath((String) session.getAttribute("userRole")));
             } catch (AuthenticationException ex) {
                 session.invalidate();
                 resp.sendRedirect(req.getContextPath() + "/login");
@@ -42,7 +44,7 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("userAccount", user.getUserId());
             session.setAttribute("userRole", user.getRole());
             session.setAttribute("userName", user.getName());
-            resp.sendRedirect(req.getContextPath() + targetFor(user.getRole()));
+            resp.sendRedirect(req.getContextPath() + RoleHomeUtil.resolveHomePath(user.getRole()));
         } catch (AuthenticationException ex) {
             String inputUserId = userId == null ? "" : userId.trim();
             req.setAttribute("loginError", ex.getMessage());
@@ -52,18 +54,5 @@ public class LoginServlet extends HttpServlet {
         } catch (Exception ex) {
             throw new ServletException("Login failed", ex);
         }
-    }
-
-    private String targetFor(String role) {
-        if ("TA".equals(role)) {
-            return "/ta/home";
-        }
-        if ("MO".equals(role)) {
-            return "/mo/home";
-        }
-        if ("ADMIN".equals(role)) {
-            return "/ad/accounts";
-        }
-        throw new AuthenticationException("Unsupported user role.");
     }
 }

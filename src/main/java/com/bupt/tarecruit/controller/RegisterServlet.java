@@ -11,6 +11,8 @@ import javax.servlet.http.HttpSession;
 
 import com.bupt.tarecruit.model.User;
 import com.bupt.tarecruit.repository.UserRepository;
+import com.bupt.tarecruit.service.AuthenticationException;
+import com.bupt.tarecruit.util.RoleHomeUtil;
 
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
@@ -21,13 +23,12 @@ public class RegisterServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
         if (session != null && session.getAttribute("userAccount") != null) {
-            String role = (String) session.getAttribute("userRole");
-            if ("ADMIN".equalsIgnoreCase(role)) {
-                resp.sendRedirect(req.getContextPath() + "/ad/home");
-            } else if ("MO".equalsIgnoreCase(role)) {
-                resp.sendRedirect(req.getContextPath() + "/mo/home");
-            } else {
-                resp.sendRedirect(req.getContextPath() + "/ta/home");
+            try {
+                resp.sendRedirect(req.getContextPath()
+                        + RoleHomeUtil.resolveHomePath((String) session.getAttribute("userRole")));
+            } catch (AuthenticationException ex) {
+                session.invalidate();
+                resp.sendRedirect(req.getContextPath() + "/login");
             }
             return;
         }
