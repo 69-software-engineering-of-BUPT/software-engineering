@@ -69,6 +69,13 @@
                         <small><%= unreadCount %> unread</small>
                     </span>
                 </a>
+                <a class="nav-item" id="ta-conv-nav-btn" href="${pageContext.request.contextPath}/ta/home?conv=1">
+                    <span class="nav-icon">CO</span>
+                    <span>
+                        <strong>Conversation</strong>
+                        <small>Messages from MO</small>
+                    </span>
+                </a>
             </section>
         </aside>
 
@@ -163,12 +170,12 @@
 
 <script type="application/json" id="ta-applications-json"><%= request.getAttribute("applicationListJson") != null ? request.getAttribute("applicationListJson") : "[]" %></script>
 <script>window.TA_CONTEXT = "${pageContext.request.contextPath}";</script>
-<script src="${pageContext.request.contextPath}/js/ta-home.js?v=20260409b"></script>
+<script src="${pageContext.request.contextPath}/js/ta-home.js?v=20260522b"></script>
 
 <div id="ta-feedback-overlay" class="ta-feedback-overlay" aria-hidden="true">
     <div class="ta-feedback-panel list-card" role="dialog" aria-modal="true" aria-labelledby="ta-feedback-title">
         <div class="ta-feedback-head">
-            <h2 id="ta-feedback-title">Application conversation</h2>
+            <h2 id="ta-feedback-title">Conversation</h2>
             <button type="button" class="chip-button" id="ta-feedback-close">Close</button>
         </div>
         <p class="ta-feedback-meta" id="ta-feedback-meta"></p>
@@ -184,6 +191,16 @@
                 <button type="submit" class="chip-button active">Send reply</button>
             </div>
         </form>
+    </div>
+</div>
+
+<div id="ta-feedback-modal" class="ta-feedback-overlay" aria-hidden="true">
+    <div class="ta-feedback-panel list-card" role="dialog" aria-modal="true" style="max-width:480px;">
+        <div class="ta-feedback-head">
+            <h2>Feedback</h2>
+            <button type="button" class="chip-button" id="ta-feedback-modal-close">Close</button>
+        </div>
+        <div id="ta-feedback-modal-body" style="padding:12px 0 4px; white-space:pre-wrap; line-height:1.6; color:#3d4148; font-size:14px;"></div>
     </div>
 </div>
 </body>

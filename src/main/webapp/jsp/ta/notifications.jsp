@@ -50,6 +50,10 @@
                     <span class="nav-icon">NT</span>
                     <span><strong>Notifications</strong><small>Status updates</small></span>
                 </span>
+                <a class="nav-item" id="ta-conv-nav-btn" href="${pageContext.request.contextPath}/ta/home?conv=1">
+                    <span class="nav-icon">CO</span>
+                    <span><strong>Conversation</strong><small>Messages from MO</small></span>
+                </a>
             </section>
         </aside>
 
@@ -77,6 +81,7 @@
 
 <script type="application/json" id="ta-notifications-json"><%= request.getAttribute("notificationsJson") != null ? request.getAttribute("notificationsJson") : "[]" %></script>
 <script>window.TA_CONTEXT = "${pageContext.request.contextPath}";</script>
-<script src="${pageContext.request.contextPath}/js/ta-notifications.js"></script>
+<script src="${pageContext.request.contextPath}/js/ta-notifications.js?v=20260522a"></script>
+<script src="${pageContext.request.contextPath}/js/ta-conv-widget.js?v=20260522a"></script>
 </body>
 </html>
