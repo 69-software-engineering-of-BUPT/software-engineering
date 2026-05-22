@@ -45,10 +45,11 @@
         card.appendChild(header);
 
         var content = document.createElement('p');
+        var displayContent = (n.content || '').replace(/\s*Feedback:.*$/i, '').trim();
         content.style.margin = '8px 0 0';
         content.style.color = '#3d4148';
         content.style.lineHeight = '1.5';
-        content.textContent = n.content || '';
+        content.textContent = displayContent || '';
         card.appendChild(content);
 
         var actions = document.createElement('div');

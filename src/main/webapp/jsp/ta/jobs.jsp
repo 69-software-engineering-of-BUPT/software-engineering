@@ -52,6 +52,10 @@
                     <span class="nav-icon">NT</span>
                     <span><strong>Notifications</strong><small>Status updates</small></span>
                 </a>
+                <a class="nav-item" id="ta-conv-nav-btn" href="${pageContext.request.contextPath}/ta/home?conv=1">
+                    <span class="nav-icon">CO</span>
+                    <span><strong>Conversation</strong><small>Messages from MO</small></span>
+                </a>
             </section>
 
         </aside>
@@ -153,5 +157,6 @@
     window.TA_CONTEXT = "${pageContext.request.contextPath}";
 </script>
 <script src="${pageContext.request.contextPath}/js/ta-jobs.js"></script>
+<script src="${pageContext.request.contextPath}/js/ta-conv-widget.js?v=20260522a"></script>
 </body>
 </html>

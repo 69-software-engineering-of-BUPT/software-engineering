@@ -110,33 +110,19 @@
             });
         }
 
-        // Separate decision feedback (not part of chat thread)
-        var fb = (app.feedback || '').trim();
-        if (fb) {
-            var divider = document.createElement('div');
-            divider.style.cssText = 'margin:10px 0 6px;font-size:11px;color:#9197a0;text-align:center;letter-spacing:.5px;';
-            divider.textContent = '— MO DECISION NOTE —';
-            chat.appendChild(divider);
-            addChatBubble(chat, 'Module organiser (decision note)', fb, 'mo');
-        }
-
         // Scroll to bottom
         chat.scrollTop = chat.scrollHeight;
 
         document.getElementById('ta-dialog-app-id').value = app.applicationId || '';
         document.getElementById('ta-dialog-reply').value = '';
-
-        var ph = 'Add a response for the module organiser.';
-        if (fb.length) {
-            ph = 'Reply to: "' + fb.substring(0, 120) + (fb.length > 120 ? '\u2026' : '') + '"';
-        }
-        document.getElementById('ta-dialog-reply').setAttribute('placeholder', ph);
+        document.getElementById('ta-dialog-reply').setAttribute('placeholder', 'Add a response for the module organiser.');
 
         document.getElementById('ta-feedback-meta').textContent =
             (app.moduleName || '\u2014') + ' \u00b7 ' + (app.jobId || '') + ' \u00b7 ' + (app.applicationId || '');
     }
 
     function openOverlay(app) {
+        try { sessionStorage.setItem('ta_active_app', JSON.stringify(app)); } catch (e) {}
         renderModal(app);
         var ov = document.getElementById('ta-feedback-overlay');
         ov.classList.add('ta-feedback-overlay--open');
@@ -149,6 +135,24 @@
         var ov = document.getElementById('ta-feedback-overlay');
         ov.classList.remove('ta-feedback-overlay--open');
         ov.setAttribute('aria-hidden', 'true');
+    }
+
+    function openFeedbackModal(app) {
+        var modal = document.getElementById('ta-feedback-modal');
+        var body = document.getElementById('ta-feedback-modal-body');
+        if (!modal || !body) return;
+        body.textContent = (app.feedback || '').trim() || 'No feedback provided yet.';
+        modal.classList.add('ta-feedback-overlay--open');
+        modal.setAttribute('aria-hidden', 'false');
+        markSeen(app);
+        refreshRowBadge(app.applicationId, loadSeen());
+    }
+
+    function closeFeedbackModal() {
+        var modal = document.getElementById('ta-feedback-modal');
+        if (!modal) return;
+        modal.classList.remove('ta-feedback-overlay--open');
+        modal.setAttribute('aria-hidden', 'true');
     }
 
     function refreshRowBadge(appId, seen) {
@@ -228,7 +232,7 @@
             btn.className = 'chip-button ta-feedback-btn';
             btn.textContent = 'Feedback';
             btn.addEventListener('click', function () {
-                openOverlay(app);
+                openFeedbackModal(app);
             });
             fbCell.appendChild(btn);
             row.appendChild(fbCell);
@@ -249,6 +253,7 @@
             apps = [];
         }
         window.__TA_APPS__ = apps;
+        try { sessionStorage.setItem('ta_apps', JSON.stringify(apps)); } catch (e) {}
 
         var seen = loadSeen();
         var filter = 'ALL';
@@ -269,6 +274,42 @@
         document.getElementById('ta-feedback-overlay').addEventListener('click', function (ev) {
             if (ev.target.id === 'ta-feedback-overlay') closeOverlay();
         });
+
+        var feedbackModalClose = document.getElementById('ta-feedback-modal-close');
+        if (feedbackModalClose) {
+            feedbackModalClose.addEventListener('click', closeFeedbackModal);
+        }
+        var feedbackModal = document.getElementById('ta-feedback-modal');
+        if (feedbackModal) {
+            feedbackModal.addEventListener('click', function (ev) {
+                if (ev.target.id === 'ta-feedback-modal') closeFeedbackModal();
+            });
+        }
+
+        var convNavBtn = document.getElementById('ta-conv-nav-btn');
+        if (convNavBtn) {
+            convNavBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                var activeApp = window.__TA_ACTIVE_APP__;
+                if (!activeApp && apps.length > 0) {
+                    activeApp = apps[0];
+                }
+                if (activeApp) {
+                    openOverlay(activeApp);
+                }
+            });
+        }
+
+        // Auto-open conversation when redirected from another page with ?conv=1
+        if (window.location.search.indexOf('conv=1') >= 0) {
+            var autoApp = window.__TA_ACTIVE_APP__ || (apps.length > 0 ? apps[0] : null);
+            if (autoApp) {
+                openOverlay(autoApp);
+            }
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, '', window.location.pathname);
+            }
+        }
 
         var replyForm = document.querySelector('.ta-reply-form');
         if (replyForm) {
