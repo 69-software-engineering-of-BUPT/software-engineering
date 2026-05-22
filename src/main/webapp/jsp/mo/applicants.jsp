@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.bupt.tarecruit.model.Application" %>
+<%@ page import="com.bupt.tarecruit.service.MOConversationService" %>
 <%
     // ===================== 修复：强制从 request 获取 jobId =====================
     String userId   = (String) request.getAttribute("userId");
@@ -13,6 +14,12 @@
     if (jobId == null) jobId = "Unknown Job"; // 修复点
 
     String avatarText = userName.length() >= 2 ? userName.substring(0, 2).toUpperCase() : "MO";
+    int conversationUnreadCount = 0;
+    try {
+        if (userId != null && !userId.trim().isEmpty()) {
+            conversationUnreadCount = new MOConversationService().countUnreadThreads(userId);
+        }
+    } catch (Exception ignored) { }
     
     List<Application> applicantList = (List<Application>) request.getAttribute("applicantList");
     int totalCount = applicantList == null ? 0 : applicantList.size();
@@ -79,6 +86,10 @@
                 <a class="nav-item" href="${pageContext.request.contextPath}/mo/applications">
                     <span class="nav-icon">AP</span>
                     <span><strong>Applications</strong><small>All applications</small></span>
+                </a>
+                <a class="nav-item" href="${pageContext.request.contextPath}/mo/conversations">
+                    <span class="nav-icon">CN</span>
+                    <span><strong>Conversation</strong><small><%= conversationUnreadCount > 0 ? conversationUnreadCount + " new" : "TA messages" %></small></span>
                 </a>
             </section>
         </aside>

@@ -13,6 +13,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.tomcat.port>8080</maven.tomcat.port>
     </properties>
 
     <dependencies>
@@ -58,7 +59,7 @@
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <version>2.2</version>
                 <configuration>
-                    <port>8080</port>
+                    <port>${maven.tomcat.port}</port>
                     <path>/</path>
                     <uriEncoding>UTF-8</uriEncoding>
                 </configuration>
