@@ -1,6 +1,7 @@
 package com.bupt.tarecruit.web;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -41,14 +42,17 @@ public class AuthFilter implements Filter {
         }
 
         HttpSession session = httpRequest.getSession(false);
-        if (session == null || session.getAttribute("userRole") == null) {
+        String actualRole = normalizeRole(session == null ? null : session.getAttribute("userRole"));
+        String userAccount = session == null ? null : trimToNull(session.getAttribute("userAccount"));
+        if (actualRole == null || userAccount == null) {
+            invalidateSession(session);
             httpResponse.sendRedirect(contextPath + "/login");
             return;
         }
 
-        String actualRole = String.valueOf(session.getAttribute("userRole"));
         if (!requiredRole.equals(actualRole)) {
-            httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
+            httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN,
+                    "Access denied: " + requiredRole + " role required.");
             return;
         }
 
@@ -67,9 +71,11 @@ public class AuthFilter implements Filter {
             || "/jsp/register.jsp".equals(path)
             || "/register".equals(path)
             || "/logout".equals(path)
+            || path.startsWith("/motest/")
             || path.startsWith("/css/")
             || path.startsWith("/js/")
-            || path.startsWith("/images/");
+            || path.startsWith("/images/")
+            || path.startsWith("/assets/");
     }
 
     private String getRequiredRole(String path) {
@@ -83,5 +89,34 @@ public class AuthFilter implements Filter {
             return "ADMIN";
         }
         return null;
+    }
+
+    private String normalizeRole(Object roleValue) {
+        if (roleValue == null) {
+            return null;
+        }
+        String role = roleValue.toString().trim().toUpperCase(Locale.ROOT);
+        if ("TA".equals(role) || "MO".equals(role) || "ADMIN".equals(role)) {
+            return role;
+        }
+        return null;
+    }
+
+    private String trimToNull(Object value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.toString().trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private void invalidateSession(HttpSession session) {
+        if (session == null) {
+            return;
+        }
+        try {
+            session.invalidate();
+        } catch (IllegalStateException ignored) {
+        }
     }
 }
