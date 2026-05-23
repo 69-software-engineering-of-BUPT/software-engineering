@@ -249,6 +249,12 @@
 
         /* --- Reply handler --- */
         var applicationId = app.applicationId;
+        textarea.addEventListener('keydown', function (ev) {
+            if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) {
+                ev.preventDefault();
+                if ((textarea.value || '').trim() && !sendBtn.disabled) sendBtn.click();
+            }
+        });
         sendBtn.addEventListener('click', function () {
             var message = (textarea.value || '').trim();
             if (!message || !applicationId) return;
@@ -402,18 +408,22 @@
         if (searchInput) searchInput.value = '';
         renderThreadList(apps, app.applicationId);
         renderChatWindow(app);
+        var mainContent = document.getElementById('ta-main-content');
+        if (mainContent) mainContent.style.display = 'none';
         var ov = document.getElementById('ta-feedback-overlay');
-        ov.classList.add('ta-feedback-overlay--open');
-        ov.setAttribute('aria-hidden', 'false');
+        if (ov) ov.classList.add('active');
+        document.body.classList.add('conv-active');
         markSeen(app);
         updateUnreadCount();
         refreshRowBadge(app.applicationId, loadSeen());
     }
 
     function closeOverlay() {
+        var mainContent = document.getElementById('ta-main-content');
+        if (mainContent) mainContent.style.display = '';
         var ov = document.getElementById('ta-feedback-overlay');
-        ov.classList.remove('ta-feedback-overlay--open');
-        ov.setAttribute('aria-hidden', 'true');
+        if (ov) ov.classList.remove('active');
+        document.body.classList.remove('conv-active');
     }
 
     function openFeedbackModal(app) {
@@ -549,10 +559,8 @@
             renderRows(apps, filter, loadSeen());
         });
 
-        document.getElementById('ta-feedback-close').addEventListener('click', closeOverlay);
-        document.getElementById('ta-feedback-overlay').addEventListener('click', function (ev) {
-            if (ev.target.id === 'ta-feedback-overlay') closeOverlay();
-        });
+        var closeBtn = document.getElementById('ta-feedback-close');
+        if (closeBtn) closeBtn.addEventListener('click', closeOverlay);
 
         var convSearch = document.getElementById('ta-conv-search');
         if (convSearch) {

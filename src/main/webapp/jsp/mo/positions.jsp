@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.bupt.tarecruit.model.Job" %>
+<%@ page import="com.bupt.tarecruit.model.ApplicationView" %>
+<%@ page import="com.bupt.tarecruit.service.ApplicationService" %>
 <%@ page import="com.bupt.tarecruit.service.MOConversationService" %>
 <%
     String userId   = (String) request.getAttribute("userId");
@@ -9,9 +11,13 @@
     if (userName == null) userName = "Module Organiser";
     String avatarText = userName.length() >= 2 ? userName.substring(0, 2).toUpperCase() : "MO";
     int conversationUnreadCount = 0;
+    int pendingCount = 0;
     try {
         if (userId != null && !userId.trim().isEmpty()) {
             conversationUnreadCount = new MOConversationService().countUnreadThreads(userId);
+            for (ApplicationView a : new ApplicationService().getApplicationsForMO(userId)) {
+                if ("PENDING".equalsIgnoreCase(a.getStatus())) pendingCount++;
+            }
         }
     } catch (Exception ignored) { }
 
@@ -28,8 +34,15 @@
     <meta charset="UTF-8" />
     <title>MO · Positions</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css" />
+    <style>
+        body.mo-positions-page .ad-shell { max-width: 1480px; }
+        body.mo-positions-page table th,
+        body.mo-positions-page table td { white-space: nowrap; }
+        body.mo-positions-page td.positions-actions-cell { white-space: nowrap; }
+        body.mo-positions-page td.positions-actions-cell .chip-button { flex-shrink: 0; }
+    </style>
 </head>
-<body class="ad-page">
+<body class="ad-page mo-positions-page">
 <div class="ad-shell ta-shell">
     <header class="ad-topbar">
         <div class="brand-group">
@@ -72,7 +85,7 @@
                 </a>
                 <a class="nav-item" href="${pageContext.request.contextPath}/mo/applications">
                     <span class="nav-icon">AP</span>
-                    <span><strong>Applications</strong><small>Manage applicants</small></span>
+                    <span><strong>Applications</strong><small><%= pendingCount > 0 ? pendingCount + " pending" : "Manage applicants" %></small></span>
                 </a>
                 <a class="nav-item" id="mo-conv-nav-btn" href="${pageContext.request.contextPath}/mo/conversations">
                     <span class="nav-icon">CN</span>
@@ -111,7 +124,7 @@
                                 <th style="padding:12px;text-align:left;">Job ID</th>
                                 <th style="padding:12px;text-align:left;">Module</th>
                                 <th style="padding:12px;text-align:left;">Type</th>
-                                <!-- 新增：表头 -->
+                                <!-- 新增：表�?-->
                                 <th style="padding:12px;text-align:left;">Leader Need</th>
                                 <th style="padding:12px;text-align:left;">Member Need</th>
                                 <th style="padding:12px;text-align:left;">Total Need</th>
@@ -125,14 +138,14 @@
                                 <td style="padding:12px;"><%= job.getJobId() %></td>
                                 <td style="padding:12px;"><%= job.getModuleName() %></td>
                                 <td style="padding:12px;"><%= job.getJobType() %></td>
-                                <!-- 新增：招聘人数数据 -->
+                                <!-- 新增：招聘人数数�?-->
                                 <td style="padding:12px;"><%= job.getLeaderCount() %></td>
                                 <td style="padding:12px;"><%= job.getMemberCount() %></td>
                                 <td style="padding:12px;"><%= total %></td>
                                 <td style="padding:12px;color:<%= "OPEN".equals(job.getStatus()) ? "green" : "red" %>;">
                                     <%= "OPEN".equals(job.getStatus()) ? "OPEN" : "CLOSED" %>
                                 </td>
-                                <td style="padding:12px;display:flex;gap:8px;">
+                                <td class="positions-actions-cell" style="padding:12px;display:flex;gap:8px;flex-wrap:nowrap;">
                                     <a href="<%= request.getContextPath() %>/mo/job/applicants?jobId=<%= job.getJobId() %>" class="chip-button">Applicants</a>
                                     <a href="${pageContext.request.contextPath}/mo/edit?jobId=<%= job.getJobId() %>" class="chip-button">Edit</a>
                                     <a href="${pageContext.request.contextPath}/mo/job/down?jobId=<%= job.getJobId() %>" class="chip-button" onclick="return confirm('Confirm disable?')">Disable</a>
@@ -150,6 +163,5 @@
 <script>
 window.MO_CONTEXT = '${pageContext.request.contextPath}';
 </script>
-<script src="${pageContext.request.contextPath}/js/mo-conv-widget.js?v=20260523b"></script>
 </body>
 </html>

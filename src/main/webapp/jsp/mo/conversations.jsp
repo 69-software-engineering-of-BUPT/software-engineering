@@ -2,6 +2,8 @@
 <%@ page import="java.util.List" %>
 <%@ page import="com.bupt.tarecruit.model.ConversationMessage" %>
 <%@ page import="com.bupt.tarecruit.model.ConversationThread" %>
+<%@ page import="com.bupt.tarecruit.model.ApplicationView" %>
+<%@ page import="com.bupt.tarecruit.service.ApplicationService" %>
 <%!
     private String esc(String value) {
         if (value == null) return "";
@@ -52,6 +54,14 @@
     Integer unread = (Integer) request.getAttribute("conversationUnreadCount");
     int conversationUnreadCount = unread == null ? 0 : unread;
     int totalCount = threads == null ? 0 : threads.size();
+    int pendingCount = 0;
+    try {
+        if (userId != null && !userId.trim().isEmpty()) {
+            for (ApplicationView a : new ApplicationService().getApplicationsForMO(userId)) {
+                if ("PENDING".equalsIgnoreCase(a.getStatus())) pendingCount++;
+            }
+        }
+    } catch (Exception ignored) { }
     String activeApplicationId = (String) request.getAttribute("activeApplicationId");
     if (!hasText(activeApplicationId) && threads != null && !threads.isEmpty()) {
         activeApplicationId = threads.get(0).getApplicationId();
@@ -173,7 +183,7 @@
                     <span class="nav-icon">PU</span><span><strong>Publish</strong><small>Post position</small></span>
                 </a>
                 <a class="nav-item" href="<%= contextPath %>/mo/applications">
-                    <span class="nav-icon">AP</span><span><strong>Applications</strong><small>All applications</small></span>
+                    <span class="nav-icon">AP</span><span><strong>Applications</strong><small><%= pendingCount > 0 ? pendingCount + " pending" : "All applications" %></small></span>
                 </a>
                 <span class="nav-item active">
                     <span class="nav-icon">CN</span>
@@ -400,7 +410,7 @@
             });
         }
 
-        function activate(id) {
+        function activate(id, markAsRead) {
             var activeButton = null;
             var activePanel = null;
             buttons.forEach(function (btn) {
@@ -420,18 +430,18 @@
             if (activeButton && activeButton.scrollIntoView) {
                 activeButton.scrollIntoView({ block: 'nearest' });
             }
-            if (activeButton && window.history && window.URL) {
+            if (markAsRead && activeButton && window.history && window.URL) {
                 var appId = activeButton.getAttribute('data-application-id');
                 var url = new URL(window.location.href);
                 url.searchParams.set('applicationId', appId);
                 window.history.replaceState(null, '', url.toString());
             }
-            markRead(activeButton, activePanel);
+            if (markAsRead) markRead(activeButton, activePanel);
         }
 
         buttons.forEach(function (btn) {
             btn.addEventListener('click', function () {
-                activate(btn.getAttribute('data-thread-id'));
+                activate(btn.getAttribute('data-thread-id'), true);
             });
         });
 
@@ -445,7 +455,7 @@
                     if (match && firstVisible === null) firstVisible = btn;
                 });
                 if (firstVisible && !firstVisible.classList.contains('active')) {
-                    activate(firstVisible.getAttribute('data-thread-id'));
+                    activate(firstVisible.getAttribute('data-thread-id'), false);
                 }
             });
         }
@@ -497,7 +507,7 @@
             if (draft) {
                 draft.addEventListener('input', syncSendState);
                 draft.addEventListener('keydown', function (event) {
-                    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+                    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
                         event.preventDefault();
                         if (draft.value.trim()) form.requestSubmit();
                     }
@@ -545,7 +555,8 @@
             });
         });
 
-        if (buttons.length) activate(buttons[0].getAttribute('data-thread-id'));
+        var initialButton = document.querySelector('.mo-thread.active') || buttons[0];
+        if (initialButton) activate(initialButton.getAttribute('data-thread-id'), false);
     })();
 </script>
 </body>

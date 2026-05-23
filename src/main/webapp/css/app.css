@@ -9,14 +9,12 @@ h1 {
 
 .ad-page {
     min-height: 100vh;
-    background: #f4f4f2;
+    background: url('../assets/1.png') center/cover no-repeat fixed;
     color: #3d4148;
 }
 
 .ad-page.ad-page--admin {
-    background:
-        linear-gradient(rgba(244, 244, 242, 0.72), rgba(244, 244, 242, 0.78)),
-        url('../assets/ad-bg.png') center/cover no-repeat fixed;
+    background: url('../assets/1.png') center/cover no-repeat fixed;
 }
 
 .ad-shell {
@@ -1211,7 +1209,7 @@ button.nav-item:hover {
     padding: 32px;
     box-sizing: border-box;
     color: var(--auth-ink);
-    background: #f4f4f2;
+    background: url('../assets/1.png') center/cover no-repeat fixed;
 }
 
 .auth-page--login {
@@ -1226,7 +1224,7 @@ button.nav-item:hover {
 }
 
 .auth-page--register {
-    background: #f4f4f2;
+    background: url('../assets/1.png') center/cover no-repeat fixed;
 }
 
 .auth-shell {
@@ -1732,4 +1730,56 @@ button.nav-item:hover {
         animation: none;
         transition: none;
     }
+}
+
+/* ── Inline conversation panel (TA + MO) ─────────────────────── */
+body.conv-active {
+    overflow: hidden;
+}
+
+body.conv-active .ad-shell {
+    height: calc(100vh - 36px);
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+}
+
+body.conv-active .ad-layout {
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+body.conv-active .ad-sidebar {
+    min-height: 0;
+    overflow-y: auto;
+}
+
+body.conv-active .ad-main {
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+.conv-inline-panel {
+    display: none;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.conv-inline-panel.active {
+    display: flex;
+    flex-direction: column;
+}
+
+.conv-inline-panel .ta-conv-topbar {
+    border-radius: 0;
+    border-top: none;
+}
+
+.conv-inline-panel .mo-chat-shell {
+    border-radius: 0;
+    border-top: 1px solid #ded4c7;
 }
