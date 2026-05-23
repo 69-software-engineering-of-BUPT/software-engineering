@@ -16,8 +16,15 @@ import com.bupt.tarecruit.util.RoleHomeUtil;
 
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
+    private final UserRepository userRepo;
 
-    private final UserRepository userRepo = new UserRepository();
+    public RegisterServlet() {
+        this(new UserRepository());
+    }
+
+    RegisterServlet(UserRepository userRepo) {
+        this.userRepo = userRepo;
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

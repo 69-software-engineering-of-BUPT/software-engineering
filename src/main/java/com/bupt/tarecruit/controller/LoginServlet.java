@@ -16,7 +16,15 @@ import com.bupt.tarecruit.util.RoleHomeUtil;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
-    private final AuthService authService = new AuthService();
+    private final AuthService authService;
+
+    public LoginServlet() {
+        this(new AuthService());
+    }
+
+    LoginServlet(AuthService authService) {
+        this.authService = authService;
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

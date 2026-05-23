@@ -7,7 +7,11 @@ public class AuthService {
     private final UserRepository userRepository;
 
     public AuthService() {
-        this.userRepository = new UserRepository();
+        this(new UserRepository());
+    }
+
+    AuthService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     public AuthenticatedUser authenticate(String userId, String password) throws Exception {

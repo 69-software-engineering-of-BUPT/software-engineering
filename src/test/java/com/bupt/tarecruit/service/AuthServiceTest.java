@@ -1,6 +1,9 @@
 package com.bupt.tarecruit.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.io.IOException;
 
 import org.junit.Test;
 
@@ -8,67 +11,104 @@ import com.bupt.tarecruit.model.User;
 import com.bupt.tarecruit.repository.UserRepository;
 
 public class AuthServiceTest {
-    private final AuthService authService = new AuthService();
-    private final UserRepository userRepository = new UserRepository();
-
     @Test
-    public void authenticateReturnsActiveUserDetails() throws Exception {
-        String userId = "AUTH_ACTIVE_" + System.nanoTime();
-        saveTempUser(userId, "password123", "TA", "Active TA", "ACTIVE");
+    public void authenticateRejectsBlankCredentials() throws Exception {
+        AuthService authService = new AuthService(new StubUserRepository());
 
-        try {
-            AuthenticatedUser user = authService.authenticate(userId, "password123");
-
-            assertEquals(userId, user.getUserId());
-            assertEquals("TA", user.getRole());
-            assertEquals("Active TA", user.getName());
-        } finally {
-            userRepository.deleteUser(userId);
-        }
+        assertAuthenticationError("User ID and password are required.",
+                () -> authService.authenticate("   ", ""));
     }
 
     @Test
-    public void authenticateRejectsFrozenUsers() throws Exception {
-        String userId = "AUTH_FROZEN_" + System.nanoTime();
-        saveTempUser(userId, "password123", "TA", "Frozen TA", "FROZEN");
+    public void authenticateRejectsUnknownUserId() throws Exception {
+        AuthService authService = new AuthService(new StubUserRepository());
 
-        try {
-            expectAuthenticationFailure(userId, "password123",
-                    "This account has been frozen by the administrator.");
-        } finally {
-            userRepository.deleteUser(userId);
-        }
+        assertAuthenticationError("Unknown user ID.",
+                () -> authService.authenticate("TA404", "secret"));
     }
 
     @Test
-    public void authenticateRejectsUnsupportedRoles() throws Exception {
-        String userId = "AUTH_ROLE_" + System.nanoTime();
-        saveTempUser(userId, "password123", "GUEST", "Guest User", "ACTIVE");
+    public void authenticateRejectsIncorrectPassword() throws Exception {
+        StubUserRepository userRepository = new StubUserRepository()
+                .withUser(user("TA001", "correct-password", "TA", "ACTIVE", "Alice"));
+        AuthService authService = new AuthService(userRepository);
 
-        try {
-            expectAuthenticationFailure(userId, "password123", "Unsupported user role.");
-        } finally {
-            userRepository.deleteUser(userId);
-        }
+        assertAuthenticationError("Incorrect password.",
+                () -> authService.authenticate("TA001", "wrong-password"));
     }
 
-    private void saveTempUser(String userId, String password, String role, String name, String status) throws Exception {
+    @Test
+    public void authenticateRejectsFrozenAccount() throws Exception {
+        StubUserRepository userRepository = new StubUserRepository()
+                .withUser(user("TA001", "secret", "TA", "FROZEN", "Alice"));
+        AuthService authService = new AuthService(userRepository);
+
+        assertAuthenticationError("This account has been frozen by the administrator.",
+                () -> authService.authenticate("TA001", "secret"));
+    }
+
+    @Test
+    public void authenticateRejectsUnsupportedRole() throws Exception {
+        StubUserRepository userRepository = new StubUserRepository()
+                .withUser(user("USR001", "secret", "GUEST", "ACTIVE", "Visitor"));
+        AuthService authService = new AuthService(userRepository);
+
+        assertAuthenticationError("Unsupported user role.",
+                () -> authService.authenticate("USR001", "secret"));
+    }
+
+    @Test
+    public void authenticateReturnsAuthenticatedUserForValidCredentials() throws Exception {
+        StubUserRepository userRepository = new StubUserRepository()
+                .withUser(user("TA001", "secret", "TA", "ACTIVE", "Alice"));
+        AuthService authService = new AuthService(userRepository);
+
+        AuthenticatedUser authenticatedUser = authService.authenticate("  TA001  ", "secret");
+
+        assertEquals("TA001", userRepository.lastRequestedUserId);
+        assertNotNull(authenticatedUser);
+        assertEquals("TA001", authenticatedUser.getUserId());
+        assertEquals("TA", authenticatedUser.getRole());
+        assertEquals("Alice", authenticatedUser.getName());
+    }
+
+    private void assertAuthenticationError(String expectedMessage, ThrowingAction action) throws Exception {
+        try {
+            action.run();
+        } catch (AuthenticationException ex) {
+            assertEquals(expectedMessage, ex.getMessage());
+            return;
+        }
+        throw new AssertionError("Expected AuthenticationException with message: " + expectedMessage);
+    }
+
+    private User user(String userId, String password, String role, String status, String name) {
         User user = new User();
         user.setUserId(userId);
         user.setPassword(password);
         user.setRole(role);
-        user.setName(name);
         user.setStatus(status);
-        userRepository.saveUser(user);
+        user.setName(name);
+        return user;
     }
 
-    private void expectAuthenticationFailure(String userId, String password, String message) throws Exception {
-        try {
-            authService.authenticate(userId, password);
-        } catch (AuthenticationException ex) {
-            assertEquals(message, ex.getMessage());
-            return;
+    private interface ThrowingAction {
+        void run() throws Exception;
+    }
+
+    private static final class StubUserRepository extends UserRepository {
+        private User user;
+        private String lastRequestedUserId;
+
+        private StubUserRepository withUser(User user) {
+            this.user = user;
+            return this;
         }
-        throw new AssertionError("Expected AuthenticationException");
+
+        @Override
+        public User getUserById(String userId) throws IOException {
+            lastRequestedUserId = userId;
+            return user;
+        }
     }
 }
