@@ -132,7 +132,7 @@ public class ApplicationServiceTest {
 
     // ------------------------------------------------------------------ //
     // TA005 AC1: submitting an application with applicationType="leader"  //
-    // must persist the role so it can be read back correctly              //
+    // must persist the normalized role code so it can be read back        //
     // ------------------------------------------------------------------ //
 
     @Test
@@ -152,7 +152,7 @@ public class ApplicationServiceTest {
 
             List<ApplicationView> views = applicationService.getTAApplicationList("TA_TEST_ROLE");
             assertEquals("Should have exactly one application after submit", 1, views.size());
-            assertEquals("leader", views.get(0).getApplicationType());
+            assertEquals("L", views.get(0).getApplicationType());
             assertEquals("PENDING", views.get(0).getStatus());
         } finally {
             if (app.getApplicationId() != null) {
