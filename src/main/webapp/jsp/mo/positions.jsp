@@ -93,46 +93,46 @@
             </section>
             <% } %>
 
-            <section class="page-head">
+            <section class="page-head mo-page-head">
                 <div>
                     <h1 style="font-size:38px;">My Positions</h1>
                     <p>All published job positions</p>
                 </div>
-                <a href="${pageContext.request.contextPath}/mo/publish" class="chip-button active">+ Publish New</a>
+                <a href="${pageContext.request.contextPath}/mo/publish" class="chip-button active mo-publish-button">+ Publish New</a>
             </section>
 
             <section class="list-card" style="margin-top:14px;">
                 <% if (jobList == null || jobList.isEmpty()) { %>
                     <p class="ta-empty-hint">No positions published yet.</p>
                 <% } else { %>
-                    <div style="width:100%;overflow-x:auto;">
-                        <table style="width:100%;border-collapse:collapse;">
-                            <tr style="background:#f7f8fa;border-bottom:1px solid #e2e8f0;">
-                                <th style="padding:12px;text-align:left;">Job ID</th>
-                                <th style="padding:12px;text-align:left;">Module</th>
-                                <th style="padding:12px;text-align:left;">Type</th>
+                    <div class="mo-table-wrapper">
+                        <table class="mo-positions-table">
+                            <tr>
+                                <th>Job ID</th>
+                                <th>Module</th>
+                                <th>Type</th>
                                 <!-- 新增：表头 -->
-                                <th style="padding:12px;text-align:left;">Leader Need</th>
-                                <th style="padding:12px;text-align:left;">Member Need</th>
-                                <th style="padding:12px;text-align:left;">Total Need</th>
-                                <th style="padding:12px;text-align:left;">Status</th>
-                                <th style="padding:12px;text-align:left;">Actions</th>
+                                <th>Leader Need</th>
+                                <th>Member Need</th>
+                                <th>Total Need</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                             <% for (Job job : jobList) { 
                                 int total = job.getLeaderCount() + job.getMemberCount();
                             %>
-                            <tr style="border-bottom:1px solid #f1f5f9;">
-                                <td style="padding:12px;"><%= job.getJobId() %></td>
-                                <td style="padding:12px;"><%= job.getModuleName() %></td>
-                                <td style="padding:12px;"><%= job.getJobType() %></td>
+                            <tr>
+                                <td><%= job.getJobId() %></td>
+                                <td><%= job.getModuleName() %></td>
+                                <td><%= job.getJobType() %></td>
                                 <!-- 新增：招聘人数数据 -->
-                                <td style="padding:12px;"><%= job.getLeaderCount() %></td>
-                                <td style="padding:12px;"><%= job.getMemberCount() %></td>
-                                <td style="padding:12px;"><%= total %></td>
-                                <td style="padding:12px;color:<%= "OPEN".equals(job.getStatus()) ? "green" : "red" %>;">
+                                <td><%= job.getLeaderCount() %></td>
+                                <td><%= job.getMemberCount() %></td>
+                                <td><%= total %></td>
+                                <td style="color:<%= "OPEN".equals(job.getStatus()) ? "green" : "red" %>;">
                                     <%= "OPEN".equals(job.getStatus()) ? "OPEN" : "CLOSED" %>
                                 </td>
-                                <td style="padding:12px;display:flex;gap:8px;">
+                                <td class="mo-action-cell">
                                     <a href="<%= request.getContextPath() %>/mo/job/applicants?jobId=<%= job.getJobId() %>" class="chip-button">Applicants</a>
                                     <a href="${pageContext.request.contextPath}/mo/edit?jobId=<%= job.getJobId() %>" class="chip-button">Edit</a>
                                     <a href="${pageContext.request.contextPath}/mo/job/down?jobId=<%= job.getJobId() %>" class="chip-button" onclick="return confirm('Confirm disable?')">Disable</a>
