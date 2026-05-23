@@ -82,7 +82,7 @@
                     <span class="nav-icon">AP</span>
                     <span><strong>Applications</strong><small>All applications</small></span>
                 </a>
-                <a class="nav-item" href="${pageContext.request.contextPath}/mo/conversations">
+                <a class="nav-item" id="mo-conv-nav-btn" href="${pageContext.request.contextPath}/mo/conversations">
                     <span class="nav-icon">CN</span>
                     <span><strong>Conversation</strong><small><%= conversationUnreadCount > 0 ? conversationUnreadCount + " new" : "TA messages" %></small></span>
                 </a>
@@ -154,5 +154,9 @@
         </main>
     </div>
 </div>
+<script>
+window.MO_CONTEXT = '${pageContext.request.contextPath}';
+</script>
+<script src="${pageContext.request.contextPath}/js/mo-conv-widget.js?v=20260523b"></script>
 </body>
 </html>
