@@ -62,6 +62,17 @@ public class TAApplyServlet extends HttpServlet {
                 return;
             }
 
+            if ("L".equalsIgnoreCase(applicationType) && job.getLeaderCount() <= 0) {
+                req.getSession().setAttribute("applyError", "No leader vacancies remain for this position.");
+                resp.sendRedirect(req.getContextPath() + "/ta/jobs");
+                return;
+            }
+            if ("NL".equalsIgnoreCase(applicationType) && job.getMemberCount() <= 0) {
+                req.getSession().setAttribute("applyError", "No member vacancies remain for this position.");
+                resp.sendRedirect(req.getContextPath() + "/ta/jobs");
+                return;
+            }
+
             // AD001: enforce 3-active-job limit
             User user = userRepo.getUserById(studentId);
             if (user == null) {

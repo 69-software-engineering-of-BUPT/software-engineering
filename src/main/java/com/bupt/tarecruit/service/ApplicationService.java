@@ -35,8 +35,15 @@ public class ApplicationService {
 
         app.setApplicationId(UUID.randomUUID().toString());
         app.setApplyTime(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        app.setStatus("PENDING"); 
-        
+        app.setStatus("PENDING");
+        if (!isBlank(app.getApplicationType())) {
+            String normalizedType = normalizeApplicationType(app.getApplicationType());
+            if (normalizedType == null) {
+                throw new RuntimeException("Invalid application type.");
+            }
+            app.setApplicationType(normalizedType);
+        }
+
         appRepo.save(app);
     }
 
@@ -156,12 +163,29 @@ public class ApplicationService {
         String previousStatus = normalizeStatus(app.getStatus());
         String normalizedStatus = normalizeStatus(newStatus);
 
+        String previousApplicationType = normalizeApplicationType(app.getApplicationType());
+        String normalizedApplicationType = previousApplicationType;
+        if (!isBlank(applicationType)) {
+            normalizedApplicationType = normalizeApplicationType(applicationType);
+            if (normalizedApplicationType == null) {
+                throw new RuntimeException("Invalid application type.");
+            }
+            app.setApplicationType(normalizedApplicationType);
+        }
+
+        if ("APPROVED".equals(normalizedStatus) && isBlank(normalizedApplicationType)) {
+            throw new RuntimeException("Application type is required when approving.");
+        }
+
+        Job job = jobRepo.findById(app.getJobId());
+        if (job == null) {
+            throw new RuntimeException("Job not found for this application.");
+        }
+        adjustJobVacancy(job, previousStatus, normalizedStatus, previousApplicationType, normalizedApplicationType);
+
         app.setStatus(normalizedStatus);
         if (feedback != null) {
             app.setFeedback(feedback.trim());
-        }
-        if (!isBlank(applicationType)) {
-            app.setApplicationType(applicationType.trim());
         }
         app.setMarkedBy(moId);
         app.setMarkTime(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()));
@@ -213,6 +237,82 @@ public class ApplicationService {
                 return normalized;
             default:
                 throw new RuntimeException("Unsupported application status: " + status);
+        }
+    }
+
+    private String normalizeApplicationType(String applicationType) {
+        if (isBlank(applicationType)) return null;
+        String normalized = applicationType.trim().toUpperCase(Locale.ROOT);
+        switch (normalized) {
+            case "L":
+            case "LEADER":
+                return "L";
+            case "NL":
+            case "NON-LEADER":
+            case "NONLEADER":
+            case "MEMBER":
+                return "NL";
+            default:
+                return null;
+        }
+    }
+
+    private void adjustJobVacancy(Job job, String previousStatus, String newStatus, String previousApplicationType, String newApplicationType) throws Exception {
+        if (job == null) return;
+
+        boolean wasApproved = "APPROVED".equals(previousStatus);
+        boolean willBeApproved = "APPROVED".equals(newStatus);
+
+        if (wasApproved && !willBeApproved) {
+            if (isBlank(previousApplicationType)) {
+                throw new RuntimeException("Cannot restore job vacancy: previous application type missing.");
+            }
+            incrementJobVacancy(job, previousApplicationType);
+        } else if (!wasApproved && willBeApproved) {
+            if (isBlank(newApplicationType)) {
+                throw new RuntimeException("Application type is required when approving.");
+            }
+            decrementJobVacancy(job, newApplicationType);
+        } else if (wasApproved && willBeApproved && !safeEquals(previousApplicationType, newApplicationType)) {
+            if (isBlank(previousApplicationType) || isBlank(newApplicationType)) {
+                throw new RuntimeException("Invalid application type transition.");
+            }
+            incrementJobVacancy(job, previousApplicationType);
+            decrementJobVacancy(job, newApplicationType);
+        }
+
+        jobRepo.save(job);
+    }
+
+    private boolean safeEquals(String a, String b) {
+        return a == null ? b == null : a.equals(b);
+    }
+
+    private void decrementJobVacancy(Job job, String applicationType) {
+        if ("L".equals(applicationType)) {
+            if (job.getLeaderCount() <= 0) {
+                throw new RuntimeException("No available leader slots in this position.");
+            }
+            job.setLeaderCount(job.getLeaderCount() - 1);
+        } else {
+            if (job.getMemberCount() <= 0) {
+                throw new RuntimeException("No available member slots in this position.");
+            }
+            job.setMemberCount(job.getMemberCount() - 1);
+        }
+        if (job.getLeaderCount() <= 0 && job.getMemberCount() <= 0) {
+            job.setStatus("CLOSED");
+        }
+    }
+
+    private void incrementJobVacancy(Job job, String applicationType) {
+        if ("L".equals(applicationType)) {
+            job.setLeaderCount(job.getLeaderCount() + 1);
+        } else {
+            job.setMemberCount(job.getMemberCount() + 1);
+        }
+        if (job.getLeaderCount() > 0 || job.getMemberCount() > 0) {
+            job.setStatus("OPEN");
         }
     }
 
