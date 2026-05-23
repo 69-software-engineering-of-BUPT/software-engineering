@@ -1,6 +1,8 @@
 package com.bupt.tarecruit.controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -9,10 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.bupt.tarecruit.model.Application;
-import com.bupt.tarecruit.model.Job;
-import com.bupt.tarecruit.repository.ApplicationRepository;
-import com.bupt.tarecruit.repository.JobRepository;
 import com.bupt.tarecruit.service.ApplicationService;
 
 /**
@@ -23,19 +21,25 @@ import com.bupt.tarecruit.service.ApplicationService;
 public class MOApplicationReplyServlet extends HttpServlet {
 
     private final ApplicationService appService = new ApplicationService();
-    private final ApplicationRepository appRepo = new ApplicationRepository();
-    private final JobRepository jobRepo = new JobRepository();
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("userAccount") == null) {
+            if (isAjax(req)) {
+                sendJson(resp, 401, "{\"error\":\"Login required\"}");
+                return;
+            }
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
         String role = (String) session.getAttribute("userRole");
         if (!"MO".equalsIgnoreCase(role)) {
+            if (isAjax(req)) {
+                sendJson(resp, 403, "{\"error\":\"MO role required\"}");
+                return;
+            }
             resp.sendError(403, "Access denied: MO role required.");
             return;
         }
@@ -43,34 +47,69 @@ public class MOApplicationReplyServlet extends HttpServlet {
         String moId      = (String) session.getAttribute("userAccount");
         String appId     = req.getParameter("applicationId");
         String message   = req.getParameter("message");
+        String redirect  = req.getParameter("redirect");
 
         if (appId == null || appId.trim().isEmpty()) {
-            resp.sendRedirect(req.getContextPath() + "/mo/applications");
+            if (isAjax(req)) {
+                sendJson(resp, 400, "{\"error\":\"Application ID is required\"}");
+                return;
+            }
+            resp.sendRedirect(resolveRedirect(req, redirect));
+            return;
+        }
+        if (message == null || message.trim().isEmpty()) {
+            if (isAjax(req)) {
+                sendJson(resp, 400, "{\"error\":\"Message is required\"}");
+                return;
+            }
+            resp.sendRedirect(resolveRedirect(req, redirect));
             return;
         }
 
         try {
-            // Verify the application belongs to this MO's job
-            Application app = appRepo.findById(appId.trim());
-            if (app == null) {
-                resp.sendError(404, "Application not found.");
+            appService.appendMOMessage(appId.trim(), moId, message.trim());
+            if (isAjax(req)) {
+                String sentAt = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date());
+                sendJson(resp, 200, "{\"success\":true,\"sentAt\":\"" + jsonEscape(sentAt) + "\"}");
                 return;
-            }
-            Job job = jobRepo.findById(app.getJobId());
-            if (job == null || !moId.equals(job.getMdId())) {
-                resp.sendError(403, "You do not own this application's job position.");
-                return;
-            }
-
-            if (message != null && !message.trim().isEmpty()) {
-                appService.appendMOMessage(appId.trim(), moId, message.trim());
             }
             req.getSession().setAttribute("moActionSuccess", "Message sent.");
         } catch (Exception e) {
             e.printStackTrace();
+            if (isAjax(req)) {
+                sendJson(resp, 500, "{\"error\":\"" + jsonEscape("Failed to send message: " + e.getMessage()) + "\"}");
+                return;
+            }
             req.getSession().setAttribute("moActionError", "Failed to send message: " + e.getMessage());
         }
 
-        resp.sendRedirect(req.getContextPath() + "/mo/applications");
+        resp.sendRedirect(resolveRedirect(req, redirect));
+    }
+
+    private String resolveRedirect(HttpServletRequest req, String redirect) {
+        if ("conversations".equalsIgnoreCase(redirect)) {
+            return req.getContextPath() + "/mo/conversations";
+        }
+        return req.getContextPath() + "/mo/applications";
+    }
+
+    private boolean isAjax(HttpServletRequest req) {
+        return "XMLHttpRequest".equals(req.getHeader("X-Requested-With"));
+    }
+
+    private void sendJson(HttpServletResponse resp, int status, String json) throws IOException {
+        resp.setStatus(status);
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+        resp.setHeader("Cache-Control", "no-store");
+        resp.getWriter().write(json);
+    }
+
+    private String jsonEscape(String value) {
+        if (value == null) return "";
+        return value.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\r", "\\r")
+                .replace("\n", "\\n");
     }
 }

@@ -12,9 +12,9 @@
 <head>
     <meta charset="UTF-8" />
     <title>AD - Account Management</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260410-2" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260518-ad-bg-2" />
 </head>
-<body class="ad-page">
+<body class="ad-page ad-page--admin">
 <div class="ad-shell">
     <header class="ad-topbar">
         <div class="brand-group">
@@ -54,14 +54,14 @@
                         <small>TA and MO accounts</small>
                     </span>
                 </a>
-                <a class="nav-item" href="${pageContext.request.contextPath}/jsp/ad/projects.jsp">
+                <a class="nav-item" href="${pageContext.request.contextPath}/ad/projects">
                     <span class="nav-icon">PM</span>
                     <span>
                         <strong>Project Management</strong>
                         <small>Vacancy monitor</small>
                     </span>
                 </a>
-                <a class="nav-item" href="${pageContext.request.contextPath}/jsp/ad/logs.jsp">
+                <a class="nav-item" href="${pageContext.request.contextPath}/ad/logs">
                     <span class="nav-icon">LG</span>
                     <span>
                         <strong>Operation Log</strong>
@@ -248,13 +248,15 @@
     users.forEach(function (u, idx) {
         var role = (u.role || '').toUpperCase();
         var isTA  = role === 'TA';
+        var accountStatus = String(u.status || 'ACTIVE').toUpperCase();
+        var locked = accountStatus === 'FROZEN';
         var activeJobs = u.activeJobsCount || 0;
         var upperLimit = isTA && activeJobs >= 3;
         var load       = isTA ? (activeJobs + '/3') : '—';
-        var statusText = upperLimit ? 'Reached Upper Limit' : 'Active';
-        var statusCls  = upperLimit ? 'warning' : 'success';
+        var statusText = locked ? 'Frozen' : (upperLimit ? 'Reached Upper Limit' : 'Active');
+        var statusCls  = locked || upperLimit ? 'warning' : 'success';
         var dept       = u.researchArea || u.major || '—';
-        var flag       = upperLimit ? 'Reached Upper Limit' : '';
+        var flag       = locked ? 'Account locked by administrator' : (upperLimit ? 'Reached Upper Limit' : '');
         var studentId  = u.studentId || u.userId || '';
         var fullName   = u.fullName || u.name || u.userId || '';
         var email      = u.email || u.userId || '';
@@ -267,6 +269,7 @@
         art.className = 'list-row account-grid account-row' + (upperLimit ? ' warn' : '') + (idx === 0 ? ' active' : '');
         art.tabIndex = 0;
         art.dataset.name       = fullName;
+        art.dataset.userId     = u.userId || studentId;
         art.dataset.email      = email;
         art.dataset.role       = role;
         art.dataset.department = dept;
@@ -281,6 +284,7 @@
         art.dataset.phone = phone;
         art.dataset.researchArea = dept;
         art.dataset.cet6Grade = cet6;
+        art.dataset.locked = locked ? 'true' : 'false';
 
         art.innerHTML =
             '<div><strong>' + displayName + '</strong><small>' + displayId + '</small></div>' +
@@ -300,6 +304,6 @@
     }
 }());
 </script>
-<script src="${pageContext.request.contextPath}/js/app.js?v=20260410-4"></script>
+<script src="${pageContext.request.contextPath}/js/app.js?v=20260518-account-actions"></script>
 </body>
 </html>
