@@ -180,7 +180,7 @@ function recordOperationLog(actionKey, target, options) {
 	var opts = options || {};
 	var logs = getStoredOperationLogs();
 	var now = new Date();
-	logs.push({
+	var entry = {
 		id: 'log-' + now.getTime() + '-' + Math.floor(Math.random() * 10000),
 		time: formatDateTime(now),
 		actor: opts.actor || 'System Admin',
@@ -190,12 +190,41 @@ function recordOperationLog(actionKey, target, options) {
 		target: target || '-',
 		result: (opts.result || resultStyleFromAction(actionKey).text),
 		resultClass: (opts.resultClass || resultStyleFromAction(actionKey).css)
-	});
+	};
+
+	logs.push(entry);
 
 	if (logs.length > 200) {
 		logs = logs.slice(logs.length - 200);
 	}
 	setStoredOperationLogs(logs);
+	postOperationLog(entry, opts);
+}
+
+function postOperationLog(entry, options) {
+	if (!window.fetch || !entry) {
+		return;
+	}
+
+	var opts = options || {};
+	var body = new URLSearchParams();
+	body.set('actionType', entry.actionKey || '');
+	body.set('targetType', opts.targetType || 'GENERAL');
+	body.set('targetId', opts.targetId || entry.target || '-');
+	body.set('targetName', opts.targetName || entry.target || '-');
+	body.set('result', entry.result || '');
+	body.set('message', opts.message || (entry.actionLabel + ': ' + entry.target));
+
+	fetch(getContextPath() + '/ad/logs/record', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+		},
+		body: body.toString(),
+		credentials: 'same-origin'
+	}).catch(function () {
+		// localStorage keeps a prototype fallback if the JSON repository write fails
+	});
 }
 
 function readLogRowsFromDom() {
@@ -249,6 +278,10 @@ function createLogRowNode(entry) {
 }
 
 function renderOperationLogRows() {
+	if (document.getElementById('server-operation-logs')) {
+		return;
+	}
+
 	var logListCard = document.querySelector('.ad-main .list-card');
 	if (!logListCard || document.querySelectorAll('.log-row').length === 0) {
 		return;
@@ -357,6 +390,10 @@ function buildProjectPayloadFromRow(row) {
 		deadline: data.deadline || '',
 		seats: data.seats || '',
 		filled: data.filled || '',
+		leaderSeats: data.leaderSeats || '',
+		leaderFilled: data.leaderFilled || '',
+		memberSeats: data.memberSeats || '',
+		memberFilled: data.memberFilled || '',
 		vacancies: data.vacancies || '',
 		statusText: data.statusText || '',
 		statusClass: data.statusClass || 'warning',
@@ -404,6 +441,8 @@ function renderProjectViewData(payload) {
 	var postedNode = document.getElementById('project-view-posted');
 	var deadlineNode = document.getElementById('project-view-deadline');
 	var capacityNode = document.getElementById('project-view-capacity');
+	var leaderCapacityNode = document.getElementById('project-view-leader-capacity');
+	var memberCapacityNode = document.getElementById('project-view-member-capacity');
 	var reqNode = document.getElementById('project-view-req');
 	var descNode = document.getElementById('project-view-desc');
 
@@ -420,6 +459,12 @@ function renderProjectViewData(payload) {
 	postedNode.textContent = payload.posted || '-';
 	deadlineNode.textContent = payload.deadline || '-';
 	capacityNode.textContent = (payload.seats || '0') + ' / ' + (payload.filled || '0') + ' / ' + (payload.vacancies || '0');
+	if (leaderCapacityNode) {
+		leaderCapacityNode.textContent = (payload.leaderFilled || '0') + ' / ' + (payload.leaderSeats || '0');
+	}
+	if (memberCapacityNode) {
+		memberCapacityNode.textContent = (payload.memberFilled || '0') + ' / ' + (payload.memberSeats || '0');
+	}
 	reqNode.textContent = (payload.requirements || '-').split(';').join(' · ');
 	descNode.textContent = payload.details || '-';
 
@@ -467,6 +512,8 @@ function renderProjectDetail(row) {
 	var postedNode = document.getElementById('project-detail-posted');
 	var deadlineNode = document.getElementById('project-detail-deadline');
 	var capacityNode = document.getElementById('project-detail-capacity');
+	var leaderCapacityNode = document.getElementById('project-detail-leader-capacity');
+	var memberCapacityNode = document.getElementById('project-detail-member-capacity');
 	var reqNode = document.getElementById('project-detail-req');
 	var descNode = document.getElementById('project-detail-desc');
 
@@ -483,6 +530,12 @@ function renderProjectDetail(row) {
 	postedNode.textContent = data.posted || '-';
 	deadlineNode.textContent = data.deadline || '-';
 	capacityNode.textContent = (data.seats || '0') + ' / ' + (data.filled || '0') + ' / ' + (data.vacancies || '0');
+	if (leaderCapacityNode) {
+		leaderCapacityNode.textContent = (data.leaderFilled || '0') + ' / ' + (data.leaderSeats || '0');
+	}
+	if (memberCapacityNode) {
+		memberCapacityNode.textContent = (data.memberFilled || '0') + ' / ' + (data.memberSeats || '0');
+	}
 	reqNode.textContent = (data.requirements || '-').split(';').join(' · ');
 	descNode.textContent = data.details || '-';
 
@@ -865,9 +918,10 @@ function updateAccountActionButtonsState(row) {
 	}
 
 	var locked = row.dataset.locked === 'true';
-	freezeBtn.disabled = locked;
-	unfreezeBtn.disabled = !locked;
-	deleteBtn.disabled = false;
+	var isAdmin = (row.dataset.role || '').toUpperCase() === 'ADMIN';
+	freezeBtn.disabled = locked || isAdmin;
+	unfreezeBtn.disabled = !locked || isAdmin;
+	deleteBtn.disabled = isAdmin;
 }
 
 function updateAccountRowStatusView(row) {
@@ -891,6 +945,41 @@ function updateAccountRowStatusView(row) {
 	statusNode.textContent = '● ' + (row.dataset.statusText || 'Active');
 }
 
+function postAccountAction(action, row) {
+	if (!window.fetch) {
+		showToast('This browser cannot submit the action');
+		return;
+	}
+
+	var userId = row && (row.dataset.userId || row.dataset.studentId);
+	if (!userId) {
+		showToast('Missing account id');
+		return;
+	}
+
+	var body = new URLSearchParams();
+	body.set('action', action);
+	body.set('userId', userId);
+
+	fetch(getContextPath() + '/ad/accounts/action', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+		},
+		body: body.toString(),
+		credentials: 'same-origin'
+	}).then(function (response) {
+		if (!response.ok) {
+			return response.text().then(function (text) {
+				throw new Error(text || ('Action failed: ' + response.status));
+			});
+		}
+		window.location.href = getContextPath() + '/ad/accounts';
+	}).catch(function (error) {
+		showToast(error.message || 'Account action failed');
+	});
+}
+
 function freezeSelectedAccount() {
 	var row = document.querySelector('.account-row.active');
 	if (!row) {
@@ -903,19 +992,8 @@ function freezeSelectedAccount() {
 		return;
 	}
 
-	row.dataset.prevStatusText = row.dataset.statusText || 'Active';
-	row.dataset.prevStatusClass = row.dataset.statusClass || 'success';
-	row.dataset.prevFlag = row.dataset.flag || '-';
-	row.dataset.locked = 'true';
-	row.dataset.statusText = 'Warning';
-	row.dataset.statusClass = 'warning';
-	row.dataset.flag = 'Account locked by administrator';
-	updateAccountRowStatusView(row);
-	renderAccountDetail(row);
-	updateAccountActionButtonsState(row);
-	recordOperationLog('account-frozen', row.dataset.email || row.dataset.name || '-');
-	applyAccountFilters(false);
-	showToast('Account locked: ' + (row.dataset.name || '')); 
+	showToast('Freezing account...');
+	postAccountAction('freeze', row);
 }
 
 function unfreezeSelectedAccount() {
@@ -930,19 +1008,8 @@ function unfreezeSelectedAccount() {
 		return;
 	}
 
-	row.dataset.locked = 'false';
-	row.dataset.statusText = row.dataset.prevStatusText || 'Active';
-	row.dataset.statusClass = row.dataset.prevStatusClass || 'success';
-	row.dataset.flag = row.dataset.prevFlag || '-';
-	delete row.dataset.prevStatusText;
-	delete row.dataset.prevStatusClass;
-	delete row.dataset.prevFlag;
-
-	updateAccountRowStatusView(row);
-	renderAccountDetail(row);
-	updateAccountActionButtonsState(row);
-	applyAccountFilters(false);
-	showToast('Account unlocked: ' + (row.dataset.name || ''));
+	showToast('Unfreezing account...');
+	postAccountAction('unfreeze', row);
 }
 
 function deleteSelectedAccount() {
@@ -953,11 +1020,11 @@ function deleteSelectedAccount() {
 	}
 
 	var deletedName = row.dataset.name || 'Selected account';
-	var deletedTarget = row.dataset.email || deletedName;
-	row.remove();
-	recordOperationLog('account-deleted', deletedTarget);
-	applyAccountFilters(false);
-	showToast('Account deleted: ' + deletedName);
+	if (!window.confirm('Delete account: ' + deletedName + '?')) {
+		return;
+	}
+	showToast('Deleting account...');
+	postAccountAction('delete', row);
 }
 
 function initAccountDetailActions() {
@@ -1135,7 +1202,7 @@ function handleCommonAction(action, button) {
 			window.location.href = contextPath + '/jsp/ad/project-view.jsp';
 			return;
 		case 'log-details':
-			showToast('Showing log details');
+			showToast(button.getAttribute('data-log-message') || 'Showing log details');
 			return;
 		default:
 			return;
@@ -1143,8 +1210,10 @@ function handleCommonAction(action, button) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-	ensureOperationLogSeeded();
-	renderOperationLogRows();
+	if (!document.getElementById('server-operation-logs')) {
+		ensureOperationLogSeeded();
+		renderOperationLogRows();
+	}
 
 	initAccountDetailInteraction();
 	initAccountDetailActions();

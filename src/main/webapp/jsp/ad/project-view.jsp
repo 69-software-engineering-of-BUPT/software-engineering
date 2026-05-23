@@ -11,9 +11,9 @@
 <head>
     <meta charset="UTF-8" />
     <title>AD - Project View</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260406-8" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=20260518-ad-bg-2" />
 </head>
-<body class="ad-page" id="project-view-page">
+<body class="ad-page ad-page--admin" id="project-view-page">
 <div class="ad-shell">
     <header class="ad-topbar">
         <div class="brand-group">
@@ -53,14 +53,14 @@
                         <small>TA and MO accounts</small>
                     </span>
                 </a>
-                <a class="nav-item active" href="${pageContext.request.contextPath}/jsp/ad/projects.jsp">
+                <a class="nav-item active" href="${pageContext.request.contextPath}/ad/projects">
                     <span class="nav-icon">PM</span>
                     <span>
                         <strong>Project Management</strong>
                         <small>Vacancy monitor</small>
                     </span>
                 </a>
-                <a class="nav-item" href="${pageContext.request.contextPath}/jsp/ad/logs.jsp">
+                <a class="nav-item" href="${pageContext.request.contextPath}/ad/logs">
                     <span class="nav-icon">LG</span>
                     <span>
                         <strong>Operation Log</strong>
@@ -77,7 +77,7 @@
                     <p>Course details and TA information</p>
                 </div>
                 <div class="filter-actions">
-                    <a class="chip-button" href="${pageContext.request.contextPath}/jsp/ad/projects.jsp">Back to project list</a>
+                    <a class="chip-button" href="${pageContext.request.contextPath}/ad/projects">Back to project list</a>
                 </div>
             </section>
 
@@ -137,6 +137,6 @@
         </main>
     </div>
 </div>
-<script src="${pageContext.request.contextPath}/js/app.js?v=20260406-8"></script>
+<script src="${pageContext.request.contextPath}/js/app.js?v=20260518-oplog"></script>
 </body>
 </html>

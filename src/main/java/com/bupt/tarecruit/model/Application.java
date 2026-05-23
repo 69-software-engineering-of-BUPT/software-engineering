@@ -16,13 +16,16 @@ public class Application {
     private String applyTime;     // Timestamp of submission (ISO or yyyy-MM-dd HH:mm:ss)
     private String statement;     // Personal statement or cover letter
     private String feedback;      // Comments from the Module Organizer
-    private String mdId;      // ID of the person who updated the status
+    private String mdId;          // ID of the person who updated the status
     private String markTime;      // Timestamp of the last status update
     private String applicationType; // Type of application (leader/non-leader)
     private boolean cvAttached;      // Whether TA chose to attach CV
 
     public Application() {}
-
+    public String getTaId() { return studentId; }
+    public void setTaId(String taId) { this.studentId = taId; }
+    public String getAppliedAt() { return applyTime; }
+    public void setAppliedAt(String appliedAt) { this.applyTime = appliedAt; }
     // Getters and Setters
     public String getApplicationId() { return applicationId; }
     public void setApplicationId(String applicationId) { this.applicationId = applicationId; }

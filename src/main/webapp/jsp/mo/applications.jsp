@@ -1,49 +1,67 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.util.List" %>
+<%@ page import="com.bupt.tarecruit.model.Application" %>
+<%@ page import="com.bupt.tarecruit.service.MOConversationService" %>
 <%
-    String moId         = (String) request.getAttribute("moId");
-    String moName       = (String) request.getAttribute("moName");
-    Integer pendingCount = (Integer) request.getAttribute("pendingCount");
-    if (moId == null) moId = "";
-    if (moName == null) moName = "Module Organiser";
-    if (pendingCount == null) pendingCount = 0;
-    String actionSuccess = (String) session.getAttribute("moActionSuccess");
-    String actionError   = (String) session.getAttribute("moActionError");
-    if (actionSuccess != null) session.removeAttribute("moActionSuccess");
-    if (actionError   != null) session.removeAttribute("moActionError");
+    String userId   = (String) request.getAttribute("userId");
+    String userName = (String) request.getAttribute("userName");
+    if (userId == null) userId = "";
+    if (userName == null) userName = "Module Organiser";
+    String avatarText = userName.length() >= 2 ? userName.substring(0, 2).toUpperCase() : "MO";
+    int conversationUnreadCount = 0;
+    try {
+        if (userId != null && !userId.trim().isEmpty()) {
+            conversationUnreadCount = new MOConversationService().countUnreadThreads(userId);
+        }
+    } catch (Exception ignored) { }
+
+    List<Application> applicationList = (List<Application>) request.getAttribute("applicationList");
+    int totalCount = applicationList == null ? 0 : applicationList.size();
 %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>MO · Applications</title>
+    <title>MO · All Applications</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css" />
+    <style>
+        .app-table { width:100%; border-collapse: collapse; margin-top:12px; }
+        .app-table th { padding:10px 12px; text-align:left; font-size:12px; color:#69707a; font-weight:600; }
+        .app-table td { padding:12px; border-top:1px solid #e7e9ec; }
+        .badge { padding:4px 8px; border-radius:12px; font-size:12px; }
+        .badge-pending { background:#fef3c7; color:#92400e; }
+        .badge-approved { background:#d1fae5; color:#065f46; }
+        .badge-rejected { background:#fee2e2; color:#991b1b; }
+    </style>
 </head>
 <body class="ad-page">
-<div class="ad-shell">
+<div class="ad-shell ta-shell">
     <header class="ad-topbar">
         <div class="brand-group">
             <div class="brand-icon">MO</div>
             <div>
-                <div class="brand-title">Applications</div>
-                <div class="brand-subtitle">Review &amp; process TA applicants</div>
+                <div class="brand-title">Module Organiser</div>
+                <div class="brand-subtitle">Manage positions & review applicants</div>
             </div>
         </div>
         <div class="top-actions">
-            <a class="chip-button" href="${pageContext.request.contextPath}/mo/home">Home</a>
             <a class="chip-button" href="${pageContext.request.contextPath}/logout">Sign out</a>
             <div class="user-pill">
-                <span class="avatar"><%= moName.length() >= 2 ? moName.substring(0,2).toUpperCase() : "MO" %></span>
-                <span><strong><%= moName %></strong><small><%= moId %></small></span>
+                <span class="avatar"><%= avatarText %></span>
+                <span>
+                    <strong><%= userName %></strong>
+                    <small><%= userId %></small>
+                </span>
             </div>
         </div>
     </header>
 
-    <div class="ad-layout">
-        <aside class="ad-sidebar">
+    <div class="ad-layout ta-layout">
+        <aside class="ad-sidebar ta-sidebar">
             <section class="side-card profile-card">
                 <span class="role-tag">MO</span>
                 <h3>Module Organiser</h3>
-                <p>Signed in as <strong><%= moId %></strong></p>
+                <p>Signed in as <strong><%= userId %></strong></p>
             </section>
             <section class="side-block">
                 <p class="side-title">NAVIGATION</p>
@@ -51,74 +69,94 @@
                     <span class="nav-icon">HM</span>
                     <span><strong>Home</strong><small>Overview</small></span>
                 </a>
-                <span class="nav-item active">
+                <a class="nav-item" href="${pageContext.request.contextPath}/mo/positions">
+                    <span class="nav-icon">PO</span>
+                    <span><strong>Positions</strong><small>Manage jobs</small></span>
+                </a>
+                <a class="nav-item" href="${pageContext.request.contextPath}/mo/publish">
+                    <span class="nav-icon">PU</span>
+                    <span><strong>Publish</strong><small>Post position</small></span>
+                </a>
+                <!-- ✅ Applications 高亮（与Positions并列） -->
+                <a class="nav-item active" href="${pageContext.request.contextPath}/mo/applications">
                     <span class="nav-icon">AP</span>
-                    <span><strong>Applications</strong><small><%= pendingCount %> pending</small></span>
-                </span>
+                    <span><strong>Applications</strong><small>All applications</small></span>
+                </a>
+                <a class="nav-item" id="mo-conv-nav-btn" href="${pageContext.request.contextPath}/mo/conversations">
+                    <span class="nav-icon">CN</span>
+                    <span><strong>Conversation</strong><small><%= conversationUnreadCount > 0 ? conversationUnreadCount + " new" : "TA messages" %></small></span>
+                </a>
             </section>
         </aside>
 
         <main class="ad-main">
-            <% if (actionSuccess != null) { %>
-            <section class="list-card ta-flash ta-flash--success" style="margin-bottom:14px;">
-                <p style="margin:0;color:#4f6c4d;"><strong>Done:</strong> <%= actionSuccess %></p>
-            </section>
-            <% } %>
-            <% if (actionError != null) { %>
-            <section class="list-card ta-flash ta-flash--warn" style="margin-bottom:14px;">
-                <p style="margin:0;color:#6b5346;"><strong>Error:</strong> <%= actionError %></p>
-            </section>
-            <% } %>
-
             <section class="page-head">
                 <div>
-                    <h1 style="font-size:38px;">Applications</h1>
-                    <p><%= pendingCount %> pending decision<%= pendingCount == 1 ? "" : "s" %></p>
-                </div>
-                <div class="filter-actions">
-                    <button type="button" class="chip-button active" data-mo-filter="ALL">All</button>
-                    <button type="button" class="chip-button" data-mo-filter="PENDING">Pending</button>
-                    <button type="button" class="chip-button" data-mo-filter="APPROVED">Approved</button>
-                    <button type="button" class="chip-button" data-mo-filter="REJECTED">Rejected</button>
-                    <button type="button" class="chip-button" data-mo-filter="INTERVIEW">Interview</button>
+                    <h1 style="font-size:38px;">All Applications</h1>
+                    <p>Sorted by applied time (newest first) | Total: <%= totalCount %></p>
                 </div>
             </section>
 
-            <div id="mo-app-list"></div>
-            <p id="mo-app-empty" class="ta-empty-hint" hidden>No applications for your positions yet.</p>
+            <section class="list-card">
+                <div class="list-title-row">
+                    <h2>Application List</h2>
+                </div>
+                <p style="margin:0 0 12px;color:#69707a;">View all applications for your positions</p>
+
+                <table class="app-table">
+                    <thead>
+                        <tr>
+                            <th>Job ID</th>
+                            <th>Student ID</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Applied Time</th>
+                            <th>CV</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <%
+                            if (applicationList != null && !applicationList.isEmpty()) {
+                                for (Application app : applicationList) {
+                                    String type = "L".equals(app.getApplicationType()) ? "Leader" : "Member";
+                                    String status = app.getStatus();
+                                    String badgeClass = "";
+                                    if ("PENDING".equals(status)) badgeClass = "badge-pending";
+                                    else if ("APPROVED".equals(status)) badgeClass = "badge-approved";
+                                    else badgeClass = "badge-rejected";
+                                    String cv = app.isCvAttached() ? "Yes" : "No";
+                        %>
+                        <tr>
+    <td><%= app.getJobId() %></td>
+    <td><%= app.getStudentId() %></td>
+    <td><%= type %></td>
+    <td><span class="badge <%= badgeClass %>"><%= status %></span></td>
+    <td><%= app.getAppliedAt() %></td>
+    <td><%= cv %></td>
+    <!-- ✅ 独立 Details 按钮 -->
+    <td>
+        <a href="<%= request.getContextPath() %>/mo/view/application?applicationId=<%= app.getApplicationId() %>" class="chip-button">Details</a>
+    </td>
+</tr>
+                        <%
+                                }
+                            } else {
+                        %>
+                        <tr>
+                            <td colspan="6" style="text-align:center;padding:24px;color:#69707a;">No applications yet</td>
+                        </tr>
+                        <%
+                            }
+                        %>
+                    </tbody>
+                </table>
+            </section>
         </main>
     </div>
 </div>
-
-<script type="application/json" id="mo-applications-json"><%= request.getAttribute("applicationsJson") != null ? request.getAttribute("applicationsJson") : "[]" %></script>
 <script>
-    window.MO_CONTEXT = "${pageContext.request.contextPath}";
-    window.MO_ID = "<%= moId %>";
+window.MO_CONTEXT = '${pageContext.request.contextPath}';
 </script>
-<script src="${pageContext.request.contextPath}/js/mo-applications.js?v=20260409c"></script>
-
-<!-- Chat overlay -->
-<div id="mo-chat-overlay" class="ta-feedback-overlay" aria-hidden="true" style="display:none;">
-    <div class="ta-feedback-panel list-card" role="dialog" aria-modal="true" aria-labelledby="mo-chat-title">
-        <div class="ta-feedback-head">
-            <div>
-                <h2 id="mo-chat-title">Application conversation</h2>
-                <p class="ta-feedback-meta" id="mo-chat-meta"></p>
-            </div>
-            <button type="button" class="chip-button" id="mo-chat-close">Close</button>
-        </div>
-        <div class="ta-chat-thread" id="mo-chat-thread"></div>
-        <form class="ta-reply-form" id="mo-chat-form" method="post" action="${pageContext.request.contextPath}/mo/application/reply">
-            <input type="hidden" name="applicationId" id="mo-chat-app-id" value="" />
-            <label class="filter-field">
-                <small>YOUR MESSAGE TO THE APPLICANT (max 500 chars)</small>
-                <textarea name="message" id="mo-chat-reply" rows="4" maxlength="500" placeholder="Type your message to the TA…"></textarea>
-            </label>
-            <div class="ta-profile-actions">
-                <button type="submit" class="chip-button active">Send message</button>
-            </div>
-        </form>
-    </div>
-</div>
+<script src="${pageContext.request.contextPath}/js/mo-conv-widget.js?v=20260523b"></script>
 </body>
 </html>

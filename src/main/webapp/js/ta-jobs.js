@@ -16,7 +16,8 @@
     }
 
     /* ---------- Render a single job card ---------- */
-    function buildJobCard(job) {
+    function buildJobCard(job, appliedIds) {
+        var alreadyApplied = appliedIds && appliedIds[job.jobId || ''] === true;
         var card = document.createElement('section');
         card.className = 'list-card ta-job-card';
         card.dataset.jobId = job.jobId || '';
@@ -35,6 +36,13 @@
         badge.textContent = 'OPEN';
         header.appendChild(h2);
         header.appendChild(badge);
+        if (alreadyApplied) {
+            var appliedBadge = document.createElement('span');
+            appliedBadge.className = 'status neutral';
+            appliedBadge.textContent = 'APPLIED';
+            appliedBadge.style.marginLeft = '6px';
+            header.appendChild(appliedBadge);
+        }
         card.appendChild(header);
 
         var grid = document.createElement('div');
@@ -68,9 +76,17 @@
         actions.style.marginTop = '12px';
         var btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'chip-button active';
-        btn.textContent = 'Apply';
-        btn.addEventListener('click', function () { openApplyModal(job); });
+        if (alreadyApplied) {
+            btn.className = 'chip-button';
+            btn.textContent = 'Already Applied';
+            btn.disabled = true;
+            btn.style.opacity = '0.55';
+            btn.style.cursor = 'not-allowed';
+        } else {
+            btn.className = 'chip-button active';
+            btn.textContent = 'Apply';
+            btn.addEventListener('click', function () { openApplyModal(job); });
+        }
         actions.appendChild(btn);
         card.appendChild(actions);
 
@@ -254,7 +270,7 @@
         return filtered;
     }
 
-    function render(jobs) {
+    function render(jobs, appliedIds) {
         var host = document.getElementById('ta-job-list');
         var empty = document.getElementById('ta-job-empty');
         var countLabel = document.getElementById('job-count-label');
@@ -270,7 +286,7 @@
         empty.hidden = true;
 
         filtered.forEach(function (job) {
-            host.appendChild(buildJobCard(job));
+            host.appendChild(buildJobCard(job, appliedIds));
         });
     }
 
@@ -282,12 +298,20 @@
         var jobs;
         try { jobs = JSON.parse(el.textContent || '[]'); } catch (e) { jobs = []; }
 
-        render(jobs);
+        // Build a lookup map from applied-IDs array
+        var appliedIds = {};
+        try {
+            var idsEl = document.getElementById('ta-applied-ids-json');
+            var idsArr = JSON.parse((idsEl && idsEl.textContent) || '[]');
+            idsArr.forEach(function (id) { appliedIds[id] = true; });
+        } catch (e) { /* ignore */ }
+
+        render(jobs, appliedIds);
 
         // Wire filter inputs
-        document.getElementById('job-search-module').addEventListener('input', function () { render(jobs); });
-        document.getElementById('job-search-mo').addEventListener('input', function () { render(jobs); });
-        document.getElementById('job-sort-by').addEventListener('change', function () { render(jobs); });
+        document.getElementById('job-search-module').addEventListener('input', function () { render(jobs, appliedIds); });
+        document.getElementById('job-search-mo').addEventListener('input', function () { render(jobs, appliedIds); });
+        document.getElementById('job-sort-by').addEventListener('change', function () { render(jobs, appliedIds); });
 
         // Apply modal
         document.getElementById('ta-apply-close').addEventListener('click', closeApplyModal);

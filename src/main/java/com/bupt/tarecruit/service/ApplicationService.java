@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import com.bupt.tarecruit.model.Application;
@@ -92,7 +93,7 @@ public class ApplicationService {
         List<Application> apps = appRepo.findAll();
         for (Application app : apps) {
             Job job = jobRepo.findById(app.getJobId());
-            if (job == null || !moId.equals(job.getMdId())) continue;
+            if (!isJobOwnedByMo(job, moId)) continue;
             ApplicationView view = new ApplicationView();
             view.setApplicationId(app.getApplicationId());
             view.setJobId(app.getJobId());
@@ -119,33 +120,55 @@ public class ApplicationService {
     }
 
     /**
-     * MO updates status and optionally adds feedback. Persists change.
-     * REJECTED: restores the TA's activeJobsCount (only if previous status was not already REJECTED).
-     * APPROVED / INTERVIEW: no change to count (position still occupied or in-progress).
+     * Load a single application only if it belongs to a job owned by the MO.
      */
-    public void updateApplicationStatus(String appId, String newStatus, String feedback, String moId) throws Exception {
+    public Application getApplicationForMO(String appId, String moId) throws Exception {
+        Application app = appRepo.findById(appId);
+        if (app == null) throw new RuntimeException("Application not found: " + appId);
+        requireMoOwnsApplication(app, moId);
+        return app;
+    }
+
+    /**
+     * Load the job behind an application only if that job belongs to the MO.
+     */
+    public Job getJobForApplicationForMO(String appId, String moId) throws Exception {
+        Application app = getApplicationForMO(appId, moId);
+        Job job = jobRepo.findById(app.getJobId());
+        if (job == null) throw new RuntimeException("Job not found for application: " + appId);
+        return job;
+    }
+
+    /**
+     * MO updates status and optionally adds feedback. Persists change.
+     * REJECTED restores the TA's activeJobsCount; moving out of REJECTED occupies the quota again.
+     */
+    public Application updateApplicationStatus(String appId, String newStatus, String feedback, String moId) throws Exception {
+        return updateApplicationStatus(appId, newStatus, feedback, moId, null);
+    }
+
+    public Application updateApplicationStatus(String appId, String newStatus, String feedback, String moId, String applicationType) throws Exception {
         Application app = appRepo.findById(appId);
         if (app == null) throw new RuntimeException("Application not found: " + appId);
 
-        String previousStatus = app.getStatus();
+        requireMoOwnsApplication(app, moId);
 
-        app.setStatus(newStatus);
-        if (feedback != null && !feedback.trim().isEmpty()) {
+        String previousStatus = normalizeStatus(app.getStatus());
+        String normalizedStatus = normalizeStatus(newStatus);
+
+        app.setStatus(normalizedStatus);
+        if (feedback != null) {
             app.setFeedback(feedback.trim());
+        }
+        if (!isBlank(applicationType)) {
+            app.setApplicationType(applicationType.trim());
         }
         app.setMarkedBy(moId);
         app.setMarkTime(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()));
         appRepo.save(app);
 
-        // Restore TA's quota when rejected (but not if it was already rejected before)
-        if ("REJECTED".equalsIgnoreCase(newStatus) && !"REJECTED".equalsIgnoreCase(previousStatus)) {
-            String taId = app.getStudentId();
-            User ta = userRepo.getUserById(taId);
-            if (ta != null && ta.getActiveJobsCount() > 0) {
-                ta.setActiveJobsCount(ta.getActiveJobsCount() - 1);
-                userRepo.saveUser(ta);
-            }
-        }
+        updateTaQuotaAfterStatusChange(previousStatus, normalizedStatus, app.getStudentId());
+        return app;
     }
 
     /**
@@ -157,12 +180,63 @@ public class ApplicationService {
         if (message.trim().length() > MAX_WORD_LIMIT) {
             throw new RuntimeException("Message exceeds the " + MAX_WORD_LIMIT + " character limit.");
         }
-        Application app = appRepo.findById(appId);
-        if (app == null) throw new RuntimeException("Application not found: " + appId);
+        Application app = getApplicationForMO(appId, moId);
         String timestamp = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(new java.util.Date());
         String formatted = "\n[" + timestamp + " MO]: " + message.trim();
         String current = app.getStatement() == null ? "" : app.getStatement();
         app.setStatement(current + formatted);
         appRepo.save(app);
+    }
+
+    private void requireMoOwnsApplication(Application app, String moId) throws Exception {
+        Job job = jobRepo.findById(app.getJobId());
+        if (!isJobOwnedByMo(job, moId)) {
+            throw new RuntimeException("You do not own this application's job position.");
+        }
+    }
+
+    private boolean isJobOwnedByMo(Job job, String moId) {
+        if (job == null || isBlank(moId)) return false;
+        return moId.equals(job.getMoId()) || moId.equals(job.getMdId());
+    }
+
+    private String normalizeStatus(String status) {
+        if (isBlank(status)) {
+            throw new RuntimeException("Application status is required.");
+        }
+        String normalized = status.trim().toUpperCase(Locale.ROOT);
+        switch (normalized) {
+            case "PENDING":
+            case "INTERVIEW":
+            case "APPROVED":
+            case "REJECTED":
+                return normalized;
+            default:
+                throw new RuntimeException("Unsupported application status: " + status);
+        }
+    }
+
+    private void updateTaQuotaAfterStatusChange(String previousStatus, String newStatus, String taId) throws Exception {
+        boolean previousCounts = countsAgainstTaQuota(previousStatus);
+        boolean newCounts = countsAgainstTaQuota(newStatus);
+        if (previousCounts == newCounts || isBlank(taId)) return;
+
+        User ta = userRepo.getUserById(taId);
+        if (ta == null) return;
+
+        if (previousCounts && !newCounts) {
+            ta.setActiveJobsCount(Math.max(0, ta.getActiveJobsCount() - 1));
+        } else if (!previousCounts && newCounts) {
+            ta.setActiveJobsCount(ta.getActiveJobsCount() + 1);
+        }
+        userRepo.saveUser(ta);
+    }
+
+    private boolean countsAgainstTaQuota(String status) {
+        return !"REJECTED".equalsIgnoreCase(status);
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

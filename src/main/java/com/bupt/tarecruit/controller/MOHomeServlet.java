@@ -32,16 +32,23 @@ public class MOHomeServlet extends HttpServlet {
         }
         String moId   = (String) session.getAttribute("userAccount");
         String moName = (String) session.getAttribute("userName");
+        
+        // 统计待处理申请数 + 获取所有申请（用于通知）
         int pendingCount = 0;
+        List<ApplicationView> latestApplications = null;
         try {
-            List<ApplicationView> apps = appService.getApplicationsForMO(moId);
-            for (ApplicationView a : apps) {
+            latestApplications = appService.getApplicationsForMO(moId);
+            for (ApplicationView a : latestApplications) {
                 if ("PENDING".equalsIgnoreCase(a.getStatus())) pendingCount++;
             }
         } catch (Exception ignored) { }
+        
+        // 传递参数
         req.setAttribute("userId",       moId);
         req.setAttribute("userName",     moName);
         req.setAttribute("pendingCount", pendingCount);
+        req.setAttribute("latestApps",   latestApplications); // 新增：最新申请列表
+        
         req.getRequestDispatcher("/jsp/mo/home.jsp").forward(req, resp);
     }
 }

@@ -1,54 +1,58 @@
 package com.bupt.tarecruit.controller;
 
-import java.io.IOException;
-import java.util.List;
-
+import com.bupt.tarecruit.model.Application;
+import com.bupt.tarecruit.service.MoApplyService;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.List;
 
-import com.google.gson.Gson;
-import com.bupt.tarecruit.model.ApplicationView;
-import com.bupt.tarecruit.service.ApplicationService;
-
-/**
- * MO: View all applications submitted for this MO's job positions.
- */
+// 左侧导航 Applications 对应路由
 @WebServlet("/mo/applications")
 public class MOApplicationListServlet extends HttpServlet {
-    private final ApplicationService appService = new ApplicationService();
-    private final Gson gson = new Gson();
+    private final MoApplyService applyService = new MoApplyService();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        HttpSession session = req.getSession(false);
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // 统一登录校验（和项目完全一致）
+        HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("userAccount") == null) {
-            resp.sendRedirect(req.getContextPath() + "/login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         String role = (String) session.getAttribute("userRole");
         if (!"MO".equalsIgnoreCase(role)) {
-            resp.sendError(403, "Access denied: MO role required.");
+            response.sendError(403, "Access denied");
             return;
         }
 
+        // 获取登录用户信息
         String moId = (String) session.getAttribute("userAccount");
-        try {
-            List<ApplicationView> apps = appService.getApplicationsForMO(moId);
-            long pendingCount = apps.stream().filter(a -> "PENDING".equalsIgnoreCase(a.getStatus())).count();
+        String moName = (String) session.getAttribute("userName");
 
-            req.setAttribute("applications", apps);
-            req.setAttribute("applicationsJson", gson.toJson(apps));
-            req.setAttribute("moId", moId);
-            req.setAttribute("moName", session.getAttribute("userName"));
-            req.setAttribute("pendingCount", (int) pendingCount);
-            req.getRequestDispatcher("/jsp/mo/applications.jsp").forward(req, resp);
+        try {
+            // ✅ 核心：加载当前MO的【所有申请】，已按时间倒序
+            List<Application> allApplications = applyService.getApplicationsForMO(moId);
+            int totalCount = allApplications.size();
+
+            // 传递参数
+            request.setAttribute("userId", moId);
+            request.setAttribute("userName", moName);
+            request.setAttribute("applicationList", allApplications);
+            request.setAttribute("totalCount", totalCount);
+
+            // 跳转到 applications.jsp
+            request.getRequestDispatcher("/jsp/mo/applications.jsp").forward(request, response);
+
         } catch (Exception e) {
             e.printStackTrace();
-            resp.sendError(500, "Failed to load applications");
+            request.getSession().setAttribute("moActionError", "加载申请失败：" + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/mo/positions");
         }
     }
 }

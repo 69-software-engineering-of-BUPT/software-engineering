@@ -1,0 +1,15 @@
+{
+  "logId": "5ebf57a4-6b27-4f92-844f-1f28d630a515",
+  "createdAt": "2026-05-18 23:07",
+  "actorId": "ADMIN001",
+  "actorName": "System Admin",
+  "actorRole": "ADMIN",
+  "actionType": "ACCOUNT_FROZEN",
+  "actionLabel": "Account Frozen",
+  "targetType": "GENERAL",
+  "targetId": "ADMIN001",
+  "targetName": "ADMIN001",
+  "result": "WARNING",
+  "resultClass": "warning",
+  "message": "Account Frozen: ADMIN001"
+}

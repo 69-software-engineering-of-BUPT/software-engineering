@@ -1,0 +1,12 @@
+{
+  "applicationId": "02dbc1b8-5ac9-40c4-98ff-3f0a45ea1418",
+  "jobId": "15d569c0-4231-4441-bdc2-aeeab2fa1ebc",
+  "taId": "TA009",
+  "status": "PENDING",
+  "appliedAt": "2026-04-07 17:14:43",
+  "statement": "1111111\n[2026-04-07 20:37 TA]: 好\n[2026-04-08 23:56 TA]: 谢谢\n[2026-04-09 00:34 TA]: 1111\n[2026-04-09 00:52 MO]: hhh\n[2026-04-09 14:07 TA]: 怎么样\n[2026-04-09 14:15 TA]: 111\n[2026-04-11 16:15 MO]: qqq\n[2026-04-11 16:20 MO]: pwq\n[2026-04-11 16:20 MO]: woyaofengle",
+  "mdId": "MO001",
+  "markTime": "2026-04-11 17:04:46",
+  "applicationType": "NL",
+  "cvAttached": false
+}

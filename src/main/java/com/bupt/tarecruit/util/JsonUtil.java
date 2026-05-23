@@ -6,8 +6,6 @@ import com.google.gson.GsonBuilder;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 public class JsonUtil {
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();

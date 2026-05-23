@@ -1,0 +1,16 @@
+{
+  "moId": "MO001",
+  "jobId": "2f653654-5b6d-48cb-8ca7-a3477c7b5803",
+  "mdId": "MO001",
+  "mdName": "Dr. Smith",
+  "moduleName": "1111",
+  "jobType": "2222",
+  "requirements": "444",
+  "introduction": "333",
+  "weeklyWorkload": 5,
+  "deadline": "2111-11-01",
+  "status": "OPEN",
+  "publishedAt": "2026-04-11 02:51:57",
+  "leaderCount": 7,
+  "memberCount": 8
+}
