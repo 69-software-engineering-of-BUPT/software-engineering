@@ -275,17 +275,58 @@ h1 {
     color: #7f868f;
 }
 
-.filter-actions {
-    display: flex;
-    gap: 10px;
+.mo-page-head {
+    justify-content: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
 }
 
-.account-filter-panel {
-    margin-top: 14px;
-    border: 1px solid #d9d3ca;
-    border-radius: 22px;
-    background: #f6f3ee;
-    padding: 16px;
+.mo-page-head .mo-publish-button {
+    padding: 6px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.mo-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.mo-positions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.mo-positions-table th,
+.mo-positions-table td {
+    padding: 8px 10px !important;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.mo-positions-table th {
+    font-size: 12px;
+    color: #5f6369;
+    background: #f7f8fa;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.mo-positions-table td {
+    font-size: 13px;
+}
+
+.mo-positions-table td.mo-action-cell {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.mo-positions-table td.mo-action-cell > .chip-button {
+    padding: 6px 10px;
+    font-size: 12px;
+}
+
 }
 
 .account-filter-grid {
