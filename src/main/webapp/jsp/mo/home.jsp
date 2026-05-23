@@ -119,12 +119,12 @@
                 </div>
             <% } else { %>
                 <div class="notification-normal">
-                    <h3 style="margin:0 0 8px 0;color:#166534;">✅ No New Notifications</h3>
+                    <h3 style="margin:0 0 8px 0;color:#166534;">No New Notifications</h3>
                     <p style="margin:0;color:#1f2937;">All applications are processed. No pending reviews required.</p>
                 </div>
             <% } %>
 
-            <!-- ===================== 完善：快捷功能卡片（补全按钮） ===================== -->
+            <!-- ===================== 完善：快捷功能卡片（补全按钮�?===================== -->
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px;">
                 <section class="list-card">
                     <div class="list-title-row">
@@ -156,6 +156,5 @@
 <script>
 window.MO_CONTEXT = '${pageContext.request.contextPath}';
 </script>
-<script src="${pageContext.request.contextPath}/js/mo-conv-widget.js?v=20260523b"></script>
 </body>
 </html>

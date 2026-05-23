@@ -1,13 +1,14 @@
 /**
  * mo-conv-widget.js
- * Self-contained conversation overlay for MO pages.
+ * Self-contained inline conversation panel for MO pages.
  * Fetches conversation data from /mo/conversations?format=json.
  * Uses the same split-pane CSS classes as conversations.jsp.
  */
 (function () {
     'use strict';
 
-    var OVERLAY_ID = 'mo-conv-widget-overlay';
+    var PANEL_ID = 'mo-conv-widget-panel';
+    var WRAPPER_ID = 'mo-conv-widget-wrapper';
 
     function contextPath() {
         return window.MO_CONTEXT || '';
@@ -179,7 +180,7 @@
             sendBtn.disabled = textarea.value.trim().length === 0;
         });
         textarea.addEventListener('keydown', function (ev) {
-            if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) {
+            if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) {
                 ev.preventDefault();
                 if (textarea.value.trim()) sendBtn.click();
             }
@@ -353,18 +354,22 @@
         });
     }
 
-    function injectOverlay() {
-        if (document.getElementById(OVERLAY_ID)) return;
+    function injectInlinePanel() {
+        if (document.getElementById(PANEL_ID)) return;
 
-        var overlay = document.createElement('div');
-        overlay.id = OVERLAY_ID;
-        overlay.className = 'ta-feedback-overlay';
-        overlay.setAttribute('aria-hidden', 'true');
+        var main = document.querySelector('.ad-main');
+        if (!main) return;
 
+        /* Wrap existing main children */
+        var wrapper = document.createElement('div');
+        wrapper.id = WRAPPER_ID;
+        while (main.firstChild) wrapper.appendChild(main.firstChild);
+        main.appendChild(wrapper);
+
+        /* Create inline panel */
         var panel = document.createElement('div');
-        panel.className = 'ta-feedback-panel ta-conv-panel';
-        panel.setAttribute('role', 'dialog');
-        panel.setAttribute('aria-modal', 'true');
+        panel.id = PANEL_ID;
+        panel.className = 'conv-inline-panel';
 
         /* Top bar */
         var topbar = document.createElement('div');
@@ -375,7 +380,7 @@
         closeBtn.type = 'button';
         closeBtn.className = 'chip-button';
         closeBtn.id = 'mo-conv-widget-close';
-        closeBtn.textContent = 'Close';
+        closeBtn.textContent = '\u2190 Back';
         topbar.appendChild(topTitle);
         topbar.appendChild(closeBtn);
 
@@ -418,13 +423,9 @@
         shell.appendChild(chatPanel);
         panel.appendChild(topbar);
         panel.appendChild(shell);
-        overlay.appendChild(panel);
-        document.body.appendChild(overlay);
+        main.appendChild(panel);
 
         closeBtn.addEventListener('click', closeWidget);
-        overlay.addEventListener('click', function (ev) {
-            if (ev.target === overlay) closeWidget();
-        });
 
         searchInput.addEventListener('input', function () {
             var term = searchInput.value.trim().toLowerCase();
@@ -439,8 +440,7 @@
     }
 
     function openWidget() {
-        var overlay = document.getElementById(OVERLAY_ID);
-        if (!overlay) return;
+        injectInlinePanel();
 
         /* Reset panel */
         var chatPanel = document.getElementById('mo-conv-widget-chat-panel');
@@ -464,8 +464,11 @@
         var searchInput = document.getElementById('mo-conv-widget-search');
         if (searchInput) searchInput.value = '';
 
-        overlay.classList.add('ta-feedback-overlay--open');
-        overlay.setAttribute('aria-hidden', 'false');
+        var wrapper = document.getElementById(WRAPPER_ID);
+        if (wrapper) wrapper.style.display = 'none';
+        var panel = document.getElementById(PANEL_ID);
+        if (panel) panel.classList.add('active');
+        document.body.classList.add('conv-active');
 
         /* Fetch data */
         fetch(contextPath() + '/mo/conversations?format=json', {
@@ -495,14 +498,15 @@
     }
 
     function closeWidget() {
-        var overlay = document.getElementById(OVERLAY_ID);
-        if (!overlay) return;
-        overlay.classList.remove('ta-feedback-overlay--open');
-        overlay.setAttribute('aria-hidden', 'true');
+        var wrapper = document.getElementById(WRAPPER_ID);
+        if (wrapper) wrapper.style.display = '';
+        var panel = document.getElementById(PANEL_ID);
+        if (panel) panel.classList.remove('active');
+        document.body.classList.remove('conv-active');
     }
 
     function init() {
-        injectOverlay();
+        injectInlinePanel();
 
         var btn = document.getElementById('mo-conv-nav-btn');
         if (!btn) return;

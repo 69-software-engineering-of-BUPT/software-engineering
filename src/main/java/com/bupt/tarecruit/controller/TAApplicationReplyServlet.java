@@ -52,7 +52,12 @@ public class TAApplicationReplyServlet extends HttpServlet {
             if (isAjax(req)) {
                 sendJson(resp, 200, "{\"success\":true}");
             } else {
-                resp.sendRedirect(req.getContextPath() + "/ta/home");
+                String redirect = req.getParameter("redirect");
+                if ("conversations".equalsIgnoreCase(redirect)) {
+                    resp.sendRedirect(req.getContextPath() + "/ta/conversations?applicationId=" + applicationId.trim());
+                } else {
+                    resp.sendRedirect(req.getContextPath() + "/ta/home");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

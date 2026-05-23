@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.bupt.tarecruit.model.Job" %>
+<%@ page import="com.bupt.tarecruit.model.ApplicationView" %>
+<%@ page import="com.bupt.tarecruit.service.ApplicationService" %>
 <%@ page import="com.bupt.tarecruit.service.MOConversationService" %>
 <%
     String userId   = (String) request.getAttribute("userId");
@@ -9,9 +11,13 @@
     if (userName == null) userName = "Module Organiser";
     String avatarText = userName.length() >= 2 ? userName.substring(0, 2).toUpperCase() : "MO";
     int conversationUnreadCount = 0;
+    int pendingCount = 0;
     try {
         if (userId != null && !userId.trim().isEmpty()) {
             conversationUnreadCount = new MOConversationService().countUnreadThreads(userId);
+            for (ApplicationView a : new ApplicationService().getApplicationsForMO(userId)) {
+                if ("PENDING".equalsIgnoreCase(a.getStatus())) pendingCount++;
+            }
         }
     } catch (Exception ignored) { }
 
@@ -28,8 +34,15 @@
     <meta charset="UTF-8" />
     <title>MO · Positions</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css" />
+    <style>
+        body.mo-positions-page .ad-shell { max-width: 1480px; }
+        body.mo-positions-page table th,
+        body.mo-positions-page table td { white-space: nowrap; }
+        body.mo-positions-page td.positions-actions-cell { white-space: nowrap; }
+        body.mo-positions-page td.positions-actions-cell .chip-button { flex-shrink: 0; }
+    </style>
 </head>
-<body class="ad-page">
+<body class="ad-page mo-positions-page">
 <div class="ad-shell ta-shell">
     <header class="ad-topbar">
         <div class="brand-group">
@@ -72,7 +85,7 @@
                 </a>
                 <a class="nav-item" href="${pageContext.request.contextPath}/mo/applications">
                     <span class="nav-icon">AP</span>
-                    <span><strong>Applications</strong><small>Manage applicants</small></span>
+                    <span><strong>Applications</strong><small><%= pendingCount > 0 ? pendingCount + " pending" : "Manage applicants" %></small></span>
                 </a>
                 <a class="nav-item" id="mo-conv-nav-btn" href="${pageContext.request.contextPath}/mo/conversations">
                     <span class="nav-icon">CN</span>
@@ -150,6 +163,5 @@
 <script>
 window.MO_CONTEXT = '${pageContext.request.contextPath}';
 </script>
-<script src="${pageContext.request.contextPath}/js/mo-conv-widget.js?v=20260523b"></script>
 </body>
 </html>

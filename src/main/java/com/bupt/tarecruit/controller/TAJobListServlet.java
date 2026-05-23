@@ -17,6 +17,8 @@ import com.bupt.tarecruit.model.User;
 import com.bupt.tarecruit.repository.ApplicationRepository;
 import com.bupt.tarecruit.repository.UserRepository;
 import com.bupt.tarecruit.service.JobService;
+import com.bupt.tarecruit.service.NotificationService;
+import com.bupt.tarecruit.service.TAConversationReadService;
 import com.google.gson.Gson;
 
 /**
@@ -27,6 +29,8 @@ public class TAJobListServlet extends HttpServlet {
     private final JobService jobService = new JobService();
     private final UserRepository userRepo = new UserRepository();
     private final ApplicationRepository appRepo = new ApplicationRepository();
+    private final NotificationService notificationService = new NotificationService();
+    private final TAConversationReadService conversationReadService = new TAConversationReadService();
     private final Gson gson = new Gson();
 
     @Override
@@ -42,6 +46,11 @@ public class TAJobListServlet extends HttpServlet {
             req.setAttribute("jobList", openJobs);
             req.setAttribute("jobListJson", gson.toJson(openJobs));
             req.setAttribute("studentId", studentId);
+
+            try { req.setAttribute("unreadCount", notificationService.getUnreadCount(studentId)); }
+            catch (Exception ignore) { req.setAttribute("unreadCount", 0); }
+            try { req.setAttribute("conversationUnreadCount", conversationReadService.countUnreadThreads(studentId)); }
+            catch (Exception ignore) { req.setAttribute("conversationUnreadCount", 0); }
 
             // Build set of already-applied job IDs for this TA
             try {

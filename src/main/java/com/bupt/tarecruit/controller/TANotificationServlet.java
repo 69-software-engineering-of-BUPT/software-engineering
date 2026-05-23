@@ -9,9 +9,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
 import com.bupt.tarecruit.model.Notification;
 import com.bupt.tarecruit.service.NotificationService;
+import com.bupt.tarecruit.service.TAConversationReadService;
+import com.google.gson.Gson;
 
 /**
  * TA006: View and manage notifications.
@@ -19,6 +20,7 @@ import com.bupt.tarecruit.service.NotificationService;
 @WebServlet("/ta/notifications")
 public class TANotificationServlet extends HttpServlet {
     private final NotificationService notificationService = new NotificationService();
+    private final TAConversationReadService conversationReadService = new TAConversationReadService();
     private final Gson gson = new Gson();
 
     @Override
@@ -32,9 +34,13 @@ public class TANotificationServlet extends HttpServlet {
         List<Notification> notifications = notificationService.getNotificationsForTA(studentId);
         int unreadCount = notificationService.getUnreadCount(studentId);
 
+        int conversationUnreadCount = 0;
+        try { conversationUnreadCount = conversationReadService.countUnreadThreads(studentId); } catch (Exception ignored) { }
+
         req.setAttribute("notifications", notifications);
         req.setAttribute("notificationsJson", gson.toJson(notifications));
         req.setAttribute("unreadCount", unreadCount);
+        req.setAttribute("conversationUnreadCount", conversationUnreadCount);
         req.setAttribute("studentId", studentId);
         req.getRequestDispatcher("/jsp/ta/notifications.jsp").forward(req, resp);
     }
