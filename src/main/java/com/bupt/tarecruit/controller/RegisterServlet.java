@@ -11,29 +11,60 @@ import javax.servlet.http.HttpSession;
 
 import com.bupt.tarecruit.model.User;
 import com.bupt.tarecruit.repository.UserRepository;
+import com.bupt.tarecruit.service.AuthenticationException;
+import com.bupt.tarecruit.util.RoleHomeUtil;
 
+/**
+ * Handles self-service TA account registration.
+ * The servlet validates input, rejects duplicate user IDs, and persists a new
+ * {@code TA} account through the user repository.
+ */
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
+    private final UserRepository userRepo;
 
-    private final UserRepository userRepo = new UserRepository();
+    /**
+     * Creates a servlet backed by the default user repository.
+     */
+    public RegisterServlet() {
+        this(new UserRepository());
+    }
 
+    /**
+     * Creates a servlet with an injected repository for persistence and tests.
+     *
+     * @param userRepo repository used to look up and save accounts
+     */
+    RegisterServlet(UserRepository userRepo) {
+        this.userRepo = userRepo;
+    }
+
+    /**
+     * Shows the registration page for anonymous visitors.
+     * Logged-in users are redirected to the home page that matches their role,
+     * while invalid session roles are cleared and sent back to sign-in.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
         if (session != null && session.getAttribute("userAccount") != null) {
-            String role = (String) session.getAttribute("userRole");
-            if ("ADMIN".equalsIgnoreCase(role)) {
-                resp.sendRedirect(req.getContextPath() + "/ad/home");
-            } else if ("MO".equalsIgnoreCase(role)) {
-                resp.sendRedirect(req.getContextPath() + "/mo/home");
-            } else {
-                resp.sendRedirect(req.getContextPath() + "/ta/home");
+            try {
+                resp.sendRedirect(req.getContextPath()
+                        + RoleHomeUtil.resolveHomePath((String) session.getAttribute("userRole")));
+            } catch (AuthenticationException ex) {
+                session.invalidate();
+                resp.sendRedirect(req.getContextPath() + "/login");
             }
             return;
         }
         req.getRequestDispatcher("/jsp/register.jsp").forward(req, resp);
     }
 
+    /**
+     * Validates the submitted registration form and creates a new TA account.
+     * Validation failures are returned to the same page so the user can fix the
+     * input without losing the entered ID and name.
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
@@ -107,10 +138,22 @@ public class RegisterServlet extends HttpServlet {
         req.getRequestDispatcher("/jsp/register.jsp").forward(req, resp);
     }
 
+    /**
+     * Checks whether a submitted value is null or contains only whitespace.
+     *
+     * @param s submitted text value
+     * @return {@code true} when the value is blank
+     */
     private boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
     }
 
+    /**
+     * Restricts user IDs to letters, digits, and underscores.
+     *
+     * @param userId candidate user ID from the form
+     * @return {@code true} when the ID matches the accepted format
+     */
     private boolean isValidUserId(String userId) {
         return userId != null && userId.matches("[A-Za-z0-9_]+");
     }

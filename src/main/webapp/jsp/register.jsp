@@ -1,3 +1,8 @@
+<%-- Self-service TA registration page.
+     Request attributes:
+     - error/success: feedback message after form submission
+     - prevUserId/prevName: values restored when validation fails
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     String error = (String) request.getAttribute("error");

@@ -1,6 +1,7 @@
 package com.bupt.tarecruit.web;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -13,6 +14,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+/**
+ * Central servlet filter for authentication and role-based access control.
+ * Public endpoints such as login, registration, and static assets bypass the
+ * filter; protected paths must match the role stored in the current session.
+ */
 @WebFilter("/*")
 public class AuthFilter implements Filter {
 
@@ -20,6 +26,10 @@ public class AuthFilter implements Filter {
     public void init(FilterConfig filterConfig) {
     }
 
+    /**
+     * Blocks unauthenticated or unauthorised requests before they reach the
+     * target servlet and returns either redirects or JSON errors as needed.
+     */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
         throws IOException, ServletException {
@@ -41,7 +51,10 @@ public class AuthFilter implements Filter {
         }
 
         HttpSession session = httpRequest.getSession(false);
-        if (session == null || session.getAttribute("userRole") == null) {
+        String actualRole = normalizeRole(session == null ? null : session.getAttribute("userRole"));
+        String userAccount = session == null ? null : trimToNull(session.getAttribute("userAccount"));
+        if (actualRole == null || userAccount == null) {
+            invalidateSession(session);
             if (isAjaxRequest(httpRequest)) {
                 sendJson(httpResponse, HttpServletResponse.SC_UNAUTHORIZED, "{\"error\":\"Login required\"}");
                 return;
@@ -50,13 +63,13 @@ public class AuthFilter implements Filter {
             return;
         }
 
-        String actualRole = String.valueOf(session.getAttribute("userRole"));
         if (!requiredRole.equals(actualRole)) {
             if (isAjaxRequest(httpRequest)) {
                 sendJson(httpResponse, HttpServletResponse.SC_FORBIDDEN, "{\"error\":\"Access denied\"}");
                 return;
             }
-            httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
+            httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN,
+                    "Access denied: " + requiredRole + " role required.");
             return;
         }
 
@@ -67,6 +80,9 @@ public class AuthFilter implements Filter {
     public void destroy() {
     }
 
+    /**
+     * Identifies URLs that should stay reachable before login.
+     */
     private boolean isPublicPath(String path) {
         return "/".equals(path)
             || "/index.jsp".equals(path)
@@ -75,11 +91,16 @@ public class AuthFilter implements Filter {
             || "/jsp/register.jsp".equals(path)
             || "/register".equals(path)
             || "/logout".equals(path)
+            || path.startsWith("/motest/")
             || path.startsWith("/css/")
             || path.startsWith("/js/")
-            || path.startsWith("/images/");
+            || path.startsWith("/images/")
+            || path.startsWith("/assets/");
     }
 
+    /**
+     * Maps a request path to the role required to access it.
+     */
     private String getRequiredRole(String path) {
         if (path.startsWith("/ta/") || path.startsWith("/jsp/ta/")) {
             return "TA";
@@ -91,6 +112,35 @@ public class AuthFilter implements Filter {
             return "ADMIN";
         }
         return null;
+    }
+
+    private String normalizeRole(Object roleValue) {
+        if (roleValue == null) {
+            return null;
+        }
+        String role = roleValue.toString().trim().toUpperCase(Locale.ROOT);
+        if ("TA".equals(role) || "MO".equals(role) || "ADMIN".equals(role)) {
+            return role;
+        }
+        return null;
+    }
+
+    private String trimToNull(Object value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.toString().trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private void invalidateSession(HttpSession session) {
+        if (session == null) {
+            return;
+        }
+        try {
+            session.invalidate();
+        } catch (IllegalStateException ignored) {
+        }
     }
 
     private boolean isAjaxRequest(HttpServletRequest request) {
