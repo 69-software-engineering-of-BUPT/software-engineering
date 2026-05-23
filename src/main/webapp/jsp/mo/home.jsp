@@ -119,7 +119,7 @@
                 </div>
             <% } else { %>
                 <div class="notification-normal">
-                    <h3 style="margin:0 0 8px 0;color:#166534;">�?No New Notifications</h3>
+                    <h3 style="margin:0 0 8px 0;color:#166534;">No New Notifications</h3>
                     <p style="margin:0;color:#1f2937;">All applications are processed. No pending reviews required.</p>
                 </div>
             <% } %>
