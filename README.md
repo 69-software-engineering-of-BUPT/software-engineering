@@ -11,76 +11,123 @@ the best programmers
 | Kerui-aua       | 231225845 |
 | wangyanzhou     | 231225937 |
 
+## Project Overview
 
-***
+This project is a TA recruitment system built with Java Servlet/JSP.
 
-## 🚀 项目启动说明
+- No external database is used.
+- Runtime data is stored in local JSON files under `data/`.
+- The system supports three roles: `TA`, `MO`, and `ADMIN`.
 
-本项目基于 Java Servlet/JSP 构建，不依赖外部数据库，所有数据均存储在本地 JSON/CSV 文件中。
+## Environment
 
-### 运行环境要求
+- JDK 11 or later
+- No separate Maven installation is required
+- Maven Wrapper is included: `mvnw` / `mvnw.cmd`
 
-- **Java**: JDK 11 或以上
-- **构建工具**: 已经内置了 Maven Wrapper (`mvnw`)，不需要额外安装 Maven
+## Start The Project
 
-### 怎么把项目跑起来？
-
-我们配置了嵌入式的 Tomcat7 插件，所以启动非常简单：
-
-**方法 1：在 VS Code 中一键启动（推荐）**
-
-1. 按 `Ctrl + Shift + P`（或 `F1`）打开命令面板
-2. 输入并选择 `Run Task`（运行任务）
-3. 在弹出的列表中选择 **`Run Tomcat`**
-4. 等待终端输出 `Starting ProtocolHandler ["http-bio-8080"]`，说明服务器已经启动成功了
-5. 打开浏览器访问：<http://localhost:8080/>
-
-**方法 2：通过 IDEA 启动**
-如果你习惯用 IntelliJ IDEA，可以直接在右侧边栏找到 **Maven** 面板，依次展开 `ta-recruitment-system` -> `Plugins` -> `tomcat7`，然后双击 `tomcat7:run` 即可。
-
-**方法 3：在普通命令行启动**
-在项目根目录（`pom.xml` 所在的目录）下，直接运行：
+Run from the project root:
 
 - Windows: `.\mvnw.cmd tomcat7:run`
-- Mac/Linux: `./mvnw tomcat7:run`
+- macOS / Linux: `./mvnw tomcat7:run`
 
-***
+When Tomcat starts successfully, open [http://localhost:8080/](http://localhost:8080/).
 
-## 📂 项目代码结构
+You can also start `tomcat7:run` from IntelliJ IDEA or VS Code if you prefer an IDE task.
 
-为了方便大家分工合作，代码和数据都做了明确的分层。大家写代码的时候直接去对应的包里写就行。
+## Seed Accounts
+
+These accounts are already present in `data/users/` and can be used directly:
+
+| Role | User ID | Password | Notes |
+| :--- | :------ | :------- | :---- |
+| ADMIN | `ADMIN001` | `password123` | account management, project monitoring, logs |
+| MO | `MO001` | `password123` | position publishing and application review |
+| TA | `TA001` | `password123` | has profile fields and uploaded CV path |
+| TA | `TA002` | `123456` | second TA account for application demos |
+
+## Demo Flows
+
+### TA demo
+
+1. Sign in with `TA001 / password123`.
+2. Open `Job overview` and browse available positions.
+3. Submit an application from `/ta/jobs`.
+4. Return to `/ta/home` to view application status, feedback, and message thread.
+5. Open `/ta/notifications` to verify notifications are visible.
+
+### MO demo
+
+1. Sign in with `MO001 / password123`.
+2. Open `/mo/home` and then `/mo/positions`.
+3. Publish a position or edit an existing one.
+4. Open `Applicants` or `Applications` to review TA submissions.
+5. Open an application detail page and verify that CV links, status updates, and feedback are available.
+
+### Admin demo
+
+1. Sign in with `ADMIN001 / password123`.
+2. Open `/ad/accounts` to view account data.
+3. Open `/ad/projects` to view project/job statistics.
+4. Open `/ad/logs` to inspect operation logs.
+5. Freeze a TA account, sign out, and verify that the frozen TA can no longer log in.
+
+## Validation Commands
+
+Run unit tests:
+
+- Windows: `.\mvnw.cmd test`
+- macOS / Linux: `./mvnw test`
+
+Run the internal navigation audit:
+
+- Windows PowerShell: `powershell -ExecutionPolicy Bypass -File .\scripts\check-nav-links.ps1`
+
+What the navigation audit checks:
+
+- links and form actions declared in JSP files
+- `window.location.href` targets declared in JS files
+- `fetch(...)` targets declared in JS files
+- whether each discovered internal target resolves to an existing servlet route or JSP
+
+## Key Behaviors
+
+- Login redirects users to the correct role home page.
+- Protected paths under `/ta/*`, `/mo/*`, and `/ad/*` are role-restricted.
+- Frozen users are blocked during authentication.
+- Legacy `motest` entry points are redirected into the unified login flow.
+
+## Project Structure
 
 ```text
 software-engineering/
 ├── src/main/java/com/bupt/tarecruit/
-│   ├── controller/   # 🌟 所有的 Servlet 都写在这里，负责接收请求、跳转页面
-│   ├── service/      # 🌟 核心业务逻辑（比如“处理申请”、“校验3门课上限”）写在这里
-│   ├── repository/   # 📦 数据访问层，负责把 Model 对象存进 JSON，或者从 JSON 读出来
-│   ├── model/        # 📦 实体类（User, Job, Application, Notification）
-│   └── util/         # 🛠️ 工具类，比如读写 JSON 的 JsonUtil 就在这里
-│
+│   ├── controller/   # Servlet entry points
+│   ├── service/      # Business logic
+│   ├── repository/   # JSON persistence layer
+│   ├── model/        # Domain models
+│   ├── util/         # Shared helpers
+│   └── web/          # Filters and web infrastructure
 ├── src/main/webapp/
-│   ├── WEB-INF/      # web.xml 路由配置
-│   ├── jsp/          # 🎨 所有的网页视图（JSP）写在这里
-│   ├── css/          # 静态样式
-│   └── js/           # 静态脚本
-│
-├── data/             # 🗄️ 系统的“伪数据库”，所有数据按类别存成 .json 文件
-│   ├── users/        # 存 TA、MO、Admin 的账号信息
-│   ├── jobs/         # 存 MO 发布的岗位
-│   ├── applications/ # 存 TA 提交的申请记录
-│   └── notifications/# 存系统发出的通知
-│
-├── exports/          # 管理员导出的 CSV 文件默认存这里
-├── logs/             # 系统操作日志
-└── uploads/          # TA 上传的 CV 简历文件存这里
+│   ├── WEB-INF/      # web.xml
+│   ├── jsp/          # JSP views
+│   ├── css/          # styles
+│   ├── js/           # browser scripts
+│   └── assets/       # static media assets
+├── data/
+│   ├── users/        # account JSON files
+│   ├── jobs/         # job JSON files
+│   ├── applications/ # application JSON files
+│   ├── notifications/# notification JSON files
+│   └── operation-logs/# operation log JSON files
+├── scripts/          # local validation scripts
+└── uploads/          # uploaded CV files
 ```
 
-### 💡 开发约定
+## Development Notes
 
-1. **不要上数据库**：项目严格按照 Handout 要求，所有数据落地必须走 `repository` 存成 JSON。
-2. **前后端分层开发**：`controller` 里只做参数获取和页面转发（`request.getRequestDispatcher`），复杂的逻辑判断丢给 `service` 去做。
-3. **测试数据**：目前 `data/` 目录下已经准备了几个测试用的账号和数据，大家写页面的时候可以直接读取这些数据来测试渲染效果。
-
-测试方式：.\mvnw.cmd test
-
+- Keep persistence file-based. Do not add a database.
+- Put request parsing and response routing in `controller`.
+- Put business rules in `service`.
+- Put read/write logic for JSON files in `repository`.
