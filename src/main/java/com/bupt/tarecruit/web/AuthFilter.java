@@ -13,6 +13,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+/**
+ * Central servlet filter for authentication and role-based access control.
+ * Public endpoints such as login, registration, and static assets bypass the
+ * filter; protected paths must match the role stored in the current session.
+ */
 @WebFilter("/*")
 public class AuthFilter implements Filter {
 
@@ -20,6 +25,10 @@ public class AuthFilter implements Filter {
     public void init(FilterConfig filterConfig) {
     }
 
+    /**
+     * Blocks unauthenticated or unauthorised requests before they reach the
+     * target servlet and returns either redirects or JSON errors as needed.
+     */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
         throws IOException, ServletException {
@@ -67,6 +76,9 @@ public class AuthFilter implements Filter {
     public void destroy() {
     }
 
+    /**
+     * Identifies URLs that should stay reachable before login.
+     */
     private boolean isPublicPath(String path) {
         return "/".equals(path)
             || "/index.jsp".equals(path)
@@ -80,6 +92,9 @@ public class AuthFilter implements Filter {
             || path.startsWith("/images/");
     }
 
+    /**
+     * Maps a request path to the role required to access it.
+     */
     private String getRequiredRole(String path) {
         if (path.startsWith("/ta/") || path.startsWith("/jsp/ta/")) {
             return "TA";
@@ -93,6 +108,9 @@ public class AuthFilter implements Filter {
         return null;
     }
 
+    /**
+     * Detects requests that expect JSON rather than a browser redirect.
+     */
     private boolean isAjaxRequest(HttpServletRequest request) {
         String requestedWith = request.getHeader("X-Requested-With");
         String accept = request.getHeader("Accept");
@@ -100,6 +118,9 @@ public class AuthFilter implements Filter {
             || (accept != null && accept.toLowerCase().contains("application/json"));
     }
 
+    /**
+     * Sends a compact JSON error response for AJAX callers.
+     */
     private void sendJson(HttpServletResponse response, int status, String json) throws IOException {
         response.setStatus(status);
         response.setContentType("application/json");

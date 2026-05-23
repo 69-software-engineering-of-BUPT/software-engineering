@@ -1,3 +1,8 @@
+<%-- Login page for all roles.
+     Request attributes:
+     - loginError: optional authentication error message
+     - inputUserId: user ID to repopulate after a failed login attempt
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     String loginError = (String) request.getAttribute("loginError");

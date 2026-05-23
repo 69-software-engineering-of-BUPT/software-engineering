@@ -13,18 +13,36 @@ import com.bupt.tarecruit.service.AuthService;
 import com.bupt.tarecruit.service.AuthenticatedUser;
 import com.bupt.tarecruit.service.AuthenticationException;
 
+/**
+ * Handles the sign-in flow for all supported roles.
+ * Anonymous users are shown the login page, while authenticated users are
+ * redirected to the landing page that matches the role stored in session.
+ */
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
     private final AuthService authService;
 
+    /**
+     * Creates a servlet backed by the default authentication service.
+     */
     public LoginServlet() {
         this(new AuthService());
     }
 
+    /**
+     * Creates a servlet with an injected authentication service.
+     * Package-private visibility keeps constructor injection available for tests.
+     *
+     * @param authService service used to validate credentials
+     */
     LoginServlet(AuthService authService) {
         this.authService = authService;
     }
 
+    /**
+     * Shows the login page for anonymous visitors or redirects an existing
+     * session to the correct role home page.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
@@ -40,6 +58,11 @@ public class LoginServlet extends HttpServlet {
         req.getRequestDispatcher("/jsp/login.jsp").forward(req, resp);
     }
 
+    /**
+     * Authenticates submitted credentials, then stores the canonical session
+     * fields {@code userAccount}, {@code userRole}, and {@code userName}.
+     * Failed authentication returns the user to the login page with feedback.
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
@@ -62,6 +85,13 @@ public class LoginServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Resolves the landing path for a supported role code.
+     *
+     * @param role session or account role such as {@code TA}, {@code MO}, or {@code ADMIN}
+     * @return application path to the role-specific home page
+     * @throws AuthenticationException when the role is not recognised
+     */
     private String targetFor(String role) {
         if ("TA".equals(role)) {
             return "/ta/home";

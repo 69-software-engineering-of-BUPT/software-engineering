@@ -1,5 +1,9 @@
 package com.bupt.tarecruit.model;
 
+/**
+ * Persistent account model used across login, registration, and profile flows.
+ * Instances are serialised to JSON files by {@code UserRepository}.
+ */
 public class User {
     private String userId; // e.g., "231225959"
     private String password;
