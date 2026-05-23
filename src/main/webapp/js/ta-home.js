@@ -25,17 +25,24 @@
         var prev = seen[id];
         var st = app.status || '';
         var fb = app.feedback || '';
+        var parts = splitStatement(app.statement || '');
+        var lastLine = parts.replies.length > 0 ? parts.replies[parts.replies.length - 1] : '';
+        var hasMoLast = / MO\]:/.test(lastLine);
         if (!prev) {
-            return fb.trim().length > 0 || (st && st !== 'PENDING');
+            return fb.trim().length > 0 || (st && st !== 'PENDING') || hasMoLast;
         }
-        return prev.status !== st || (prev.feedback || '') !== fb;
+        return prev.status !== st || (prev.feedback || '') !== fb ||
+               (hasMoLast && prev.lastLine !== lastLine);
     }
 
     function markSeen(app) {
         var seen = loadSeen();
+        var parts = splitStatement(app.statement || '');
+        var lastLine = parts.replies.length > 0 ? parts.replies[parts.replies.length - 1] : '';
         seen[app.applicationId] = {
             status: app.status || '',
-            feedback: app.feedback || ''
+            feedback: app.feedback || '',
+            lastLine: lastLine
         };
         saveSeen(seen);
     }
@@ -72,83 +79,369 @@
         return applicationType;
     }
 
-    function addChatBubble(host, sender, text, kind) {
+    function moduleAvatarText(app) {
+        var id = (app.jobId || app.applicationId || 'XX').trim();
+        return id.length <= 2 ? id.toUpperCase() : id.substring(id.length - 2).toUpperCase();
+    }
+
+    function parseReplyLine(line) {
+        var m = /^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}) (TA|MO)\]:\s*(.*)$/.exec(line.trim());
+        if (m) return { timestamp: m[1], sender: m[2], text: m[3] };
+        return { timestamp: '', sender: 'TA', text: line };
+    }
+
+    function latestMsgPreview(app) {
+        var parts = splitStatement(app.statement || '');
+        var prefix, text;
+        if (parts.replies.length > 0) {
+            var last = parts.replies[parts.replies.length - 1];
+            var parsed = parseReplyLine(last);
+            prefix = parsed.sender === 'MO' ? 'MO: ' : 'TA: ';
+            text = parsed.text.replace(/\r?\n/g, ' ').trim();
+        } else {
+            prefix = 'TA: ';
+            text = (parts.base || '').replace(/\r?\n/g, ' ').trim();
+        }
+        return prefix + (text.length > 42 ? text.substring(0, 39) + '...' : text);
+    }
+
+    function latestMsgDate(app) {
+        var parts = splitStatement(app.statement || '');
+        if (parts.replies.length > 0) {
+            var last = parts.replies[parts.replies.length - 1];
+            var parsed = parseReplyLine(last);
+            if (parsed.timestamp) return parsed.timestamp.substring(0, 10);
+        }
+        return app.applyTime ? String(app.applyTime).substring(0, 10) : '';
+    }
+
+    function badgeClass(status) {
+        var m = { 'APPROVED': 'badge-approved', 'REJECTED': 'badge-rejected', 'INTERVIEW': 'badge-interview', 'PENDING': 'badge-pending' };
+        return 'badge ' + (m[(status || '').toUpperCase()] || 'badge-new');
+    }
+
+    function updateUnreadCount() {
+        var seen = loadSeen();
+        var apps = window.__TA_APPS__ || [];
+        var count = 0;
+        apps.forEach(function (app) { if (hasUpdate(app, seen)) count++; });
+        var badge = document.getElementById('ta-conv-unread-count');
+        if (badge) {
+            badge.textContent = String(count);
+            badge.style.display = count > 0 ? 'inline-flex' : 'none';
+        }
+    }
+
+    function addMsgRow(host, isMOSender, abbr, label, text) {
         var row = document.createElement('div');
-        row.className = 'ta-chat-row ta-chat-row--' + kind;
-
+        row.className = 'message-row' + (isMOSender ? '' : ' message-row--mo');
+        var avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        avatar.textContent = abbr;
+        var stack = document.createElement('div');
+        stack.className = 'message-stack';
         var meta = document.createElement('div');
-        meta.className = 'ta-chat-sender';
-        meta.appendChild(document.createTextNode(sender));
-
+        meta.className = 'message-meta';
+        meta.textContent = label;
         var bubble = document.createElement('div');
-        bubble.className = 'ta-chat-bubble ta-chat-bubble--' + kind;
-        bubble.appendChild(document.createTextNode(text && text.trim() ? text : '—'));
-
-        row.appendChild(meta);
-        row.appendChild(bubble);
+        bubble.className = 'message-bubble';
+        var content = document.createElement('div');
+        content.className = 'message-content';
+        content.textContent = text || '(empty)';
+        bubble.appendChild(content);
+        stack.appendChild(meta);
+        stack.appendChild(bubble);
+        row.appendChild(avatar);
+        row.appendChild(stack);
         host.appendChild(row);
     }
 
-    function renderModal(app) {
-        var parts = splitStatement(app.statement || '');
-        var chat = document.getElementById('ta-dialog-chat-thread');
-        clearEl(chat);
+    function renderChatWindow(app) {
+        var panel = document.getElementById('ta-dialog-chat-panel');
+        var empty = document.getElementById('ta-dialog-chat-empty');
 
-        // Initial statement is always from TA
-        addChatBubble(chat, 'You (initial statement)', parts.base || 'No statement content.', 'ta');
-
-        // Thread lines: detect [date MO]: vs [date TA]:
-        if (parts.replies.length > 0) {
-            parts.replies.forEach(function (line) {
-                var isMO = / MO\]:/.test(line);
-                var text = line.replace(/^\[.*?\]\s*/, '').trim();
-                if (isMO) {
-                    addChatBubble(chat, 'Module organiser', text || line, 'mo');
-                } else {
-                    addChatBubble(chat, 'You (follow-up)', text || line, 'ta');
-                }
+        var winId = 'ta-chat-win-' + app.applicationId;
+        var existing = document.getElementById(winId);
+        if (existing) {
+            Array.prototype.forEach.call(panel.querySelectorAll('.chat-window'), function (w) {
+                w.classList.remove('active');
             });
+            existing.classList.add('active');
+            if (empty) empty.style.display = 'none';
+            var m = existing.querySelector('.chat-messages');
+            if (m) m.scrollTop = m.scrollHeight;
+            return;
         }
 
-        // Separate decision feedback (not part of chat thread)
-        var fb = (app.feedback || '').trim();
-        if (fb) {
-            var divider = document.createElement('div');
-            divider.style.cssText = 'margin:10px 0 6px;font-size:11px;color:#9197a0;text-align:center;letter-spacing:.5px;';
-            divider.textContent = '— MO DECISION NOTE —';
-            chat.appendChild(divider);
-            addChatBubble(chat, 'Module organiser (decision note)', fb, 'mo');
+        if (empty) empty.style.display = 'none';
+        Array.prototype.forEach.call(panel.querySelectorAll('.chat-window'), function (w) {
+            w.classList.remove('active');
+        });
+
+        var parts = splitStatement(app.statement || '');
+        var jobAbbr = moduleAvatarText(app);
+
+        var win = document.createElement('section');
+        win.className = 'chat-window active';
+        win.id = winId;
+
+        /* --- Header --- */
+        var hdr = document.createElement('div');
+        hdr.className = 'chat-header';
+        var hdrLeft = document.createElement('div');
+        var h2 = document.createElement('h2');
+        h2.textContent = app.moduleName || '\u2014';
+        var sub = document.createElement('div');
+        sub.className = 'chat-subtitle';
+        sub.textContent = (app.jobId || '') + ' - Application ' + (app.applicationId || '');
+        hdrLeft.appendChild(h2);
+        hdrLeft.appendChild(sub);
+        var hdrRight = document.createElement('div');
+        hdrRight.className = 'chat-actions';
+        var statusBadge = document.createElement('span');
+        statusBadge.className = badgeClass(app.status);
+        statusBadge.textContent = (app.status || 'PENDING').toUpperCase();
+        hdrRight.appendChild(statusBadge);
+        hdr.appendChild(hdrLeft);
+        hdr.appendChild(hdrRight);
+        win.appendChild(hdr);
+
+        /* --- Messages --- */
+        var msgs = document.createElement('div');
+        msgs.className = 'chat-messages';
+        /* Initial statement: TA is sender → right-aligned (message-row--mo) */
+        addMsgRow(msgs, false, jobAbbr, 'TA - (initial statement)', parts.base || '(no statement)');
+        parts.replies.forEach(function (line) {
+            var parsed = parseReplyLine(line);
+            var isMO = parsed.sender === 'MO';
+            var abbr = isMO ? 'MO' : jobAbbr;
+            var label = (isMO ? 'MO' : 'TA') + (parsed.timestamp ? ' - ' + parsed.timestamp : '');
+            addMsgRow(msgs, isMO, abbr, label, parsed.text || line);
+        });
+        win.appendChild(msgs);
+
+        /* --- Reply area --- */
+        var chatReply = document.createElement('div');
+        chatReply.className = 'chat-reply';
+        var composer = document.createElement('div');
+        composer.className = 'reply-composer';
+        var replyBox = document.createElement('div');
+        replyBox.className = 'reply-box';
+        var textarea = document.createElement('textarea');
+        textarea.name = 'message';
+        textarea.placeholder = 'Reply to module organiser\u2026';
+        textarea.maxLength = 500;
+        var replyActions = document.createElement('div');
+        replyActions.className = 'reply-actions';
+        var sendBtn = document.createElement('button');
+        sendBtn.type = 'button';
+        sendBtn.className = 'chip-button active reply-send';
+        sendBtn.textContent = 'Send';
+        replyActions.appendChild(sendBtn);
+        replyBox.appendChild(textarea);
+        replyBox.appendChild(replyActions);
+        composer.appendChild(replyBox);
+        chatReply.appendChild(composer);
+        win.appendChild(chatReply);
+
+        panel.appendChild(win);
+        msgs.scrollTop = msgs.scrollHeight;
+
+        /* --- Reply handler --- */
+        var applicationId = app.applicationId;
+        textarea.addEventListener('keydown', function (ev) {
+            if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) {
+                ev.preventDefault();
+                if ((textarea.value || '').trim() && !sendBtn.disabled) sendBtn.click();
+            }
+        });
+        sendBtn.addEventListener('click', function () {
+            var message = (textarea.value || '').trim();
+            if (!message || !applicationId) return;
+
+            var formData = new URLSearchParams();
+            formData.append('applicationId', applicationId);
+            formData.append('message', message);
+
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Sending\u2026';
+
+            fetch(contextPath() + '/ta/application/reply', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData.toString()
+            }).then(function (resp) {
+                if (!resp.ok) throw new Error('Failed');
+                return resp.json();
+            }).then(function () {
+                var now = new Date();
+                var pad = function (n) { return n < 10 ? '0' + n : String(n); };
+                var ts = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) +
+                         ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+                addMsgRow(msgs, false, jobAbbr, 'TA - ' + ts, message);
+                msgs.scrollTop = msgs.scrollHeight;
+                textarea.value = '';
+                var allApps = window.__TA_APPS__ || [];
+                for (var i = 0; i < allApps.length; i++) {
+                    if (allApps[i].applicationId === applicationId) {
+                        allApps[i].statement = (allApps[i].statement || '') + '\n[' + ts + ' TA]: ' + message;
+                        var threadBtn = document.querySelector('#ta-dialog-thread-list .mo-thread[data-app-id="' + applicationId + '"]');
+                        if (threadBtn) {
+                            var prev = threadBtn.querySelector('.thread-preview');
+                            if (prev) prev.textContent = 'TA: ' + message.substring(0, 42);
+                        }
+                        break;
+                    }
+                }
+            }).catch(function () {
+                alert('Failed to send reply. Please try again.');
+            }).finally(function () {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Send';
+            });
+        });
+    }
+
+    function renderThreadList(apps, activeAppId) {
+        var host = document.getElementById('ta-dialog-thread-list');
+        clearEl(host);
+
+        if (!apps || apps.length === 0) {
+            var msg = document.createElement('p');
+            msg.style.cssText = 'padding:14px;color:#8a9099;font-size:13px;margin:0;';
+            msg.textContent = 'No applications yet.';
+            host.appendChild(msg);
+            return;
         }
 
-        // Scroll to bottom
-        chat.scrollTop = chat.scrollHeight;
+        var seen = loadSeen();
+        apps.forEach(function (app) {
+            var isActive = app.applicationId === activeAppId;
+            var hasUnread = hasUpdate(app, seen);
 
-        document.getElementById('ta-dialog-app-id').value = app.applicationId || '';
-        document.getElementById('ta-dialog-reply').value = '';
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'mo-thread' + (isActive ? ' active' : '');
+            btn.setAttribute('data-app-id', app.applicationId || '');
+            btn.setAttribute('data-needs-reply', hasUnread ? 'true' : 'false');
+            var searchText = ((app.moduleName || '') + ' ' + (app.jobId || '') + ' ' + latestMsgPreview(app)).toLowerCase();
+            btn.setAttribute('data-search', searchText);
 
-        var ph = 'Add a response for the module organiser.';
-        if (fb.length) {
-            ph = 'Reply to: "' + fb.substring(0, 120) + (fb.length > 120 ? '\u2026' : '') + '"';
-        }
-        document.getElementById('ta-dialog-reply').setAttribute('placeholder', ph);
+            /* Avatar */
+            var avatarSpan = document.createElement('span');
+            avatarSpan.className = 'thread-avatar';
+            avatarSpan.textContent = moduleAvatarText(app);
+            if (hasUnread) {
+                var dot = document.createElement('span');
+                dot.className = 'thread-dot unread-marker';
+                avatarSpan.appendChild(dot);
+            }
 
-        document.getElementById('ta-feedback-meta').textContent =
-            (app.moduleName || '\u2014') + ' \u00b7 ' + (app.jobId || '') + ' \u00b7 ' + (app.applicationId || '');
+            /* Main */
+            var main = document.createElement('span');
+            main.className = 'thread-main';
+            var titleRow = document.createElement('span');
+            titleRow.className = 'thread-title';
+            var titleStrong = document.createElement('strong');
+            titleStrong.textContent = app.moduleName || '\u2014';
+            var titleSmall = document.createElement('small');
+            titleSmall.textContent = normalizeApproveType(app.applicationType) || (app.applicationType || '');
+            titleRow.appendChild(titleStrong);
+            titleRow.appendChild(titleSmall);
+            var previewSpan = document.createElement('span');
+            previewSpan.className = 'thread-preview';
+            previewSpan.textContent = latestMsgPreview(app);
+            main.appendChild(titleRow);
+            main.appendChild(previewSpan);
+
+            /* Meta */
+            var metaSpan = document.createElement('span');
+            metaSpan.className = 'thread-meta';
+            var dateSpan = document.createElement('span');
+            dateSpan.textContent = latestMsgDate(app);
+            metaSpan.appendChild(dateSpan);
+            if (hasUnread) {
+                var newBadge = document.createElement('span');
+                newBadge.className = 'thread-new unread-marker';
+                newBadge.textContent = 'new';
+                metaSpan.appendChild(newBadge);
+            }
+
+            btn.appendChild(avatarSpan);
+            btn.appendChild(main);
+            btn.appendChild(metaSpan);
+            host.appendChild(btn);
+
+            btn.addEventListener('click', function () {
+                Array.prototype.forEach.call(host.querySelectorAll('.mo-thread'), function (b) {
+                    b.classList.remove('active');
+                });
+                btn.classList.add('active');
+                renderChatWindow(app);
+                markSeen(app);
+                Array.prototype.forEach.call(btn.querySelectorAll('.unread-marker'), function (el) { el.parentNode.removeChild(el); });
+                btn.setAttribute('data-needs-reply', 'false');
+                updateUnreadCount();
+                refreshRowBadge(app.applicationId, loadSeen());
+                try { sessionStorage.setItem('ta_active_app', JSON.stringify(app)); } catch (e) {}
+            });
+        });
     }
 
     function openOverlay(app) {
-        renderModal(app);
+        try { sessionStorage.setItem('ta_active_app', JSON.stringify(app)); } catch (e) {}
+        var apps = window.__TA_APPS__ || [];
+        /* Clear previously rendered windows so switching apps always shows fresh state */
+        var panel = document.getElementById('ta-dialog-chat-panel');
+        if (panel) {
+            Array.prototype.forEach.call(panel.querySelectorAll('.chat-window'), function (w) {
+                w.parentNode.removeChild(w);
+            });
+            var empty = document.getElementById('ta-dialog-chat-empty');
+            if (empty) empty.style.display = '';
+        }
+        /* Reset search */
+        var searchInput = document.getElementById('ta-conv-search');
+        if (searchInput) searchInput.value = '';
+        renderThreadList(apps, app.applicationId);
+        renderChatWindow(app);
+        var mainContent = document.getElementById('ta-main-content');
+        if (mainContent) mainContent.style.display = 'none';
         var ov = document.getElementById('ta-feedback-overlay');
-        ov.classList.add('ta-feedback-overlay--open');
-        ov.setAttribute('aria-hidden', 'false');
+        if (ov) ov.classList.add('active');
+        document.body.classList.add('conv-active');
         markSeen(app);
+        updateUnreadCount();
         refreshRowBadge(app.applicationId, loadSeen());
     }
 
     function closeOverlay() {
+        var mainContent = document.getElementById('ta-main-content');
+        if (mainContent) mainContent.style.display = '';
         var ov = document.getElementById('ta-feedback-overlay');
-        ov.classList.remove('ta-feedback-overlay--open');
-        ov.setAttribute('aria-hidden', 'true');
+        if (ov) ov.classList.remove('active');
+        document.body.classList.remove('conv-active');
+    }
+
+    function openFeedbackModal(app) {
+        var modal = document.getElementById('ta-feedback-modal');
+        var body = document.getElementById('ta-feedback-modal-body');
+        if (!modal || !body) return;
+        body.textContent = (app.feedback || '').trim() || 'No feedback provided yet.';
+        modal.classList.add('ta-feedback-overlay--open');
+        modal.setAttribute('aria-hidden', 'false');
+        markSeen(app);
+        refreshRowBadge(app.applicationId, loadSeen());
+    }
+
+    function closeFeedbackModal() {
+        var modal = document.getElementById('ta-feedback-modal');
+        if (!modal) return;
+        modal.classList.remove('ta-feedback-overlay--open');
+        modal.setAttribute('aria-hidden', 'true');
     }
 
     function refreshRowBadge(appId, seen) {
@@ -228,7 +521,7 @@
             btn.className = 'chip-button ta-feedback-btn';
             btn.textContent = 'Feedback';
             btn.addEventListener('click', function () {
-                openOverlay(app);
+                openFeedbackModal(app);
             });
             fbCell.appendChild(btn);
             row.appendChild(fbCell);
@@ -249,6 +542,7 @@
             apps = [];
         }
         window.__TA_APPS__ = apps;
+        try { sessionStorage.setItem('ta_apps', JSON.stringify(apps)); } catch (e) {}
 
         var seen = loadSeen();
         var filter = 'ALL';
@@ -265,71 +559,59 @@
             renderRows(apps, filter, loadSeen());
         });
 
-        document.getElementById('ta-feedback-close').addEventListener('click', closeOverlay);
-        document.getElementById('ta-feedback-overlay').addEventListener('click', function (ev) {
-            if (ev.target.id === 'ta-feedback-overlay') closeOverlay();
-        });
+        var closeBtn = document.getElementById('ta-feedback-close');
+        if (closeBtn) closeBtn.addEventListener('click', closeOverlay);
 
-        var replyForm = document.querySelector('.ta-reply-form');
-        if (replyForm) {
-            var replyAction = contextPath() + '/ta/application/reply';
-            replyForm.setAttribute('action', replyAction);
-
-            replyForm.addEventListener('submit', function (ev) {
-                ev.preventDefault();
-                var appIdInput = document.getElementById('ta-dialog-app-id');
-                var replyInput = document.getElementById('ta-dialog-reply');
-                var message = (replyInput.value || '').trim();
-                var applicationId = (appIdInput.value || '').trim();
-
-                if (!message || !applicationId) return;
-
-                var formData = new URLSearchParams();
-                formData.append('applicationId', applicationId);
-                formData.append('message', message);
-
-                var submitBtn = replyForm.querySelector('button[type="submit"]');
-                if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending...'; }
-
-                fetch(replyAction, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: formData.toString()
-                }).then(function (resp) {
-                    if (!resp.ok) throw new Error('Failed');
-                    return resp.json();
-                }).then(function () {
-                    // Append the message to the chat thread
-                    var chat = document.getElementById('ta-dialog-chat-thread');
-                    addChatBubble(chat, 'You (follow-up)', message, 'ta');
-                    chat.scrollTop = chat.scrollHeight;
-
-                    // Update the in-memory app data so subsequent opens reflect it
-                    var allApps = window.__TA_APPS__ || [];
-                    for (var i = 0; i < allApps.length; i++) {
-                        if (allApps[i].applicationId === applicationId) {
-                            var now = new Date();
-                            var ts = now.getFullYear() + '-' +
-                                String(now.getMonth() + 1).padStart(2, '0') + '-' +
-                                String(now.getDate()).padStart(2, '0') + ' ' +
-                                String(now.getHours()).padStart(2, '0') + ':' +
-                                String(now.getMinutes()).padStart(2, '0');
-                            var line = '\n[' + ts + ' TA]: ' + message;
-                            allApps[i].statement = (allApps[i].statement || '') + line;
-                            break;
-                        }
+        var convSearch = document.getElementById('ta-conv-search');
+        if (convSearch) {
+            convSearch.addEventListener('input', function () {
+                var term = convSearch.value.trim().toLowerCase();
+                Array.prototype.forEach.call(
+                    document.querySelectorAll('#ta-dialog-thread-list .mo-thread'),
+                    function (btn) {
+                        var match = !term || (btn.getAttribute('data-search') || '').indexOf(term) >= 0;
+                        btn.style.display = match ? 'grid' : 'none';
                     }
-
-                    replyInput.value = '';
-                }).catch(function () {
-                    alert('Failed to send reply. Please try again.');
-                }).finally(function () {
-                    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Send reply'; }
-                });
+                );
             });
+        }
+
+        updateUnreadCount();
+
+        var feedbackModalClose = document.getElementById('ta-feedback-modal-close');
+        if (feedbackModalClose) {
+            feedbackModalClose.addEventListener('click', closeFeedbackModal);
+        }
+        var feedbackModal = document.getElementById('ta-feedback-modal');
+        if (feedbackModal) {
+            feedbackModal.addEventListener('click', function (ev) {
+                if (ev.target.id === 'ta-feedback-modal') closeFeedbackModal();
+            });
+        }
+
+        var convNavBtn = document.getElementById('ta-conv-nav-btn');
+        if (convNavBtn) {
+            convNavBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                var activeApp = window.__TA_ACTIVE_APP__;
+                if (!activeApp && apps.length > 0) {
+                    activeApp = apps[0];
+                }
+                if (activeApp) {
+                    openOverlay(activeApp);
+                }
+            });
+        }
+
+        // Auto-open conversation when redirected from another page with ?conv=1
+        if (window.location.search.indexOf('conv=1') >= 0) {
+            var autoApp = window.__TA_ACTIVE_APP__ || (apps.length > 0 ? apps[0] : null);
+            if (autoApp) {
+                openOverlay(autoApp);
+            }
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, '', window.location.pathname);
+            }
         }
 
         // Profile form validation

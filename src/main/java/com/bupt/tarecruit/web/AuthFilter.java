@@ -14,6 +14,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+/**
+ * Central servlet filter for authentication and role-based access control.
+ * Public endpoints such as login, registration, and static assets bypass the
+ * filter; protected paths must match the role stored in the current session.
+ */
 @WebFilter("/*")
 public class AuthFilter implements Filter {
 
@@ -21,6 +26,10 @@ public class AuthFilter implements Filter {
     public void init(FilterConfig filterConfig) {
     }
 
+    /**
+     * Blocks unauthenticated or unauthorised requests before they reach the
+     * target servlet and returns either redirects or JSON errors as needed.
+     */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
         throws IOException, ServletException {
@@ -46,11 +55,19 @@ public class AuthFilter implements Filter {
         String userAccount = session == null ? null : trimToNull(session.getAttribute("userAccount"));
         if (actualRole == null || userAccount == null) {
             invalidateSession(session);
+            if (isAjaxRequest(httpRequest)) {
+                sendJson(httpResponse, HttpServletResponse.SC_UNAUTHORIZED, "{\"error\":\"Login required\"}");
+                return;
+            }
             httpResponse.sendRedirect(contextPath + "/login");
             return;
         }
 
         if (!requiredRole.equals(actualRole)) {
+            if (isAjaxRequest(httpRequest)) {
+                sendJson(httpResponse, HttpServletResponse.SC_FORBIDDEN, "{\"error\":\"Access denied\"}");
+                return;
+            }
             httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN,
                     "Access denied: " + requiredRole + " role required.");
             return;
@@ -63,6 +80,9 @@ public class AuthFilter implements Filter {
     public void destroy() {
     }
 
+    /**
+     * Identifies URLs that should stay reachable before login.
+     */
     private boolean isPublicPath(String path) {
         return "/".equals(path)
             || "/index.jsp".equals(path)
@@ -78,6 +98,9 @@ public class AuthFilter implements Filter {
             || path.startsWith("/assets/");
     }
 
+    /**
+     * Maps a request path to the role required to access it.
+     */
     private String getRequiredRole(String path) {
         if (path.startsWith("/ta/") || path.startsWith("/jsp/ta/")) {
             return "TA";
@@ -118,5 +141,20 @@ public class AuthFilter implements Filter {
             session.invalidate();
         } catch (IllegalStateException ignored) {
         }
+    }
+
+    private boolean isAjaxRequest(HttpServletRequest request) {
+        String requestedWith = request.getHeader("X-Requested-With");
+        String accept = request.getHeader("Accept");
+        return "XMLHttpRequest".equals(requestedWith)
+            || (accept != null && accept.toLowerCase().contains("application/json"));
+    }
+
+    private void sendJson(HttpServletResponse response, int status, String json) throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Cache-Control", "no-store");
+        response.getWriter().write(json);
     }
 }

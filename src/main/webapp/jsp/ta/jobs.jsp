@@ -1,9 +1,9 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>TA · Job overview</title>
+    <title>TA 路 Job overview</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css" />
 </head>
 <body class="ad-page ta-page">
@@ -14,6 +14,10 @@
     if (applyError != null) session.removeAttribute("applyError");
     String studentId = (String) request.getAttribute("studentId");
     if (studentId == null) studentId = "";
+    Integer unreadCount = (Integer) request.getAttribute("unreadCount");
+    if (unreadCount == null) unreadCount = 0;
+    Integer conversationUnreadCount = (Integer) request.getAttribute("conversationUnreadCount");
+    if (conversationUnreadCount == null) conversationUnreadCount = 0;
 %>
 <div class="ad-shell ta-shell">
     <header class="ad-topbar">
@@ -51,6 +55,10 @@
                 <a class="nav-item" href="${pageContext.request.contextPath}/ta/notifications">
                     <span class="nav-icon">NT</span>
                     <span><strong>Notifications</strong><small>Status updates</small></span>
+                </a>
+                <a class="nav-item" href="${pageContext.request.contextPath}/ta/conversations">
+                    <span class="nav-icon">CO</span>
+                    <span><strong>Conversation</strong><small>Messages from MO</small></span>
                 </a>
             </section>
 
@@ -148,6 +156,7 @@
 </div>
 
 <script type="application/json" id="ta-jobs-json"><%= request.getAttribute("jobListJson") != null ? request.getAttribute("jobListJson") : "[]" %></script>
+<script type="application/json" id="ta-applied-ids-json"><%= request.getAttribute("appliedJobIdsJson") != null ? request.getAttribute("appliedJobIdsJson") : "[]" %></script>
 <script>
     window.TA_CONTEXT = "${pageContext.request.contextPath}";
 </script>

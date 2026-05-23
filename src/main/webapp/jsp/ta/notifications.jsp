@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     String studentId = (String) request.getAttribute("studentId");
     if (studentId == null) studentId = "";
@@ -9,7 +9,7 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>TA · Notifications</title>
+    <title>TA 路 Notifications</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css" />
 </head>
 <body class="ad-page ta-page">
@@ -50,6 +50,10 @@
                     <span class="nav-icon">NT</span>
                     <span><strong>Notifications</strong><small>Status updates</small></span>
                 </span>
+                <a class="nav-item" href="${pageContext.request.contextPath}/ta/conversations">
+                    <span class="nav-icon">CO</span>
+                    <span><strong>Conversation</strong><small><% Integer __cc = (Integer) request.getAttribute("conversationUnreadCount"); if (__cc == null) __cc = 0; %><%= __cc > 0 ? __cc + " new" : "Messages from MO" %></small></span>
+                </a>
             </section>
         </aside>
 
@@ -77,6 +81,6 @@
 
 <script type="application/json" id="ta-notifications-json"><%= request.getAttribute("notificationsJson") != null ? request.getAttribute("notificationsJson") : "[]" %></script>
 <script>window.TA_CONTEXT = "${pageContext.request.contextPath}";</script>
-<script src="${pageContext.request.contextPath}/js/ta-notifications.js"></script>
+<script src="${pageContext.request.contextPath}/js/ta-notifications.js?v=20260522a"></script>
 </body>
 </html>

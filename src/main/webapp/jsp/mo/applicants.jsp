@@ -1,18 +1,31 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.bupt.tarecruit.model.Application" %>
+<%@ page import="com.bupt.tarecruit.model.ApplicationView" %>
+<%@ page import="com.bupt.tarecruit.service.ApplicationService" %>
+<%@ page import="com.bupt.tarecruit.service.MOConversationService" %>
 <%
     // ===================== 修复：强制从 request 获取 jobId =====================
     String userId   = (String) request.getAttribute("userId");
     String userName = (String) request.getAttribute("userName");
     String jobId    = (String) request.getAttribute("jobId");
     
-    // 空值保护
+    // 空值保�?
     if (userId == null) userId = "";
     if (userName == null) userName = "Module Organiser";
-    if (jobId == null) jobId = "Unknown Job"; // 修复点
+    if (jobId == null) jobId = "Unknown Job"; // 修复�?
 
     String avatarText = userName.length() >= 2 ? userName.substring(0, 2).toUpperCase() : "MO";
+    int conversationUnreadCount = 0;
+    int pendingCount = 0;
+    try {
+        if (userId != null && !userId.trim().isEmpty()) {
+            conversationUnreadCount = new MOConversationService().countUnreadThreads(userId);
+            for (ApplicationView a : new ApplicationService().getApplicationsForMO(userId)) {
+                if ("PENDING".equalsIgnoreCase(a.getStatus())) pendingCount++;
+            }
+        }
+    } catch (Exception ignored) { }
     
     List<Application> applicantList = (List<Application>) request.getAttribute("applicantList");
     int totalCount = applicantList == null ? 0 : applicantList.size();
@@ -78,7 +91,11 @@
                 </a>
                 <a class="nav-item" href="${pageContext.request.contextPath}/mo/applications">
                     <span class="nav-icon">AP</span>
-                    <span><strong>Applications</strong><small>All applications</small></span>
+                    <span><strong>Applications</strong><small><%= pendingCount > 0 ? pendingCount + " pending" : "All applications" %></small></span>
+                </a>
+                <a class="nav-item" id="mo-conv-nav-btn" href="${pageContext.request.contextPath}/mo/conversations">
+                    <span class="nav-icon">CN</span>
+                    <span><strong>Conversation</strong><small><%= conversationUnreadCount > 0 ? conversationUnreadCount + " new" : "TA messages" %></small></span>
                 </a>
             </section>
         </aside>
@@ -86,7 +103,7 @@
         <main class="ad-main">
             <section class="page-head">
                 <div>
-                    <!-- 修复：正常显示 jobId -->
+                    <!-- 修复：正常显�?jobId -->
                     <h1 style="font-size:38px;">Applicants | Job: <%= jobId %></h1>
                     <p>View all students who applied for this position</p>
                 </div>
@@ -126,7 +143,7 @@
     <td><span class="badge <%= badgeClass %>"><%= status %></span></td>
     <td><%= app.getAppliedAt() %></td>
     <td><%= cv %></td>
-    <!-- ✅ 独立 Details 按钮 -->
+    <!-- �?独立 Details 按钮 -->
     <td>
         <a href="<%= request.getContextPath() %>/mo/view/application?applicationId=<%= app.getApplicationId() %>" class="chip-button">Details</a>
     </td>
@@ -147,5 +164,8 @@
         </main>
     </div>
 </div>
+<script>
+window.MO_CONTEXT = '${pageContext.request.contextPath}';
+</script>
 </body>
 </html>

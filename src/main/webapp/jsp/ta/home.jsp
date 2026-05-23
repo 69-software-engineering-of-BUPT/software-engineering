@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.bupt.tarecruit.model.User" %>
 <%
     User currentUser = (User) request.getAttribute("currentUser");
@@ -12,7 +12,7 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>TA · Personal home</title>
+    <title>TA 路 Personal home</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css" />
 </head>
 <body class="ad-page ta-page">
@@ -69,10 +69,18 @@
                         <small><%= unreadCount %> unread</small>
                     </span>
                 </a>
+                <a class="nav-item" href="${pageContext.request.contextPath}/ta/conversations">
+                    <span class="nav-icon">CO</span>
+                    <span>
+                        <strong>Conversation</strong>
+                        <small><% Integer __cc = (Integer) request.getAttribute("conversationUnreadCount"); if (__cc == null) __cc = 0; %><%= __cc > 0 ? __cc + " new" : "Messages from MO" %></small>
+                    </span>
+                </a>
             </section>
         </aside>
 
         <main class="ad-main ta-main">
+            <div id="ta-main-content">
             <% if (profileErr != null) { %>
             <section class="list-card ta-flash ta-flash--warn" style="margin-bottom: 14px;">
                 <p style="margin:0; color:#6b5346;"><strong>Profile not saved:</strong> <%= profileErr %></p>
@@ -157,33 +165,40 @@
                 <div id="ta-app-rows"></div>
                 <p id="ta-app-empty" class="ta-empty-hint" hidden>No applications yet.</p>
             </section>
+            </div><!-- #ta-main-content -->
+            <div id="ta-feedback-overlay" class="conv-inline-panel">
+                <div class="ta-conv-topbar">
+                    <h2 id="ta-feedback-title">Conversation</h2>
+                    <button type="button" class="chip-button" id="ta-feedback-close">&#8592; Back</button>
+                </div>
+                <div class="mo-chat-shell">
+                    <div class="mo-chat-list">
+                        <div class="mo-chat-list-head">
+                            <input class="mo-chat-search" id="ta-conv-search" type="search" placeholder="Search" autocomplete="off" />
+                            <span class="mo-chat-count" id="ta-conv-unread-count" style="display:none;"></span>
+                        </div>
+                        <div class="mo-chat-thread-list" id="ta-dialog-thread-list"></div>
+                    </div>
+                    <div class="mo-chat-panel" id="ta-dialog-chat-panel">
+                        <div class="chat-empty" id="ta-dialog-chat-empty">Select an application to view the conversation.</div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 </div>
 
 <script type="application/json" id="ta-applications-json"><%= request.getAttribute("applicationListJson") != null ? request.getAttribute("applicationListJson") : "[]" %></script>
 <script>window.TA_CONTEXT = "${pageContext.request.contextPath}";</script>
-<script src="${pageContext.request.contextPath}/js/ta-home.js?v=20260409b"></script>
+<script src="${pageContext.request.contextPath}/js/ta-home.js?v=20260524"></script>
 
-<div id="ta-feedback-overlay" class="ta-feedback-overlay" aria-hidden="true">
-    <div class="ta-feedback-panel list-card" role="dialog" aria-modal="true" aria-labelledby="ta-feedback-title">
+<div id="ta-feedback-modal" class="ta-feedback-overlay" aria-hidden="true">
+    <div class="ta-feedback-panel list-card" role="dialog" aria-modal="true" style="max-width:480px;">
         <div class="ta-feedback-head">
-            <h2 id="ta-feedback-title">Application conversation</h2>
-            <button type="button" class="chip-button" id="ta-feedback-close">Close</button>
+            <h2>Feedback</h2>
+            <button type="button" class="chip-button" id="ta-feedback-modal-close">Close</button>
         </div>
-        <p class="ta-feedback-meta" id="ta-feedback-meta"></p>
-        <div class="ta-chat-thread" id="ta-dialog-chat-thread"></div>
-
-        <form class="ta-reply-form" method="post" action="${pageContext.request.contextPath}/ta/application/reply">
-            <input type="hidden" name="applicationId" id="ta-dialog-app-id" value="" />
-            <label class="filter-field">
-                <small>REPLY TO INSTRUCTOR (optional, max 500 chars)</small>
-                <textarea name="message" id="ta-dialog-reply" rows="4" maxlength="500" placeholder="Type your message to the module organiser..."></textarea>
-            </label>
-            <div class="ta-profile-actions">
-                <button type="submit" class="chip-button active">Send reply</button>
-            </div>
-        </form>
+        <div id="ta-feedback-modal-body" style="padding:12px 0 4px; white-space:pre-wrap; line-height:1.6; color:#3d4148; font-size:14px;"></div>
     </div>
 </div>
 </body>
