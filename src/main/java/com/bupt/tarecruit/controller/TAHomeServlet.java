@@ -9,12 +9,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
 import com.bupt.tarecruit.model.ApplicationView;
 import com.bupt.tarecruit.model.User;
 import com.bupt.tarecruit.repository.UserRepository;
 import com.bupt.tarecruit.service.ApplicationService;
 import com.bupt.tarecruit.service.NotificationService;
+import com.bupt.tarecruit.service.TAConversationReadService;
+import com.google.gson.Gson;
 
 /**
  * TA personal home: profile + application history (prototype: session attribute {@code userAccount}).
@@ -24,6 +25,7 @@ public class TAHomeServlet extends HttpServlet {
     private final UserRepository userRepo = new UserRepository();
     private final ApplicationService applicationService = new ApplicationService();
     private final NotificationService notificationService = new NotificationService();
+    private final TAConversationReadService conversationReadService = new TAConversationReadService();
     private final Gson gson = new Gson();
 
     @Override
@@ -47,9 +49,12 @@ public class TAHomeServlet extends HttpServlet {
             User currentUser = userRepo.getUserById(studentId);
             List<ApplicationView> applications = applicationService.getTAApplicationList(studentId);
             int unreadCount = notificationService.getUnreadCount(studentId);
+            int conversationUnreadCount = 0;
+            try { conversationUnreadCount = conversationReadService.countUnreadThreads(studentId); } catch (Exception ignored) { }
             req.setAttribute("studentId", studentId);
             req.setAttribute("currentUser", currentUser);
             req.setAttribute("unreadCount", unreadCount);
+            req.setAttribute("conversationUnreadCount", conversationUnreadCount);
             req.setAttribute("applicationList", applications);
             req.setAttribute("applicationListJson", gson.toJson(applications));
             req.getRequestDispatcher("/jsp/ta/home.jsp").forward(req, resp);

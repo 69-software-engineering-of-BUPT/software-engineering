@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.bupt.tarecruit.model.Application" %>
+<%@ page import="com.bupt.tarecruit.model.ApplicationView" %>
+<%@ page import="com.bupt.tarecruit.service.ApplicationService" %>
 <%@ page import="com.bupt.tarecruit.service.MOConversationService" %>
 <%
     String userId   = (String) request.getAttribute("userId");
@@ -9,9 +11,13 @@
     if (userName == null) userName = "Module Organiser";
     String avatarText = userName.length() >= 2 ? userName.substring(0, 2).toUpperCase() : "MO";
     int conversationUnreadCount = 0;
+    int pendingCount = 0;
     try {
         if (userId != null && !userId.trim().isEmpty()) {
             conversationUnreadCount = new MOConversationService().countUnreadThreads(userId);
+            for (ApplicationView a : new ApplicationService().getApplicationsForMO(userId)) {
+                if ("PENDING".equalsIgnoreCase(a.getStatus())) pendingCount++;
+            }
         }
     } catch (Exception ignored) { }
 
@@ -77,10 +83,10 @@
                     <span class="nav-icon">PU</span>
                     <span><strong>Publish</strong><small>Post position</small></span>
                 </a>
-                <!-- ✅ Applications 高亮（与Positions并列） -->
+                <!-- �?Applications 高亮（与Positions并列�?-->
                 <a class="nav-item active" href="${pageContext.request.contextPath}/mo/applications">
                     <span class="nav-icon">AP</span>
-                    <span><strong>Applications</strong><small>All applications</small></span>
+                    <span><strong>Applications</strong><small><%= pendingCount > 0 ? pendingCount + " pending" : "All applications" %></small></span>
                 </a>
                 <a class="nav-item" id="mo-conv-nav-btn" href="${pageContext.request.contextPath}/mo/conversations">
                     <span class="nav-icon">CN</span>
@@ -133,7 +139,7 @@
     <td><span class="badge <%= badgeClass %>"><%= status %></span></td>
     <td><%= app.getAppliedAt() %></td>
     <td><%= cv %></td>
-    <!-- ✅ 独立 Details 按钮 -->
+    <!-- �?独立 Details 按钮 -->
     <td>
         <a href="<%= request.getContextPath() %>/mo/view/application?applicationId=<%= app.getApplicationId() %>" class="chip-button">Details</a>
     </td>
@@ -157,6 +163,5 @@
 <script>
 window.MO_CONTEXT = '${pageContext.request.contextPath}';
 </script>
-<script src="${pageContext.request.contextPath}/js/mo-conv-widget.js?v=20260523b"></script>
 </body>
 </html>
