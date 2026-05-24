@@ -47,10 +47,33 @@ public class NotificationServiceTest {
 
     @Test
     public void getUnreadCountReturnsZeroForTA001WhenAllNotificationsAreRead() throws Exception {
-        // Seed data: both NOTI0001 and NOTI0002 for TA001 have isRead = true
-        int unread = notificationService.getUnreadCount("TA001");
+        Notification first = new Notification();
+        first.setNotificationId("TESTREAD01");
+        first.setTaId("TA_TEST_READ_COUNT");
+        first.setType("STATUS_UPDATE");
+        first.setContent("Read notification A");
+        first.setCreatedAt("2026-01-01 00:00:01");
+        first.setRead(true);
 
-        assertEquals(0, unread);
+        Notification second = new Notification();
+        second.setNotificationId("TESTREAD02");
+        second.setTaId("TA_TEST_READ_COUNT");
+        second.setType("FEEDBACK");
+        second.setContent("Read notification B");
+        second.setCreatedAt("2026-01-01 00:00:02");
+        second.setRead(true);
+
+        notifRepo.saveNotification(first);
+        notifRepo.saveNotification(second);
+
+        try {
+            int unread = notificationService.getUnreadCount("TA_TEST_READ_COUNT");
+
+            assertEquals(0, unread);
+        } finally {
+            new java.io.File("data/notifications/NOTI_TESTREAD01.json").delete();
+            new java.io.File("data/notifications/NOTI_TESTREAD02.json").delete();
+        }
     }
 
     @Test

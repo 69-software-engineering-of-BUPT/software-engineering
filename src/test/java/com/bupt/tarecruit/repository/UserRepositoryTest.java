@@ -33,11 +33,21 @@ public class UserRepositoryTest {
 
     @Test
     public void getUserByIdReadsTaWorkloadField() throws IOException {
-        User ta = userRepository.getUserById("TA001");
+        User user = new User();
+        user.setUserId("TA_TEST_WORKLOAD");
+        user.setRole("TA");
+        user.setActiveJobsCount(2);
 
-        assertNotNull(ta);
-        assertEquals("TA", ta.getRole());
-        assertEquals(1, ta.getActiveJobsCount());
+        try {
+            userRepository.saveUser(user);
+
+            User ta = userRepository.getUserById("TA_TEST_WORKLOAD");
+            assertNotNull(ta);
+            assertEquals("TA", ta.getRole());
+            assertEquals(2, ta.getActiveJobsCount());
+        } finally {
+            userRepository.deleteUser("TA_TEST_WORKLOAD");
+        }
     }
 
     // ------------------------------------------------------------------ //
